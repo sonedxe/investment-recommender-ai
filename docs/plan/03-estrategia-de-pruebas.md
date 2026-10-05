@@ -16,12 +16,12 @@ Se aplica TDD donde existe un resultado esperado claro: escribir primero el test
 
 | Módulo | Caso | Esperado | Fuente |
 |---|---|---|---|
-| Mamdani | Propina, servicio 3, comida 8 | P\* = 15.9 % (± 0.1) | Clase de lógica difusa |
+| Mamdani | Propina, servicio 3, comida 8 | P\* = 16.009 % (la clase reporta 15.9 %: su fórmula por tramos no recorta R1 en 2/3 entre P = 10 y 11.67; el valor exacto es 16.009) | Clase de lógica difusa |
 | Membresía | `Trap(0,0,2,5)` en x = 3 | 0.667 | Clase |
 | Membresía | `Tri(2,5,8)` en x = 3 | 0.333 | Clase |
 | Horizonte | H = 2.5 | μ = (0.25, 0.167, 0), m_H ≈ 1.30 | Informe v1.1 §4.5.1 |
 | Horizonte | Etiqueta "largo" | μ_Largo = 1, m_H = 0.7 | Informe v1.1 §4.5.1 |
-| Absorción | r = 0.25, E = 3 | Pertenencias r = (0.75, 0.167, 0), E = (0.333, 0.25) | Informe v1.1 §4.5.2 |
+| Absorción | r = 0.25, E = 3 | Pertenencias r = (0.75, 0.167, 0), E = (0.333, 0.25); centroide Mamdani 0.5345 (Sugeno v1.1: 0.54) | Informe v1.1 §4.5.2 |
 | Contexto | s_pol = −1, s_mac = 0, s_tend = 0 | Tabla 4.6.4 (p. ej. acciones μ' = 9.7 %, σ' = 28.5 %) | Informe v1.1 §4.6.4 |
 | Fitness base | E = 6 %, σ = 10 %, λ = 2 | −0.14 | Informe (en decimales) |
 

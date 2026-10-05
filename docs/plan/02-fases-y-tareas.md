@@ -19,7 +19,7 @@ Cada tarea tiene un ID estable para referenciarla en commits y PRs (p. ej. `feat
 |---|---|---|---|
 | T1.1 | Funciones `tri(a,b,c)` y `trap(a,b,c,d)` vectorizadas | Casos borde (hombros, picos, fuera de soporte) cubiertos | T0.5 |
 | T1.2 | Motor Sugeno de orden cero | Promedio ponderado; activación cero en todas las reglas manejada | T1.1 |
-| T1.3 | Motor Mamdani: implicación min, agregación max, centroide numérico | **Ejercicio de la propina** (servicio 3, comida 8) → 15.9 % ± 0.1 | T1.1 |
+| T1.3 | Motor Mamdani: implicación min, agregación max, centroide numérico | **Ejercicio de la propina** (servicio 3, comida 8) → 16.009 % (la diapositiva da 15.9 % por un recorte omitido; ver análisis 03) | T1.1 |
 | T1.4 | Horizonte (RH1–RH3) → `m_H`, `λ_ef`; acepta años o etiqueta | H = 2.5 → m_H ≈ 1.30; con λ_base = 2 → λ_ef ≈ 2.6 | T1.2 |
 | T1.5 | Absorción (RA1–RA6) en Mamdani → `μ_CA` (malla) + centroide | r se recorta a [0, 1] y E a [0, 12]; si falta ahorro o cobertura se usa "Media" y se registra el supuesto | T1.3 |
 

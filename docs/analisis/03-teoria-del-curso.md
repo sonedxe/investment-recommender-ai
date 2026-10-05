@@ -15,6 +15,7 @@ Fuentes: `docs/clases/`.
 - FIS en 5 pasos: (1) fuzzificar, (2) operador difuso (AND = min, OR = max), (3) implicación (Mamdani: recorte por mínimo), (4) agregación (máximo), (5) desfuzzificación (centroide `x* = ∫x·μ(x)dx / ∫μ(x)dx`; alternativa: centros promediados).
 - **Mamdani** ("el más comúnmente utilizado", salidas como conjuntos difusos) frente a **Sugeno** (salidas lineales o constantes; `y = Σwᵢyᵢ / Σwᵢ`).
 - Ejercicio resuelto a mano (propina): servicio = 3, comida = 8 → Mamdani completo con integrales por tramos → **P\* = 15.9 %**.
+  - ⚠️ **Verificado:** la función agregada de la diapositiva usa `(15 − P)/5` en todo el tramo 10 < P < 13.333 sin recortarla en α₁ = 2/3; entre P = 10 y 11.67 esa expresión supera 2/3. Con el recorte correcto, el área es 245/18 (no 125/9) y el centroide exacto es **16.009 %**. Nuestro motor Mamdani da 16.009; conviene mencionarlo con tacto en la exposición como prueba de que el motor se validó a mano.
 
 ### Implicaciones
 
@@ -23,7 +24,7 @@ Fuentes: `docs/clases/`.
 | Justificar el módulo de incertidumbre | Bayes + difuso sin distinguir roles | Usar la distinción del docente: **Bayes** trata la incertidumbre/probabilidad de los retornos; **lógica difusa** trata la ambigüedad del lenguaje del usuario ("unos años", "no quiero perder mucho"). |
 | Tipo de FIS | Sugeno-0 en ambos | **Mamdani** en al menos uno para evidenciar los 5 pasos enseñados; Sugeno en el otro demuestra dominio de ambos tipos. |
 | Notación | Funciones a tramos | Notación del docente (tabla siguiente). |
-| Validación | — | Usar el ejercicio de la propina como test de referencia del motor Mamdani. |
+| Validación | — | Usar el ejercicio de la propina como test de referencia del motor Mamdani (valor exacto 16.009 %). |
 
 ### Conjuntos de la v1.1 en notación del docente
 
