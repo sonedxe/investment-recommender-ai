@@ -98,7 +98,7 @@ LLM_JSON = {
 def test_llm_extraction_is_used_at_temperature_zero() -> None:
     llm = FakeLLM(LLM_JSON)
     result = interpret([user(COMPLETE)], llm=llm)
-    assert result.source == "llm" and result.prompt_version == "interpret.v1"
+    assert result.source == "llm" and result.prompt_version == "interpret.v2"
     assert result.complete and result.profile.lambda_base == 2.0
     assert llm.calls[0]["temperature"] == 0
 

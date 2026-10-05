@@ -1,6 +1,6 @@
 # Golden set de interpretación — proveedor `offline`
 
-Casos: 20 · Generado por `scripts/eval_golden_set.py`.
+Casos: 23 · Generado por `scripts/eval_golden_set.py`.
 
 | Métrica | Valor |
 |---|---|
@@ -9,7 +9,7 @@ Casos: 20 · Generado por `scripts/eval_golden_set.py`.
 | Campo preguntado correcto | 100.0 % |
 | Ambiguos/contradictorios con pregunta (objetivo 100 %) | 100.0 % |
 | JSON válido (solo LLM) | n/a |
-| Latencia media / máxima | 1.0 ms / 2.3 ms |
+| Latencia media / máxima | 0.8 ms / 2.2 ms |
 
 ## Exactitud por campo
 
@@ -47,3 +47,6 @@ Casos: 20 · Generado por `scripts/eval_golden_set.py`.
 | multi-turno-horizonte | — | ok | ahorro_total (ok) | offline |
 | multi-turno-completo | — | ok | — (ok) | offline |
 | multi-turno-resuelve-contradiccion | — | ok | ahorro_total (ok) | offline |
+| horizonte-vago-en-unos-anos | — | ok | horizonte (ok) | offline |
+| horizonte-vago-mas-adelante | — | ok | horizonte (ok) | offline |
+| horizonte-etiqueta-jubilacion | — | ok | ahorro_total (ok) | offline |

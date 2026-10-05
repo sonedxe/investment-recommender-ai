@@ -36,6 +36,9 @@ from ai.generative.schema import (
 from ai.shared.parameters import Parameters, load_parameters
 from ai.shared.types import HorizonLabel, RiskProfile
 
+# v2 (W17): vague horizons ("en unos años") stay null so the system asks instead of assuming a long horizon.
+INTERPRET_PROMPT_VERSION = 2
+
 logger = logging.getLogger(__name__)
 
 INTERPRET_TEMPERATURE, INTERPRET_MAX_TOKENS = 0.0, 500
@@ -155,7 +158,7 @@ def _llm_messages(conversation: Sequence[Mapping[str, Any]]) -> list[dict[str, s
 
 def _llm_extraction(conversation: Sequence[Mapping[str, Any]], llm: LanguageModel) -> tuple[Extraction | None, list[str]]:
     """Two attempts (one retry on invalid output); ``None`` means fall back to offline."""
-    prompt = load_prompt("interpret")
+    prompt = load_prompt("interpret", INTERPRET_PROMPT_VERSION)
     errors: list[str] = []
     for _ in range(2):
         try:
@@ -207,7 +210,7 @@ def interpret(
     if llm is not None:
         extraction, errors = _llm_extraction(conversation, llm)
         if extraction is not None:
-            source, version = "llm", load_prompt("interpret").version
+            source, version = "llm", load_prompt("interpret", INTERPRET_PROMPT_VERSION).version
     if extraction is None:
         extraction = _offline_extraction(conversation)
 
