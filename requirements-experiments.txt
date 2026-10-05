@@ -1,0 +1,2 @@
+# Optional tooling for experiments/ablation.py figures (not an app dependency)
+matplotlib>=3.9,<4
