@@ -1,15 +1,15 @@
-"""Módulo de algoritmos heurísticos (en desarrollo).
+"""Heuristic optimization module.
 
-Aquí se implementarán los algoritmos heurísticos para búsqueda/optimización
-(por ejemplo: algoritmo genético, simulated annealing o A*) que resolverán
-el problema de optimización de cartera del sistema.
+Implements the genetic algorithm that searches the extended chromosome
+``[w1..w5 | c]``: five portfolio weights (sum 1, capped per category) plus the
+fuzzy absorption gene ``c``, evaluated with the extended fitness function.
 """
 
 
 def ping() -> dict:
-    """Verifica que el módulo responde (usado por la prueba de conectividad)."""
+    """Check that the module responds (used by the connectivity test)."""
     return {
         "module": "heuristic",
         "status": "ok",
-        "planned": ["genetic_algorithm", "simulated_annealing"],
+        "planned": ["genetic_algorithm"],
     }

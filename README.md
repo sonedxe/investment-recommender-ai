@@ -4,7 +4,7 @@ Software inteligente para el curso de **Software Inteligente**: un recomendador
 de inversiones que integra tres componentes:
 
 1. **IA generativa** (`ai/generative`) — se conecta a una API de LLM para
-   interpretar solicitudes, generar el universo de inversión y explicar resultados.
+   interpretar la solicitud del usuario y explicar los resultados (las 5 categorías de inversión son fijas).
 2. **Algoritmos heurísticos** (`ai/heuristic`) — optimización/selección de cartera.
 3. **Razonamiento bajo incertidumbre** (`ai/uncertainty`) — lógica difusa,
    razonamiento probabilístico / métodos bayesianos.

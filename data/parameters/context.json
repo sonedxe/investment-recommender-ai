@@ -1,0 +1,13 @@
+{
+  "source": "Annex C of technical report v1.1",
+  "units": "b, beta_pol, beta_mac, beta_tend and c_max are percentage points stored as decimals (0.5 pp = 0.005); gamma values are dimensionless volatility multipliers",
+  "categories": {
+    "stocks": {"b": 0.005, "beta_pol": 0.03, "beta_mac": 0.01, "gamma_pol": 0.5, "gamma_mac": 0.2},
+    "mixed": {"b": 0.003, "beta_pol": 0.015, "beta_mac": 0.008, "gamma_pol": 0.25, "gamma_mac": 0.1},
+    "debt": {"b": 0.0, "beta_pol": 0.005, "beta_mac": 0.005, "gamma_pol": 0.1, "gamma_mac": 0.05},
+    "bonds": {"b": 0.002, "beta_pol": 0.01, "beta_mac": 0.005, "gamma_pol": 0.2, "gamma_mac": 0.1},
+    "term": {"b": -0.003, "beta_pol": 0.0, "beta_mac": 0.003, "gamma_pol": 0.0, "gamma_mac": 0.0}
+  },
+  "beta_tend": 0.015,
+  "c_max": 0.03
+}

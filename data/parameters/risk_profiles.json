@@ -1,0 +1,10 @@
+{
+  "description": "Closed risk-profile scale (decision D5): label -> lambda_base",
+  "lambda_base": {
+    "muy_agresivo": 0.2,
+    "agresivo": 0.5,
+    "moderado": 1.0,
+    "conservador": 2.0,
+    "muy_conservador": 3.0
+  }
+}

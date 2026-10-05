@@ -1,0 +1,14 @@
+{
+  "description": "Genetic algorithm and extended fitness parameters",
+  "phi": 50,
+  "kappa": 0.03,
+  "max_weight": 0.40,
+  "population_size": 80,
+  "max_generations": 200,
+  "patience": 25,
+  "tournament_size": 3,
+  "crossover_rate": 0.9,
+  "mutation_rate": 0.1,
+  "mutation_sigma": 0.05,
+  "elitism": 1
+}

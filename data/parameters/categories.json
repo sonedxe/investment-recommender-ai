@@ -1,0 +1,22 @@
+{
+  "source": "Annex A of technical report v1.1 (midpoints of the reported ranges)",
+  "units": "Annual rates as decimals (0.122 = 12.2 %)",
+  "order": ["stocks", "mixed", "debt", "bonds", "term"],
+  "categories": {
+    "stocks": {"name": "Fondos de acciones", "kind": "equity_fund", "mu": 0.122, "sigma": 0.19},
+    "mixed": {"name": "Fondos mixtos", "kind": "mixed_fund", "mu": 0.061, "sigma": 0.09},
+    "debt": {"name": "Fondos de deuda", "kind": "debt_fund", "mu": 0.024, "sigma": 0.025},
+    "bonds": {"name": "Bonos soberanos (BTP)", "kind": "sovereign_bond", "mu": 0.065, "sigma": 0.035},
+    "term": {"name": "Depósito a plazo fijo", "kind": "term_deposit", "mu": 0.045, "sigma": 0.005}
+  },
+  "default_correlation": {
+    "note": "Documented assumption pending real market data: rho = 0.3 between every pair of the four market categories, 0.0 between the term deposit and the rest.",
+    "matrix": [
+      [1.0, 0.3, 0.3, 0.3, 0.0],
+      [0.3, 1.0, 0.3, 0.3, 0.0],
+      [0.3, 0.3, 1.0, 0.3, 0.0],
+      [0.3, 0.3, 0.3, 1.0, 0.0],
+      [0.0, 0.0, 0.0, 0.0, 1.0]
+    ]
+  }
+}
