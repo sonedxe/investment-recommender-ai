@@ -41,6 +41,7 @@ The repository is a skeleton. The v1.1 design misses the professor's feedback (n
 | W11 | Ablation and calibration experiments (F8) | delegated | done | `e63030a` (code+docs, reviewed) + `78f80ed` (generated results); 222 tests; findings: gene trades off only for low absorption & λ ≤ 0.5; cap drives diversification; c stranded 2/60 |
 | W12 | Installation and user manuals, README update (F9) | delegated | done | `bc20e19`; passive docs (structural readback, links OK); 7 screenshots |
 | W13 | Polish from experiments/manual findings: c gene stranding, score note formula, chart label clipping, convergence ticks, % format, stale ping text, restart action, offline number words | delegated | done | `c326733` (regenerated results) + `bb745e1` (reviewed, approved); 247 py + 82 vitest; c stranding 2/60 → 0/600; offline golden set 97.1 % → 100 % |
+| W14 | Real market data for all five categories from BCRP (BVL index, BTP 10y, soles bonds ≤3y, deposit rate; mixed as documented composite) with manifest, descriptive file names, yield→return by duration; rerun experiments and fixtures | delegated | pending | |
 
 ## Acceptance criteria
 
@@ -66,6 +67,8 @@ The repository is a skeleton. The v1.1 design misses the professor's feedback (n
 - W13 added from findings and delegated; parent completed the uncertainty ping key. Commits reordered (results first) so the code range `c326733..bb745e1` fit the reviewer budget; approved. Final boundary → `bb745e1`.
 
 - Post-feature (2026-10-05): live Anthropic key configured (workspace-scoped; an organization-scoped key is rejected by the API). First live run exposed a real bug: Claude keys horizon evidence as `horizonte_anios`, so the interpreter dropped the horizon → fixed `6127c15` with regression test. Found tests were reading the developer `.env` and calling the live API → `tests/conftest.py` pins offline. Live golden set: 98.0 % field accuracy, 100 % valid JSON, 3.1 s mean latency; D4 decided: Anthropic. Assess `89b1b8a..6127c15`: medium, `under_budget` (84 lines) → pending in slice.
+
+- W14 authorized by the user ("necesito datos reales"): BCRP web view is readable through headless chromium (anti-bot passed); series located: PN01142MM, PD31895MM, PN01113MM, PN07814NM. BCRP publishes no mutual-fund returns → mixed fund as composite of real series.
 
 ## Next step
 

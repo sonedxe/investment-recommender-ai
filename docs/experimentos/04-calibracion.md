@@ -10,7 +10,7 @@
 | φ | 10, 50, 200 | Dureza de la penalización por exceder σ_max(c) |
 | Tope | 0.35, 0.40, 0.50 | Peso máximo por categoría (decisión D2) |
 
-- Arquetipos moderado y agresivo, como pide el plan. Se agregó un tercer caso, **estrés de baja absorción** (λ_base 0.5, H = 5 años, ahorro S/ 12,000, 1 mes de emergencia), porque en los dos arquetipos pedidos la penalización nunca se activa (ver [01 · Ablación](01-ablacion.md)) y κ y φ no podrían evaluarse.
+- Arquetipos moderado y agresivo, como pide el plan. Se agregó un tercer caso, **estrés de baja absorción** (λ_base 0.5, H = 5 años, ahorro S/ 12,000, 1 mes de emergencia), porque en los dos arquetipos pedidos la penalización nunca se activa (ver [01 · Ablación](01-ablacion.md)) y κ y φ no podrían evaluarse. Con datos reales (W14) tampoco se activa en este caso (ver abajo).
 - 10 semillas por valor: 270 corridas. Datos: `experiments/results/calibration_runs.csv` y `calibration_summary.csv`.
 
 ## Resultados
@@ -19,27 +19,27 @@ Medias entre semillas; pesos, E y σ en %. "En el tope" es el número medio de c
 
 | Caso | Parámetro | Valor | Acciones | Mixtos | Deuda | Bonos | Plazo fijo | E | σ | HHI | En el tope | c | \|c − centroide\| | μ_CA(c) | Penalización activa |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Moderado | κ | 0.01 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.904 | 0.174 | 0.500 | 0 % |
-| Moderado | κ | 0.03 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.913 | 0.182 | 0.500 | 0 % |
-| Moderado | κ | 0.05 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.920 | 0.189 | 0.500 | 0 % |
-| Moderado | φ | 10 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.913 | 0.182 | 0.500 | 0 % |
-| Moderado | φ | 200 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.913 | 0.182 | 0.500 | 0 % |
-| Moderado | Tope | 0.35 | 2.9 | 6.2 | 20.9 | 35.0 | 35.0 | 5.1 | 2.1 | 0.293 | 2.0 | 0.900 | 0.169 | 0.500 | 0 % |
-| Moderado | Tope | 0.50 | 2.2 | 0.0 | 0.0 | 47.8 | 50.0 | 5.6 | 1.9 | 0.479 | 1.0 | 0.916 | 0.185 | 0.500 | 0 % |
-| Agresivo | κ | 0.01 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.931 | 0.078 | 1.000 | 0 % |
-| Agresivo | κ | 0.03 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.952 | 0.099 | 1.000 | 0 % |
-| Agresivo | κ | 0.05 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.948 | 0.095 | 1.000 | 0 % |
-| Agresivo | φ | 10 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.952 | 0.099 | 1.000 | 0 % |
-| Agresivo | φ | 200 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.952 | 0.099 | 1.000 | 0 % |
-| Agresivo | Tope | 0.35 | 35.0 | 30.0 | 0.0 | 35.0 | 0.0 | 9.5 | 9.4 | 0.335 | 2.0 | 0.932 | 0.079 | 1.000 | 0 % |
-| Agresivo | Tope | 0.50 | 50.0 | 0.0 | 0.0 | 50.0 | 0.0 | 10.8 | 11.6 | 0.500 | 2.0 | 0.943 | 0.089 | 1.000 | 0 % |
-| Estrés | κ | 0.01 | 21.3 | 9.8 | 0.0 | 40.0 | 29.0 | 7.7 | 5.6 | 0.299 | 1.0 | 0.202 | 0.046 | 0.778 | 90 % |
-| Estrés | κ | 0.03 | 21.3 | 9.7 | 0.0 | 40.0 | 29.0 | 7.7 | 5.6 | 0.299 | 1.0 | 0.203 | 0.046 | 0.778 | 70 % |
-| Estrés | κ | 0.05 | 21.2 | 9.7 | 0.0 | 40.0 | 29.1 | 7.7 | 5.6 | 0.299 | 1.0 | 0.202 | 0.046 | 0.778 | 70 % |
-| Estrés | φ | 10 | 21.5 | 10.0 | 0.0 | 40.0 | 28.5 | 7.7 | 5.7 | 0.297 | 1.0 | 0.204 | 0.047 | 0.778 | 100 % |
-| Estrés | φ | 200 | 21.2 | 9.7 | 0.0 | 40.0 | 29.2 | 7.7 | 5.6 | 0.299 | 1.0 | 0.201 | 0.045 | 0.778 | 80 % |
-| Estrés | Tope | 0.35 | 21.5 | 10.4 | 0.0 | 35.0 | 33.1 | 7.6 | 5.6 | 0.289 | 1.0 | 0.202 | 0.045 | 0.778 | 70 % |
-| Estrés | Tope | 0.50 | 20.7 | 8.6 | 0.0 | 50.0 | 20.7 | 7.8 | 5.7 | 0.343 | 1.0 | 0.204 | 0.047 | 0.778 | 90 % |
+| Moderado | κ | 0.01 | 3.0 | 0.0 | 40.0 | 17.0 | 40.0 | 4.9 | 1.6 | 0.350 | 2.0 | 0.895 | 0.165 | 0.500 | 0 % |
+| Moderado | κ | 0.03 | 3.0 | 0.0 | 40.0 | 17.0 | 40.0 | 4.9 | 1.6 | 0.350 | 2.0 | 0.907 | 0.176 | 0.500 | 0 % |
+| Moderado | κ | 0.05 | 3.0 | 0.0 | 40.0 | 17.0 | 40.0 | 4.9 | 1.6 | 0.350 | 2.0 | 0.903 | 0.172 | 0.500 | 0 % |
+| Moderado | φ | 10 | 3.0 | 0.0 | 40.0 | 17.0 | 40.0 | 4.9 | 1.6 | 0.350 | 2.0 | 0.907 | 0.176 | 0.500 | 0 % |
+| Moderado | φ | 200 | 3.0 | 0.0 | 40.0 | 17.0 | 40.0 | 4.9 | 1.6 | 0.350 | 2.0 | 0.907 | 0.176 | 0.500 | 0 % |
+| Moderado | Tope | 0.35 | 4.3 | 0.0 | 35.0 | 25.7 | 35.0 | 5.1 | 2.3 | 0.313 | 2.0 | 0.914 | 0.184 | 0.500 | 0 % |
+| Moderado | Tope | 0.50 | 1.1 | 0.0 | 50.0 | 0.0 | 48.8 | 4.5 | 0.5 | 0.489 | 1.0 | 0.890 | 0.159 | 0.500 | 0 % |
+| Agresivo | κ | 0.01 | 40.0 | 0.0 | 40.0 | 20.0 | 0.0 | 8.7 | 9.2 | 0.360 | 2.0 | 0.953 | 0.100 | 1.000 | 0 % |
+| Agresivo | κ | 0.03 | 40.0 | 0.0 | 40.0 | 20.0 | 0.0 | 8.7 | 9.2 | 0.360 | 2.0 | 0.949 | 0.096 | 1.000 | 0 % |
+| Agresivo | κ | 0.05 | 40.0 | 0.0 | 40.0 | 20.0 | 0.0 | 8.7 | 9.2 | 0.360 | 2.0 | 0.961 | 0.108 | 1.000 | 0 % |
+| Agresivo | φ | 10 | 40.0 | 0.0 | 40.0 | 20.0 | 0.0 | 8.7 | 9.2 | 0.360 | 2.0 | 0.949 | 0.096 | 1.000 | 0 % |
+| Agresivo | φ | 200 | 40.0 | 0.0 | 40.0 | 20.0 | 0.0 | 8.7 | 9.2 | 0.360 | 2.0 | 0.949 | 0.096 | 1.000 | 0 % |
+| Agresivo | Tope | 0.35 | 35.0 | 0.0 | 35.0 | 30.0 | 0.0 | 8.3 | 8.4 | 0.335 | 2.0 | 0.945 | 0.092 | 1.000 | 0 % |
+| Agresivo | Tope | 0.50 | 50.0 | 0.0 | 46.2 | 3.8 | 0.0 | 9.5 | 10.9 | 0.465 | 1.0 | 0.970 | 0.117 | 1.000 | 0 % |
+| Estrés | κ | 0.01 | 11.6 | 0.0 | 40.0 | 15.0 | 33.4 | 5.7 | 3.0 | 0.307 | 1.0 | 0.105 | 0.051 | 0.778 | 0 % |
+| Estrés | κ | 0.03 | 11.6 | 0.0 | 40.0 | 15.0 | 33.4 | 5.7 | 3.0 | 0.308 | 1.0 | 0.093 | 0.064 | 0.778 | 0 % |
+| Estrés | κ | 0.05 | 11.6 | 0.0 | 40.0 | 15.0 | 33.4 | 5.7 | 3.0 | 0.308 | 1.0 | 0.075 | 0.082 | 0.778 | 0 % |
+| Estrés | φ | 10 | 11.6 | 0.0 | 40.0 | 15.0 | 33.4 | 5.7 | 3.0 | 0.308 | 1.0 | 0.071 | 0.086 | 0.778 | 0 % |
+| Estrés | φ | 200 | 11.6 | 0.0 | 40.0 | 15.0 | 33.4 | 5.7 | 3.0 | 0.308 | 1.0 | 0.083 | 0.073 | 0.778 | 0 % |
+| Estrés | Tope | 0.35 | 12.9 | 0.0 | 35.0 | 17.1 | 35.0 | 5.8 | 3.4 | 0.291 | 1.8 | 0.119 | 0.038 | 0.778 | 0 % |
+| Estrés | Tope | 0.50 | 12.1 | 0.0 | 50.0 | 15.8 | 22.1 | 5.9 | 3.2 | 0.338 | 1.0 | 0.103 | 0.053 | 0.778 | 0 % |
 
 Las filas φ = 50 y tope = 0.40 coinciden con κ = 0.03 (los tres son la configuración por defecto) y se omiten. La tabla completa está en `experiments/results/README.md`.
 
@@ -47,18 +47,23 @@ Las filas φ = 50 y tope = 0.40 coinciden con κ = 0.03 (los tres son la configu
 
 ## Interpretación (para el informe, sección 9.x)
 
-**κ (recompensa difusa).** En el rango 0.01–0.05 no cambia ningún peso en los tres casos; solo mueve `c` dentro de la meseta de μ_CA (por ejemplo, moderado 0.904 a 0.920). En la primera versión del experimento, con κ = 0.01 una parte de las semillas del moderado terminaba con `c` fuera de la meseta (μ_CA(c) medio 0.467 frente a 0.500); desde que los `c` iniciales se muestrean de μ_CA y su mutación es más amplia (ver [01 · Ablación](01-ablacion.md#limitaciones-observadas)), todas las semillas quedan en la meseta también con κ = 0.01. κ = 0.03 da una recompensa (≤ 0.03) del mismo orden que las diferencias de fitness entre portafolios cercanos sin dominar el término de retorno y riesgo. **Se mantiene κ = 0.03.**
+**κ (recompensa difusa).** En el rango 0.01–0.05 no cambia ningún peso en los tres casos; solo mueve `c` dentro de la meseta de μ_CA (por ejemplo, moderado 0.895 a 0.907). Todas las semillas quedan en la meseta también con κ = 0.01, gracias al muestreo de los `c` iniciales desde μ_CA y a su mutación más amplia (ver [01 · Ablación](01-ablacion.md#limitaciones-observadas)). κ = 0.03 da una recompensa (≤ 0.03) del mismo orden que las diferencias de fitness entre portafolios cercanos sin dominar el término de retorno y riesgo. **Se mantiene κ = 0.03.**
 
-**φ (dureza de la penalización).** Solo actúa en el caso de estrés y su efecto es pequeño: σ pasa de 5.7 % (φ 10) a 5.6 % (φ 50 y 200), y los pesos varían menos de 1 pp. A partir de φ ≈ 50 la restricción ya se comporta casi como un límite duro (σ queda a 0.1 pp o menos de σ_max(c) = 5.6 %). φ = 10 deja pasar algo más de exceso; φ = 200 no aporta diferencia medible y vuelve más abrupta la superficie de fitness. **Se mantiene φ = 50.**
+**φ (dureza de la penalización).** Con datos reales no actúa en ninguno de los tres casos: el caso de estrés (λ_base 0.5, absorción baja) elige σ = 3.0 %, por debajo de σ_max(c) (3.9 % a 4.5 % según la semilla y el valor), y la penalización queda en 0 % de las semillas. El efecto de φ solo aparece con λ_base = 0.2 (ver [03 · Gen difuso](03-gen-difuso.md): absorción baja, σ 6.0 % frente a σ_max 5.7 %, y media, 11.2 % frente a 11.1 %), donde la restricción ya se comporta casi como un límite duro con φ = 50. **Se mantiene φ = 50**, sin evidencia nueva a favor de cambiarlo.
 
 **Tope por categoría.** Es el parámetro con mayor efecto:
 
-- Con 0.50 el moderado queda en tres categorías con HHI 0.479 (bonos 47.8 % y plazo fijo 50.0 %) y el agresivo en dos (acciones y bonos al 50 %, HHI 0.500): reaparece el portafolio degenerado que motivó la decisión D2.
-- Con 0.35 el HHI baja (0.293 en moderado, 0.335 en agresivo) a costa de 0.3 a 0.4 pp de retorno esperado.
-- 0.40 está en medio: el moderado conserva cinco categorías y el agresivo tres (40/20/40), sin portafolios de dos categorías. **Se mantiene el tope de 0.40.** Si el equipo quisiera más diversificación, 0.35 es una alternativa defendible con este costo de retorno; no se cambia `data/parameters`.
+- Con 0.50 el moderado queda prácticamente en dos categorías (deuda 50.0 %, plazo fijo 48.8 %, acciones 1.1 %; HHI 0.489, σ 0.5 %) y el agresivo en tres con HHI 0.465 (acciones 50 %, deuda 46.2 %, bonos 3.8 %): reaparece el portafolio concentrado que motivó la decisión D2.
+- Con 0.35 el HHI baja (0.313 en moderado, 0.335 en agresivo). En el moderado el retorno esperado sube de 4.9 % a 5.1 % (con σ de 1.6 % a 2.3 %), porque el tope obliga a sacar peso de deuda y plazo fijo hacia acciones y bonos; en el agresivo baja de 8.7 % a 8.3 %.
+- 0.40 está en medio: el moderado conserva cuatro categorías y el agresivo tres (40/40/20), sin portafolios de dos categorías. **Se mantiene el tope de 0.40.** Si el equipo quisiera más diversificación, 0.35 es una alternativa defendible; no se cambia `data/parameters`.
+
+## Qué cambió con datos reales (W14)
+
+- Antes el caso de estrés activaba la penalización en 70 % a 100 % de las semillas (σ 5.6–5.7 %, con 21 % en acciones); ahora elige 11.6 % en acciones y σ 3.0 %, sin penalización. φ ya no se puede evaluar en este caso; el experimento del gen difuso lo cubre con λ_base = 0.2.
+- En el agresivo la deuda reemplaza a los mixtos y a parte de los bonos (antes 40/20/0/40/0; ahora 40/0/40/20/0) y en el moderado deuda y plazo fijo quedan en el tope en lugar de bonos y plazo fijo. Los mixtos (compuesto 0.5 × acciones + 0.5 × bonos) quedan en 0 % en todas las filas.
+- Las decisiones sobre κ, φ y tope no cambian.
 
 ## Limitaciones observadas
 
 - κ y φ son poco sensibles en el rango probado. Esto es una buena noticia para la robustez, pero también significa que el experimento no los "calibra" en sentido estricto: confirma que los valores por defecto están en una zona estable.
-- La penalización solo es relevante con absorción baja y perfiles que buscan riesgo; para la mayoría de usuarios el resultado depende de λ_ef, del contexto y del tope.
-- La columna "Penalización activa" del caso de estrés (70 % a 100 %) cuenta penalizaciones de cualquier tamaño, incluso excesos de centésimas de punto porcentual; no indica un exceso relevante de volatilidad.
+- La penalización solo es relevante con absorción baja o media y perfiles muy arriesgados (λ_base = 0.2); para la mayoría de usuarios el resultado depende de λ_ef, del contexto y del tope.

@@ -74,7 +74,7 @@ No son necesarias para usar la aplicación.
 
 | Herramienta | Instalación | Uso |
 |---|---|---|
-| Actualizar los datos de mercado | `pip install -r requirements-data.txt` | `python scripts/fetch_market_data.py` descarga la serie del ETF EPU y el tipo de cambio (Yahoo Finance) y reescribe `data/market/stocks.csv`. Requiere internet. |
+| Actualizar los datos de mercado | Chromium o Google Chrome instalado (por ejemplo `sudo pacman -S chromium` o `sudo apt install chromium`); `pip install -r requirements-data.txt` solo para el respaldo de Yahoo | `python scripts/fetch_market_data.py` descarga del BCRP (con Chromium sin interfaz, una petición por serie) las series de acciones, deuda, bonos y depósito a plazo desde 2010, reescribe los CSV de `data/market/` y su `manifest.json`. Los fondos mixtos se calculan a partir de acciones y bonos (0.5 y 0.5). `--stocks-source yahoo` usa el ETF EPU en soles como respaldo para acciones. Requiere internet; la aplicación no, porque lee los CSV versionados. Fuentes y advertencias: `data/market/SOURCES.md`. |
 | Golden set de IA generativa | — | `python scripts/eval_golden_set.py --provider offline` (o `openai`, `anthropic` con su clave). Escribe el reporte en `experiments/results/golden_<proveedor>.md`. |
 | Experimentos de ablación y calibración | `pip install -r requirements-experiments.txt` | `python experiments/ablation.py` (unos 25 segundos). Ver [docs/experimentos](../experimentos/README.md). |
 

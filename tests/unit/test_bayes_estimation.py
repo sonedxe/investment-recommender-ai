@@ -6,7 +6,16 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from ai.uncertainty.bayesian.estimation import monthly_returns, overlap_correlation, read_series, sample_stats
+from ai.uncertainty.bayesian.estimation import (
+    MonthlySeries,
+    composite_returns,
+    monthly_returns,
+    overlap_correlation,
+    rate_returns,
+    read_series,
+    sample_stats,
+    yield_returns,
+)
 from ai.uncertainty.bayesian.normal_update import normal_update
 from ai.uncertainty.bayesian.trend import trend_signal
 
@@ -32,6 +41,43 @@ def test_gaps_produce_no_return(tmp_path: Path) -> None:
     path.write_text("date,value\n2020-01-01,100\n2020-02-01,110\n2020-04-01,121\n2020-05-01,133.1\n")
     returns = monthly_returns(read_series(path))
     assert returns.values == pytest.approx([0.1, 0.1])
+
+
+def months(start: str, n: int) -> np.ndarray:
+    return np.datetime64(start, "M") + np.arange(n)
+
+
+def test_yield_to_return_hand_computed() -> None:
+    # y: 6.0 % -> 6.5 % with D = 7: carry 6.0/1200 = 0.005, price -7 * 0.5/100 = -0.035 -> -0.030.
+    # y: 6.5 % -> 6.3 %: carry 6.5/1200 = 0.0054167, price -7 * (-0.2)/100 = +0.014 -> 0.0194167.
+    series = MonthlySeries(months("2024-01", 3), np.array([6.0, 6.5, 6.3]))
+    returns = yield_returns(series, 7.0)
+    assert returns.values == pytest.approx([-0.030, 6.5 / 1200 + 0.014])
+    assert list(returns.months) == list(months("2024-02", 2))
+
+
+def test_yield_and_rate_skip_gaps() -> None:
+    series = MonthlySeries(np.array(["2024-01", "2024-02", "2024-04"], dtype="datetime64[M]"), np.array([4.8, 6.0, 3.6]))
+    assert yield_returns(series, 0.0).values == pytest.approx([4.8 / 1200])
+    assert rate_returns(series).values == pytest.approx([4.8 / 1200])
+
+
+def test_rate_to_return_is_accrued_interest() -> None:
+    series = MonthlySeries(months("2024-01", 3), np.array([4.8, 6.0, 3.6]))
+    assert rate_returns(series).values == pytest.approx([0.004, 0.005])
+
+
+def test_composite_uses_common_months() -> None:
+    a = MonthlySeries(months("2024-01", 4), np.array([0.01, 0.02, 0.03, 0.04]))
+    b = MonthlySeries(months("2024-03", 3), np.array([0.10, 0.20, 0.30]))
+    mixed = composite_returns([(a, 0.5), (b, 0.5)])
+    assert list(mixed.months) == list(months("2024-03", 2))
+    assert mixed.values == pytest.approx([0.065, 0.12])
+
+
+def test_index_returns_reject_non_positive_levels() -> None:
+    with pytest.raises(ValueError):
+        monthly_returns(MonthlySeries(months("2024-01", 2), np.array([0.0, 1.0])))
 
 
 def test_overlap_correlation(tmp_path: Path) -> None:

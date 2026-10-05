@@ -1,2 +1,4 @@
-# Optional data tooling, used only by scripts/fetch_market_data.py (not an app dependency)
+# Optional data tooling, used only by scripts/fetch_market_data.py (not an app dependency).
+# The default BCRP download needs only the standard library plus a Chromium/Chrome binary;
+# yfinance is required only for the stocks fallback (--stocks-source yahoo).
 yfinance>=0.2.50

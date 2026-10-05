@@ -1,7 +1,15 @@
-"""Sample estimates from monthly price/level series stored as ``date,value`` CSVs.
+"""Sample estimates from monthly series stored as ``date,value`` CSVs.
 
-Returns are monthly simple returns between consecutive calendar months; a gap
-in the series simply produces no return for the missing month. Annualization:
+A series is converted to monthly simple returns according to its kind:
+
+- ``index`` (price index level ``P``): ``r_t = P_t / P_{t-1} - 1``;
+- ``yield`` (annual yield ``y`` in %, modified duration ``D`` in years):
+  ``r_t = y_{t-1}/1200 - D * (y_t - y_{t-1}) / 100`` (carry minus duration x yield change);
+- ``rate`` (deposit rate in % annual): ``r_t = rate_{t-1} / 1200`` (accrued interest);
+- composite: weighted sum of the component returns on their common months.
+
+Returns are only computed between consecutive calendar months; a gap in the
+series simply produces no return for the missing month. Annualization:
 mean x 12, volatility x sqrt(12).
 """
 
@@ -53,16 +61,50 @@ def read_series(path: Path | str) -> MonthlySeries:
     rows.sort(key=lambda item: item[0])
     months = np.array([m for m, _ in rows], dtype="datetime64[M]")
     values = np.array([v for _, v in rows], dtype=float)
-    if np.any(values <= 0) or not np.all(np.isfinite(values)):
-        raise ValueError(f"{path}: values must be positive and finite")
+    if not np.all(np.isfinite(values)):
+        raise ValueError(f"{path}: values must be finite")
     return MonthlySeries(months, values)
 
 
-def monthly_returns(series: MonthlySeries) -> MonthlySeries:
-    """Simple returns ``v_t / v_{t-1} - 1``, kept only for consecutive months; indexed by ``t``."""
+def _consecutive(series: MonthlySeries, returns: np.ndarray) -> MonthlySeries:
     consecutive = np.diff(series.months).astype(int) == 1
-    returns = series.values[1:] / series.values[:-1] - 1.0
     return MonthlySeries(series.months[1:][consecutive], returns[consecutive])
+
+
+def monthly_returns(series: MonthlySeries) -> MonthlySeries:
+    """Index kind: simple returns ``v_t / v_{t-1} - 1`` for consecutive months; indexed by ``t``."""
+    if np.any(series.values <= 0):
+        raise ValueError("index levels must be positive")
+    return _consecutive(series, series.values[1:] / series.values[:-1] - 1.0)
+
+
+def yield_returns(series: MonthlySeries, duration_years: float) -> MonthlySeries:
+    """Yield kind (% annual): ``y_{t-1}/1200 - D * (y_t - y_{t-1}) / 100`` for consecutive months."""
+    if duration_years < 0:
+        raise ValueError("duration_years must be non-negative")
+    y = series.values
+    carry = y[:-1] / (100.0 * MONTHS_PER_YEAR)
+    price_effect = -duration_years * np.diff(y) / 100.0
+    return _consecutive(series, carry + price_effect)
+
+
+def rate_returns(series: MonthlySeries) -> MonthlySeries:
+    """Rate kind (% annual deposit rate): one month of interest ``rate_{t-1} / 1200``."""
+    return _consecutive(series, series.values[:-1] / (100.0 * MONTHS_PER_YEAR))
+
+
+def composite_returns(parts: list[tuple[MonthlySeries, float]]) -> MonthlySeries:
+    """Weighted sum of monthly returns over the months common to every component."""
+    if not parts:
+        raise ValueError("a composite needs at least one component")
+    common = parts[0][0].months
+    for returns, _ in parts[1:]:
+        common = np.intersect1d(common, returns.months)
+    total = np.zeros(len(common), dtype=float)
+    for returns, weight in parts:
+        index = np.searchsorted(returns.months, common)
+        total += weight * returns.values[index]
+    return MonthlySeries(common.astype("datetime64[M]"), total)
 
 
 def sample_stats(returns: MonthlySeries) -> SampleStats:

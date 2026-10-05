@@ -28,7 +28,7 @@ python experiments/ablation.py --no-plots       # sin matplotlib
 | Monto | S/ 10,000 |
 | AG | población 80, máximo 200 generaciones, paciencia 25, torneo 3, cruce 0.9, mutación 0.1 (σ 0.05 en los pesos, 0.15 en `c`), elitismo 1; con el difuso activo, `c` inicial muestreado de μ_CA |
 | Fitness | κ = 0.03, φ = 50, tope wᵢ ≤ 0.40, σ_max(c) = 0.03 + 0.13·c |
-| Mercado | μ (acciones, mixtos, deuda, bonos, plazo fijo) = 12.8, 6.1, 2.4, 6.5, 4.5 %; σ = 22.0, 9.0, 2.5, 3.5, 0.5 % |
+| Mercado (W14, series reales del BCRP) | μ posterior (acciones, mixtos, deuda, bonos, plazo fijo) = 11.9, 6.8, 3.7, 6.2, 4.4 %; σ = 21.7, 12.3, 0.6, 6.5, 0.4 %; `s_tend` = +1, +1, +0.87, −0.46, −0.18; mixtos = 0.5 × acciones + 0.5 × bonos; correlaciones estimadas (ver [análisis 09](../analisis/09-fuentes-de-datos.md) y `data/market/SOURCES.md`) |
 
 | Arquetipo | λ_base | Horizonte | Ahorro total | Fondo de emergencia | r | Absorción |
 |---|---|---|---|---|---|---|
@@ -38,8 +38,27 @@ python experiments/ablation.py --no-plots       # sin matplotlib
 
 ## Hallazgos principales
 
-1. **El horizonte difuso es el componente que más mueve los pesos.** En el agresivo (H = 12, m_H = 0.7) lleva acciones de 9.9 % a 40.0 %; en el conservador (H = 2, m_H = 1.5) pasa peso de bonos (−8.1 pp) a deuda (+8.4 pp). En el moderado (H = 5, m_H = 1) no cambia nada, como corresponde.
-2. **El contexto adverso reduce la exposición a acciones** (agresivo completo: de 40.0 % a 16.0 % con político −0.5) y en el moderado, con ambos factores en −1, quita 2.9 pp a acciones y 5.7 pp a mixtos, que pasan a deuda (+8.6 pp).
-3. **El gen `c` solo negocia contra la volatilidad cuando la absorción es baja y el perfil busca riesgo** (λ_base ≤ 0.5). Ahí la penalización baja σ de 10.1 % a 6.0 % (λ 0.2) y de 8.5 % a 5.6 % (λ 0.5). En el resto de casos `c` se queda en la meseta de máxima pertenencia y no afecta los pesos.
-4. **κ y φ son poco sensibles en el rango probado; el tope sí importa.** Con tope 0.50 aparecen portafolios de dos categorías (agresivo 50/50, HHI 0.500). Se mantienen los valores por defecto.
-5. **Debilidades** (detalladas en cada documento): el tope de 40 % se alcanza casi siempre en bonos y plazo fijo; la penalización difusa no actúa en los tres arquetipos estándar. En la primera versión, 2 de 60 corridas dejaban `c` en una zona con μ_CA = 0 (conservador, semilla 7); se corrigió muestreando los `c` iniciales de μ_CA y ampliando su mutación (σ 0.15), y ya no ocurre en ninguna de las 600 corridas.
+Resultados con datos reales del BCRP para las cinco categorías (W14, 2026-10-05). Antes de W14 solo acciones tenía datos (EPU en soles) y el resto usaba los valores del Anexo A con correlación supuesta 0.3; la sección [Qué cambió con datos reales](#qué-cambió-con-datos-reales-w14) resume la diferencia.
+
+1. **El horizonte difuso sigue siendo el componente que más mueve los pesos, pero solo en el agresivo.** Con H = 12 (m_H = 0.7) lleva acciones de 4.6 % a 40.0 % (E de 4.7 % a 8.1 %, σ de 1.7 % a 9.8 %). En el conservador (m_H = 1.5) el efecto es casi nulo (acciones 1.0 % → 0.6 %), porque deuda y plazo fijo ya están en el tope; en el moderado (m_H = 1) no cambia nada, como corresponde.
+2. **El contexto adverso reduce la exposición a renta variable.** En el agresivo, acciones bajan de 40.0 % (solo difuso) a 7.7 % en el modelo completo con político −0.5. En el moderado la exposición (acciones + mixtos) es 3.0 % en el escenario neutral y baja 0.6 a 1.4 pp con político −1, donde las acciones desaparecen y queda algo de mixtos.
+3. **El gen `c` negocia contra la volatilidad cuando λ_base = 0.2 y la absorción es baja o media.** Con absorción baja σ baja de 14.1 % a 6.0 %; con absorción media, de 14.1 % a 11.2 %. Con λ_base ≥ 0.5 el perfil ya no pide más volatilidad de la permitida y `c` queda en la meseta.
+4. **κ y φ no cambian ningún peso en los casos de calibración; el tope sí importa.** Con tope 0.50 el moderado queda prácticamente en dos categorías (deuda 50 %, plazo fijo 48.8 %, HHI 0.489). Se mantienen los valores por defecto.
+5. **Debilidades** (detalladas en cada documento): deuda (σ 0.6 %) y plazo fijo (σ 0.4 %) quedan en el tope de 40 % en 11 de las 12 celdas de la ablación. Los fondos mixtos casi no se eligen (a lo sumo 2.4 %): al ser una mezcla fija de dos categorías que el AG ya puede combinar directamente (acciones y bonos), no aportan diversificación propia; solo entran cuando el ajuste de contexto los trata distinto. Ninguna de las 600 corridas termina con μ_CA(c) = 0 (mínimo 0.5).
+
+## Qué cambió con datos reales (W14)
+
+| Elemento | Antes (Anexo A + EPU) | Con series del BCRP |
+|---|---|---|
+| Deuda: μ / σ | 2.4 % / 2.5 % (Anexo A) | 3.7 % / 0.6 % (saldo CD BCRP) |
+| Bonos: μ / σ | 6.5 % / 3.5 % (Anexo A) | 6.2 % / 6.5 % (BTP 10 años, D = 7) |
+| Mixtos: μ / σ | 6.1 % / 9.0 % (Anexo A) | 6.8 % / 12.3 % (compuesto 0.5 acciones + 0.5 bonos) |
+| Plazo fijo: μ / σ | 4.5 % / 0.5 % (Anexo A) | 4.4 % / 0.4 % (tasa pasiva 181–360 días) |
+| Acciones: μ / σ | 12.8 % / 22.0 % (EPU en soles) | 11.9 % / 21.7 % (Índice General BVL) |
+| Correlaciones | 0.3 supuesta (0 con plazo fijo) | Estimadas con los meses comunes de cada par: acciones–mixtos 0.97, deuda–plazo fijo 0.88, mixtos–bonos 0.54, acciones–bonos 0.31, bonos–plazo fijo 0.24, deuda–bonos 0.22, mixtos–plazo fijo 0.10, resto ≤ 0.08 (reparación PSD mínima: autovalor −1.5·10⁻⁷) |
+| Categoría en el tope | Bonos y plazo fijo | Deuda y plazo fijo |
+| Bonos en la ablación | 28.3 % a 40.0 % | 12.3 % a 40.0 % (40.0 % solo en agresivo con solo difuso) |
+
+Con σ real del BTP (6.5 % frente a 3.5 % supuesto) los bonos dejan de dominar la relación retorno/riesgo, y la deuda de corto plazo, con más retorno y menos riesgo que en el Anexo A, ocupa su lugar en el tope.
+
+Composición de los mixtos: una primera versión de W14 usaba 0.5 × acciones + 0.5 × deuda, que resultó una copia escalada de acciones (correlación 0.9996). Se cambió a acciones + bonos porque los fondos mixtos peruanos combinan renta variable y bonos; la correlación con acciones baja a 0.97 (la σ de acciones domina la mezcla) y la correlación con bonos sube a 0.54.

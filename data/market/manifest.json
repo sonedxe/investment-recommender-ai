@@ -1,0 +1,78 @@
+{
+  "description": "Monthly market series per category (W14). Values in each CSV are exactly as published: index level (kind=index) or % annual rate (kind=yield|rate). ai/uncertainty/bayesian/market.py converts them to monthly returns by kind.",
+  "generated_by": "scripts/fetch_market_data.py",
+  "categories": {
+    "stocks": {
+      "file": "acciones__bcrp_indice_general_bvl.csv",
+      "source": "BCRP",
+      "series_code": "PN01142MM",
+      "title": "Bolsa de Valores de Lima - Índices Bursátiles - Índice General BVL (base 31/12/91 = 100)",
+      "kind": "index",
+      "url": "https://estadisticas.bcrp.gob.pe/estadisticas/series/mensuales/resultados/PN01142MM/html/2010-1/2026-10",
+      "fetched_at": "2026-10-05",
+      "first": "2010-01",
+      "last": "2026-08",
+      "months": 200
+    },
+    "mixed": {
+      "file": null,
+      "source": "composite",
+      "series_code": null,
+      "title": "Compuesto a partir de series reales: 50 % acciones (Índice General BVL) + 50 % bonos (BTP 10 años) (retornos mensuales)",
+      "kind": "composite",
+      "components": [
+        "stocks",
+        "bonds"
+      ],
+      "weights": [
+        0.5,
+        0.5
+      ],
+      "url": null,
+      "fetched_at": "2026-10-05",
+      "first": "2010-01",
+      "last": "2026-08",
+      "months": 200
+    },
+    "debt": {
+      "file": "deuda__bcrp_tasa_saldo_cd_bcrp.csv",
+      "source": "BCRP",
+      "series_code": "PN06503OM",
+      "title": "Tasas de interés de los Certificados de Depósito del BCRP - CD BCRP - Tasa de ínteres - Saldo CD BCRP",
+      "kind": "yield",
+      "duration_years": 0.5,
+      "duration_note": "Aproximación: duración supuesta de ~0,5 años para el saldo de CD BCRP (plazos mayormente menores a un año); el fondo de deuda real puede tener mayor duración.",
+      "url": "https://estadisticas.bcrp.gob.pe/estadisticas/series/mensuales/resultados/PN06503OM/html/2010-1/2026-10",
+      "fetched_at": "2026-10-05",
+      "first": "2010-01",
+      "last": "2026-08",
+      "months": 200
+    },
+    "bonds": {
+      "file": "btp__bcrp_rendimiento_10a.csv",
+      "source": "BCRP",
+      "series_code": "PD31895MM",
+      "title": "Tasas de interés de bonos del gobierno peruano - Rendimiento del Bono del gobierno peruano a 10 años (en S/)",
+      "kind": "yield",
+      "duration_years": 7.0,
+      "duration_note": "Aproximación: duración modificada supuesta de ~7 años para un bono soberano a 10 años.",
+      "url": "https://estadisticas.bcrp.gob.pe/estadisticas/series/mensuales/resultados/PD31895MM/html/2010-1/2026-10",
+      "fetched_at": "2026-10-05",
+      "first": "2010-01",
+      "last": "2026-09",
+      "months": 201
+    },
+    "term": {
+      "file": "deposito__bcrp_tasa_pasiva_181_360d.csv",
+      "source": "BCRP",
+      "series_code": "PN07814NM",
+      "title": "Tasas de interés activas y pasivas promedio de las empresas bancarias en MN (términos efectivos anuales) - Pasivas - Plazos (días) - 181 - 360 días",
+      "kind": "rate",
+      "url": "https://estadisticas.bcrp.gob.pe/estadisticas/series/mensuales/resultados/PN07814NM/html/2010-1/2026-10",
+      "fetched_at": "2026-10-05",
+      "first": "2010-08",
+      "last": "2026-08",
+      "months": 193
+    }
+  }
+}

@@ -59,9 +59,14 @@ def test_same_seed_is_reproducible() -> None:
     assert post()["allocation"] == post()["allocation"]
 
 
-def test_adverse_political_context_lowers_stocks_weight() -> None:
-    neutral = post(context={"political": 0, "macro": 0})["allocation"][0]["weight"]
-    adverse = post(context={"political": -1, "macro": 0})["allocation"][0]["weight"]
+def equity_exposure(body: dict) -> float:
+    """Weight in stocks plus mixed funds (the mixed composite holds 50 % equities)."""
+    return sum(a["weight"] for a in body["allocation"] if a["category"] in ("stocks", "mixed"))
+
+
+def test_adverse_political_context_lowers_equity_exposure() -> None:
+    neutral = equity_exposure(post(context={"political": 0, "macro": 0}))
+    adverse = equity_exposure(post(context={"political": -1, "macro": 0}))
     assert adverse < neutral
 
 

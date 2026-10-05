@@ -1,6 +1,8 @@
-"""Build the market estimates (mu, sigma, rho, s_tend) from CSVs and Annex A priors.
+"""Build the market estimates (mu, sigma, rho, s_tend) from local series and Annex A priors.
 
-For each category ``data/market/<category>.csv`` (``date,value``) is used when it
+``data/market/manifest.json`` names each category's CSV and its kind (index,
+yield, rate or a composite of other categories); ``manifest.category_returns``
+converts it into monthly simple returns. A category's data is used when it
 yields at least ``min_months`` monthly returns:
 
 - mu: conjugate normal update of the Annex A mu (prior sd from ``bayes.json``)
@@ -9,7 +11,7 @@ yields at least ``min_months`` monthly returns:
 - s_tend: last ``trend_window_months`` compounded return vs. posterior mu.
 
 Otherwise the category keeps the Annex A prior (mu, sigma) and a neutral trend.
-Correlations are estimated only between two data-backed categories with at
+Correlations are estimated for every pair of data-backed categories with at
 least ``min_months`` overlapping returns; every other pair keeps the documented
 ``default_correlation``. Mixing sources can break positive semi-definiteness,
 so the matrix is repaired by clipping negative eigenvalues and rescaling to a
@@ -27,14 +29,8 @@ import numpy as np
 
 from ai.shared.parameters import Parameters
 from ai.shared.types import CATEGORY_ORDER, CategoryId, MarketEstimates
-from ai.uncertainty.bayesian.estimation import (
-    MONTHS_PER_YEAR,
-    MonthlySeries,
-    monthly_returns,
-    overlap_correlation,
-    read_series,
-    sample_stats,
-)
+from ai.uncertainty.bayesian.estimation import MONTHS_PER_YEAR, MonthlySeries, overlap_correlation, sample_stats
+from ai.uncertainty.bayesian.manifest import SeriesSpec, category_returns, load_manifest
 from ai.uncertainty.bayesian.normal_update import normal_update
 from ai.uncertainty.bayesian.trend import trend_signal
 
@@ -56,6 +52,9 @@ class CategoryEstimate:
     posterior_sd: float
     sigma: float
     trend: float
+    provider: str | None = None  # BCRP | Yahoo | composite (from the manifest), None without data
+    series_code: str | None = None
+    kind: str | None = None
 
 
 @dataclass(frozen=True)
@@ -81,7 +80,12 @@ def nearest_correlation(corr: np.ndarray) -> tuple[np.ndarray, bool]:
 
 
 def _category_estimate(
-    returns: MonthlySeries | None, prior_mean: float, prior_sigma: float, prior_sd: float, params: Parameters
+    returns: MonthlySeries | None,
+    prior_mean: float,
+    prior_sigma: float,
+    prior_sd: float,
+    params: Parameters,
+    spec: SeriesSpec | None = None,
 ) -> CategoryEstimate:
     months = 0 if returns is None else len(returns.values)
     if returns is None or months < params.bayes.min_months:
@@ -103,19 +107,26 @@ def _category_estimate(
         posterior_sd=posterior.sd * MONTHS_PER_YEAR,
         sigma=stats.annual_sigma,
         trend=trend,
+        provider=None if spec is None else spec.source,
+        series_code=None if spec is None else spec.series_code,
+        kind=None if spec is None else spec.kind,
     )
 
 
 def build_market_estimates(params: Parameters, data_dir: Path | str = DEFAULT_MARKET_DIR) -> MarketReport:
     directory = Path(data_dir)
     cat = params.categories
-    returns: dict[CategoryId, MonthlySeries | None] = {}
+    specs = load_manifest(directory)
+    returns = category_returns(specs, directory)
     estimates: dict[CategoryId, CategoryEstimate] = {}
     for i, category in enumerate(CATEGORY_ORDER):
-        path = directory / f"{category.value}.csv"
-        returns[category] = monthly_returns(read_series(path)) if path.is_file() else None
         estimates[category] = _category_estimate(
-            returns[category], float(cat.mu[i]), float(cat.sigma[i]), float(params.bayes.prior_mean_sd[i]), params
+            returns[category],
+            float(cat.mu[i]),
+            float(cat.sigma[i]),
+            float(params.bayes.prior_mean_sd[i]),
+            params,
+            specs.get(category),
         )
 
     corr = np.array(cat.default_correlation, dtype=float)
