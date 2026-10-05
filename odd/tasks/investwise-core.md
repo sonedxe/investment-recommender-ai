@@ -80,6 +80,8 @@ The repository is a skeleton. The v1.1 design misses the professor's feedback (n
 
 - W16 authorized by the user: 0 % allocations raise questions in the presentation → floor min_weight 0.05 (configurable), mirror of the 0.40 cap.
 
+- W17 (user-reported): Claude classified "en unos años" as long term (lowers λ) → prompt interpret.v2 lists vague expressions that stay null; 3 golden cases added (23 total). Live: 98.3 % fields, 100 % asked field (was 95 %). Commits `8bd9b18`, `67cb296` (golden size bound; the first commit was made with 2 failing tests hidden by a pipe — caught and fixed). Reviewed and approved.
+
 ## Next step
 
 Feature complete. Open items for the team (outside this feature's code scope):
