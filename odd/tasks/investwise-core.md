@@ -42,7 +42,7 @@ The repository is a skeleton. The v1.1 design misses the professor's feedback (n
 | W12 | Installation and user manuals, README update (F9) | delegated | done | `bc20e19`; passive docs (structural readback, links OK); 7 screenshots |
 | W13 | Polish from experiments/manual findings: c gene stranding, score note formula, chart label clipping, convergence ticks, % format, stale ping text, restart action, offline number words | delegated | done | `c326733` (regenerated results) + `bb745e1` (reviewed, approved); 247 py + 82 vitest; c stranding 2/60 → 0/600; offline golden set 97.1 % → 100 % |
 | W14 | Real market data for all five categories from BCRP (BVL index, BTP 10y, soles bonds ≤3y, deposit rate; mixed as documented composite) with manifest, descriptive file names, yield→return by duration; rerun experiments and fixtures | delegated | done | `785a4db` (reviewed: high risk, 4 lenses, no findings) + generated results/fixtures; 278 py + 82 vitest; all 5 categories data-backed |
-| W15 | Mixed funds from real data: SBS AFP Fondo 2 valor cuota (equal-weight Integra/Prima/Profuturo) replacing the 50/50 composite; rerun experiments and fixtures | delegated | pending | |
+| W15 | Mixed funds from real data: SBS AFP Fondo 2 valor cuota (equal-weight Integra/Prima/Profuturo) replacing the 50/50 composite; rerun experiments and fixtures | delegated | done | `b5a0d2a` (reviewed, approved) + generated results/fixtures; 288 py + 82 vitest; mixed μ 7.13 % σ 7.61 % ρ_BVL 0.72; mixed allocated in 12/12 ablation cells (8.3–40 %) |
 
 ## Acceptance criteria
 
