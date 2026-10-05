@@ -119,8 +119,9 @@ def test_invalid_manifest_entries_raise(tmp_path: Path, entry) -> None:
 def test_real_manifest_loads_every_category() -> None:
     specs = load_manifest(Path(__file__).resolve().parents[2] / "data" / "market")
     assert set(specs) == set(CategoryId)
-    assert specs[CategoryId.MIXED].kind == "composite"
-    assert specs[CategoryId.MIXED].components == (CategoryId.STOCKS, CategoryId.BONDS)
+    # W15: mixed funds come from the SBS (AFP Fondo 2 valor cuota index), not the composite.
+    assert specs[CategoryId.MIXED].kind == "index" and specs[CategoryId.MIXED].source == "SBS"
+    assert specs[CategoryId.MIXED].file and not specs[CategoryId.MIXED].components
     assert specs[CategoryId.BONDS].kind == "yield" and specs[CategoryId.BONDS].duration_years > 0
 
 
@@ -141,3 +142,5 @@ def test_real_market_directory_smoke(params) -> None:
     assert np.all(np.abs(report.estimates.trend) <= 1)
     assert all(info.source == "data" for info in report.categories.values())
     assert np.all(report.estimates.sigma > 0)
+    mixed = report.categories[CategoryId.MIXED]
+    assert (mixed.provider, mixed.kind) == ("SBS", "index") and mixed.months >= 24

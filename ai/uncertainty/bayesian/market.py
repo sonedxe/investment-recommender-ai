@@ -52,7 +52,7 @@ class CategoryEstimate:
     posterior_sd: float
     sigma: float
     trend: float
-    provider: str | None = None  # BCRP | Yahoo | composite (from the manifest), None without data
+    provider: str | None = None  # BCRP | SBS | Yahoo | composite (from the manifest), None without data
     series_code: str | None = None
     kind: str | None = None
 

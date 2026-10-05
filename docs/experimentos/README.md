@@ -28,7 +28,7 @@ python experiments/ablation.py --no-plots       # sin matplotlib
 | Monto | S/ 10,000 |
 | AG | población 80, máximo 200 generaciones, paciencia 25, torneo 3, cruce 0.9, mutación 0.1 (σ 0.05 en los pesos, 0.15 en `c`), elitismo 1; con el difuso activo, `c` inicial muestreado de μ_CA |
 | Fitness | κ = 0.03, φ = 50, tope wᵢ ≤ 0.40, σ_max(c) = 0.03 + 0.13·c |
-| Mercado (W14, series reales del BCRP) | μ posterior (acciones, mixtos, deuda, bonos, plazo fijo) = 11.9, 6.8, 3.7, 6.2, 4.4 %; σ = 21.7, 12.3, 0.6, 6.5, 0.4 %; `s_tend` = +1, +1, +0.87, −0.46, −0.18; mixtos = 0.5 × acciones + 0.5 × bonos; correlaciones estimadas (ver [análisis 09](../analisis/09-fuentes-de-datos.md) y `data/market/SOURCES.md`) |
+| Mercado (W14 series reales del BCRP; W15 mixtos de la SBS) | μ posterior (acciones, mixtos, deuda, bonos, plazo fijo) = 11.9, 6.6, 3.7, 6.2, 4.4 %; σ = 21.7, 7.6, 0.6, 6.5, 0.4 %; `s_tend` = +1, +1, +0.87, −0.46, −0.18; mixtos = valor cuota del Fondo 2 de las AFP (promedio Integra, Prima, Profuturo); correlaciones estimadas (ver [análisis 09](../analisis/09-fuentes-de-datos.md) y `data/market/SOURCES.md`) |
 
 | Arquetipo | λ_base | Horizonte | Ahorro total | Fondo de emergencia | r | Absorción |
 |---|---|---|---|---|---|---|
@@ -38,13 +38,13 @@ python experiments/ablation.py --no-plots       # sin matplotlib
 
 ## Hallazgos principales
 
-Resultados con datos reales del BCRP para las cinco categorías (W14, 2026-10-05). Antes de W14 solo acciones tenía datos (EPU en soles) y el resto usaba los valores del Anexo A con correlación supuesta 0.3; la sección [Qué cambió con datos reales](#qué-cambió-con-datos-reales-w14) resume la diferencia.
+Resultados con datos reales para las cinco categorías: series del BCRP (W14) y, para los fondos mixtos, el valor cuota del Fondo 2 de las AFP publicado por la SBS (W15, 2026-10-05). Antes de W14 solo acciones tenía datos (EPU en soles) y el resto usaba los valores del Anexo A con correlación supuesta 0.3; las secciones [Qué cambió con datos reales](#qué-cambió-con-datos-reales-w14) y [Qué cambió con el Fondo 2 de las AFP](#qué-cambió-con-el-fondo-2-de-las-afp-w15) resumen las diferencias.
 
-1. **El horizonte difuso sigue siendo el componente que más mueve los pesos, pero solo en el agresivo.** Con H = 12 (m_H = 0.7) lleva acciones de 4.6 % a 40.0 % (E de 4.7 % a 8.1 %, σ de 1.7 % a 9.8 %). En el conservador (m_H = 1.5) el efecto es casi nulo (acciones 1.0 % → 0.6 %), porque deuda y plazo fijo ya están en el tope; en el moderado (m_H = 1) no cambia nada, como corresponde.
-2. **El contexto adverso reduce la exposición a renta variable.** En el agresivo, acciones bajan de 40.0 % (solo difuso) a 7.7 % en el modelo completo con político −0.5. En el moderado la exposición (acciones + mixtos) es 3.0 % en el escenario neutral y baja 0.6 a 1.4 pp con político −1, donde las acciones desaparecen y queda algo de mixtos.
-3. **El gen `c` negocia contra la volatilidad cuando λ_base = 0.2 y la absorción es baja o media.** Con absorción baja σ baja de 14.1 % a 6.0 %; con absorción media, de 14.1 % a 11.2 %. Con λ_base ≥ 0.5 el perfil ya no pide más volatilidad de la permitida y `c` queda en la meseta.
-4. **κ y φ no cambian ningún peso en los casos de calibración; el tope sí importa.** Con tope 0.50 el moderado queda prácticamente en dos categorías (deuda 50 %, plazo fijo 48.8 %, HHI 0.489). Se mantienen los valores por defecto.
-5. **Debilidades** (detalladas en cada documento): deuda (σ 0.6 %) y plazo fijo (σ 0.4 %) quedan en el tope de 40 % en 11 de las 12 celdas de la ablación. Los fondos mixtos casi no se eligen (a lo sumo 2.4 %): al ser una mezcla fija de dos categorías que el AG ya puede combinar directamente (acciones y bonos), no aportan diversificación propia; solo entran cuando el ajuste de contexto los trata distinto. Ninguna de las 600 corridas termina con μ_CA(c) = 0 (mínimo 0.5).
+1. **El horizonte difuso sigue siendo el componente que más mueve los pesos, pero solo en el agresivo.** Con H = 12 (m_H = 0.7) lleva acciones de 3.7 % a 40.0 % y mixtos de 8.3 % a 20.0 % (E de 4.9 % a 8.6 %, σ de 2.1 % a 11.0 %). En el conservador (m_H = 1.5) el efecto es casi nulo (mixtos 8.7 % → 8.6 %), porque deuda y plazo fijo ya están en el tope; en el moderado (m_H = 1) no cambia nada, como corresponde.
+2. **El contexto adverso reduce la exposición a acciones.** En el agresivo, acciones bajan de 40.0 % (solo difuso) a 9.7 % en el modelo completo con político −0.5, y los mixtos suben a 40.0 %. En el moderado la renta variable es toda de mixtos (14.8 % en el escenario neutral) y baja 2.7 a 4.2 pp con político −1.
+3. **El gen `c` negocia contra la volatilidad cuando el perfil pide más riesgo del que la absorción permite.** Con λ_base = 0.2 y absorción baja σ baja de 11.6 % a 5.9 %; con absorción media, de 11.6 % a 11.2 %. Con λ_base = 0.5 y absorción baja `c` se mueve al borde de la meseta (0.192) para admitir σ 5.4 % sin penalización. Con λ_base ≥ 1 `c` queda en cualquier punto de la meseta.
+4. **κ y φ no cambian ningún peso en los casos de calibración; el tope sí importa.** Con tope 0.50 el moderado queda casi en dos categorías (deuda 50 %, plazo fijo 45.0 %, HHI 0.455) y el agresivo en dos (acciones y mixtos 50 % cada una, HHI 0.500). Se mantienen los valores por defecto.
+5. **Debilidades** (detalladas en cada documento): deuda (σ 0.6 %) y plazo fijo (σ 0.4 %) quedan en el tope de 40 % en 8 de las 12 celdas de la ablación. Los fondos mixtos se aproximan con un fondo de pensiones (Fondo 2 de las AFP), no con un fondo mutuo minorista: su retorno en soles incluye el efecto del tipo de cambio y no descuenta la comisión de la AFP (no verificado). Ninguna de las 600 corridas termina con μ_CA(c) = 0 (mínimo 0.5).
 
 ## Qué cambió con datos reales (W14)
 
@@ -62,3 +62,17 @@ Resultados con datos reales del BCRP para las cinco categorías (W14, 2026-10-05
 Con σ real del BTP (6.5 % frente a 3.5 % supuesto) los bonos dejan de dominar la relación retorno/riesgo, y la deuda de corto plazo, con más retorno y menos riesgo que en el Anexo A, ocupa su lugar en el tope.
 
 Composición de los mixtos: una primera versión de W14 usaba 0.5 × acciones + 0.5 × deuda, que resultó una copia escalada de acciones (correlación 0.9996). Se cambió a acciones + bonos porque los fondos mixtos peruanos combinan renta variable y bonos; la correlación con acciones baja a 0.97 (la σ de acciones domina la mezcla) y la correlación con bonos sube a 0.54.
+
+## Qué cambió con el Fondo 2 de las AFP (W15)
+
+| Elemento | W14 (compuesto 0.5 acciones + 0.5 bonos) | W15 (Fondo 2 de las AFP, SBS) |
+|---|---|---|
+| Mixtos: μ posterior / σ | 6.8 % / 12.3 % | 6.6 % / 7.6 % (dato: μ 7.1 %, 199 retornos 2010-02 a 2026-08) |
+| Correlación mixtos–acciones | 0.97 | 0.72 |
+| Correlación mixtos–bonos | 0.54 | 0.44 |
+| Correlación mixtos–deuda / plazo fijo | 0.08 / 0.10 | 0.03 / 0.02 |
+| Reparación PSD | Mínima (autovalor −1.5·10⁻⁷) | No hace falta |
+| Mixtos en la ablación | 0 % a 0.8 % | 8.3 % a 40.0 % |
+| Acciones en conservador y moderado | 0.0 % a 2.0 % | 0 % |
+
+El compuesto era casi redundante con acciones y bonos, así que el AG no lo elegía. El Fondo 2 es una serie independiente con correlación moderada con acciones y menos σ que el compuesto: pasa a ser la vía principal de renta variable en los perfiles prudentes y comparte el tope con acciones en el agresivo. Las conclusiones cualitativas (horizonte, contexto, gen `c`, calibración) se mantienen.

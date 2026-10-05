@@ -1,17 +1,20 @@
-# Fuentes de datos de mercado (decisión D3, revisada en W14)
+# Fuentes de datos de mercado (decisión D3, revisada en W14 y W15)
 
 Las cinco categorías se estiman con series reales mensuales en soles. `manifest.json` describe cada
 serie (archivo, fuente, código, título publicado, tipo, duración, periodo y fecha de descarga) y lo
-escribe `scripts/fetch_market_data.py`. Cada CSV tiene columnas `date,value` (primer día del mes) con
-el valor **tal como se publica**: nivel de índice o tasa en % anual. `ai/uncertainty/bayesian/` solo
+escribe `scripts/fetch_market_data.py`. Cada CSV de las series del BCRP tiene columnas `date,value`
+(primer día del mes) con el valor **tal como se publica**: nivel de índice o tasa en % anual. Los
+fondos mixtos (W15) vienen de la SBS: `mixtos__sbs_afp_fondo2_valor_cuota.csv` guarda el valor cuota
+de fin de mes publicado por AFP y `mixtos__sbs_afp_fondo2_promedio.csv` (`date,value`) el índice
+calculado que lee el estimador. `ai/uncertainty/bayesian/` solo
 lee estos archivos locales y los convierte en retornos mensuales según su tipo.
 
-Descarga: 2026-10-05, ventana pedida 2010-01 a 2026-10; el mes en curso (aún abierto) se descarta.
+Descarga: 2026-10-05, ventana pedida 2010-01 a 2026-10; el mes en curso (aún abierto) se descarta. SBS: archivo de setiembre de 2026 (`B-220932-se2026.XLS`, datos diarios hasta 2026-09-25), así que el último mes completo es 2026-08.
 
-| Categoría | Archivo | Serie (BCRP) | Tipo | Transformación a retorno mensual | Periodo (meses) | Advertencias |
+| Categoría | Archivo | Serie | Tipo | Transformación a retorno mensual | Periodo (meses) | Advertencias |
 |---|---|---|---|---|---|---|
 | Acciones (`stocks`) | `acciones__bcrp_indice_general_bvl.csv` | `PN01142MM` Bolsa de Valores de Lima – Índice General BVL (base 31/12/91 = 100) | `index` | `r_t = P_t / P_{t−1} − 1` | 2010-01 .. 2026-08 (200) | Índice de precios: excluye dividendos, así que subestima levemente el retorno total. Es el mercado, no un fondo (sin comisiones). |
-| Fondos mixtos (`mixed`) | — (se calcula) | Compuesto a partir de series reales: 0.5 × acciones (Índice General BVL) + 0.5 × bonos (BTP 10 años, D = 7) | `composite` | `r_t = 0.5 · r_acciones,t + 0.5 · r_bonos,t` en los meses comunes | 2010-02 .. 2026-08 (199 retornos) | El BCRP no publica retornos de fondos mutuos; los fondos mixtos peruanos combinan renta variable y bonos. Los pesos 50/50 son un supuesto del equipo. Su correlación con acciones es 0.97 (la σ de acciones domina) y con bonos 0.54. |
+| Fondos mixtos (`mixed`) | `mixtos__sbs_afp_fondo2_promedio.csv` (índice) y `mixtos__sbs_afp_fondo2_valor_cuota.csv` (niveles por AFP) | SBS B-220932 Valor cuota del Fondo de Pensiones Tipo 2 (promedio Integra, Prima, Profuturo) | `index` | Índice base 100 en 2010-01 que encadena `r_t = (1/3) Σ (VC_t / VC_{t−1} − 1)` de las tres AFP; el estimador aplica `r_t = P_t / P_{t−1} − 1` | 2010-01 .. 2026-08 (200; 199 retornos) | Aproximación: Fondo 2 de las AFP, no un fondo mutuo minorista. Cerca de 40–50 % en el exterior (el retorno en soles incluye el tipo de cambio). La comisión de la AFP se cobra fuera del valor cuota (no verificado). Habitat empieza en 2013-06 y no entra en el promedio (está en el CSV de niveles como referencia). Correlación 0.72 con acciones y 0.44 con bonos. |
 | Fondos de deuda (`debt`) | `deuda__bcrp_tasa_saldo_cd_bcrp.csv` | `PN06503OM` Tasa de interés del saldo de Certificados de Depósito del BCRP (CD BCRP) | `yield` | `r_t ≈ y_{t−1}/1200 − D·(y_t − y_{t−1})/100`, D = 0.5 años | 2010-01 .. 2026-08 (200) | Sustituto de corto plazo (ver nota 1). D = 0.5 es una aproximación. |
 | Bonos soberanos (`bonds`) | `btp__bcrp_rendimiento_10a.csv` | `PD31895MM` Rendimiento del Bono del gobierno peruano a 10 años (en S/) | `yield` | Igual, con D = 7.0 años | 2010-01 .. 2026-09 (201) | La duración modificada de un BTP a 10 años varía con la tasa; 7.0 es una aproximación. Fórmula de primer orden (sin convexidad). |
 | Depósito a plazo (`term`) | `deposito__bcrp_tasa_pasiva_181_360d.csv` | `PN07814NM` Tasa pasiva promedio de la banca en MN, plazo 181–360 días (términos efectivos anuales) | `rate` | `r_t = tasa_{t−1}/1200` (interés devengado) | 2010-08 .. 2026-08 (193) | Promedio del sistema bancario; la σ medida es la variación del nivel de tasa en el tiempo, no un riesgo de pérdida. |
@@ -31,11 +34,26 @@ Descarga: 2026-10-05, ventana pedida 2010-01 a 2026-10; el mes en curso (aún ab
    (`y/12`) más el efecto precio de primer orden (`−D·Δy`). Es una aproximación declarada.
 4. **Correlaciones.** Se estiman con los meses comunes de cada par de categorías con datos (mínimo
    `min_months` = 24 en `data/parameters/bayes.json`). Si la matriz no es semidefinida positiva se
-   repara (recorte de autovalores y diagonal unitaria); con los datos actuales el autovalor mínimo
-   era −1.5·10⁻⁷, así que la reparación es despreciable.
-7. **Composición de los mixtos.** Una primera versión usaba 0.5 × acciones + 0.5 × deuda, que era una
-   copia escalada de acciones (correlación 0.9996). Se cambió a acciones + bonos, más fiel a la cartera
-   de un fondo mixto.
+   repara (recorte de autovalores y diagonal unitaria); con los datos actuales (W15) la matriz ya es
+   semidefinida positiva y no se repara (con el compuesto de W14 el autovalor mínimo era −1.5·10⁻⁷).
+7. **Historia de los mixtos.** En W14 la categoría era un compuesto: primero 0.5 × acciones + 0.5 ×
+   deuda (copia escalada de acciones, correlación 0.9996) y luego 0.5 × acciones + 0.5 × bonos
+   (correlación 0.97 con acciones; el AG le asignaba 0 % casi siempre). En W15 se reemplazó por el
+   Fondo 2 de las AFP (SBS). El tipo `composite` sigue soportado por el código, pero el manifiesto no lo
+   usa.
+8. **Fondo 2 de las AFP (SBS).** Archivo B-220932 del Boletín SPP, URL
+   `https://intranet2.sbs.gob.pe/estadistica/financiera/{año}/{Mes}/B-220932-{mm}{año}.XLS` (Mes según la
+   SBS, por ejemplo `Setiembre`; `mm` = en, fe, ma, ab, my, jn, jl, ag, se, oc, no, di). El script prueba
+   el mes actual y retrocede hasta 3 meses; el servidor está detrás de un firewall, así que envía un
+   User-Agent de navegador y hace una sola petición por mes. Para cada AFP toma el valor cuota del último
+   día con dato de cada mes, descarta el mes en curso y también el último mes del archivo si sus datos
+   terminan antes de su último día hábil. **Filtro de datos:** antes de tomar los fines de mes descarta
+   un valor diario que salta más de 50 % frente al anterior y vuelve al día siguiente; un salto
+   persistente detiene la descarga para revisarlo. En la descarga actual no se descartó ningún valor
+   (`daily_spikes_rejected` en el manifiesto). El valor cuota es un precio por cuota: aportes y retiros
+   no distorsionan el retorno. `python scripts/fetch_market_data.py --only sbs` actualiza solo esta
+   categoría (requiere `openpyxl`, en `requirements-data.txt`); si la SBS no responde, se conserva el
+   snapshot versionado.
 5. **Respaldo Yahoo.** `python scripts/fetch_market_data.py --stocks-source yahoo` reemplaza la serie
    de acciones por el ETF `EPU` (iShares MSCI Peru, USD, cierre ajustado por dividendos) convertido a
    soles con `PEN=X`, en `acciones__yahoo_epu_en_soles.csv` (requiere `yfinance`). No se usa en la

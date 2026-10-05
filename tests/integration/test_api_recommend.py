@@ -60,7 +60,7 @@ def test_same_seed_is_reproducible() -> None:
 
 
 def equity_exposure(body: dict) -> float:
-    """Weight in stocks plus mixed funds (the mixed composite holds 50 % equities)."""
+    """Weight in stocks plus mixed funds (AFP Fondo 2, a mixed fund that holds equities)."""
     return sum(a["weight"] for a in body["allocation"] if a["category"] in ("stocks", "mixed"))
 
 

@@ -1,5 +1,5 @@
 {
-  "description": "Monthly market series per category (W14). Values in each CSV are exactly as published: index level (kind=index) or % annual rate (kind=yield|rate). ai/uncertainty/bayesian/market.py converts them to monthly returns by kind.",
+  "description": "Monthly market series per category (W14, mixed funds from the SBS in W15). Values in each CSV are exactly as published: index level (kind=index) or % annual rate (kind=yield|rate); the mixed index is the chained equal-weight average of AFP Fondo 2 valor cuota returns. ai/uncertainty/bayesian/market.py converts them to monthly returns by kind.",
   "generated_by": "scripts/fetch_market_data.py",
   "categories": {
     "stocks": {
@@ -15,24 +15,40 @@
       "months": 200
     },
     "mixed": {
-      "file": null,
-      "source": "composite",
-      "series_code": null,
-      "title": "Compuesto a partir de series reales: 50 % acciones (Índice General BVL) + 50 % bonos (BTP 10 años) (retornos mensuales)",
-      "kind": "composite",
-      "components": [
-        "stocks",
-        "bonds"
-      ],
-      "weights": [
-        0.5,
-        0.5
-      ],
-      "url": null,
+      "file": "mixtos__sbs_afp_fondo2_promedio.csv",
+      "source": "SBS",
+      "series_code": "B-220932 Fondo Tipo 2",
+      "title": "Valor cuota del Fondo de Pensiones Tipo 2 (promedio Integra, Prima, Profuturo)",
+      "kind": "index",
+      "url": "https://intranet2.sbs.gob.pe/estadistica/financiera/2026/Setiembre/B-220932-se2026.XLS",
+      "url_pattern": "https://intranet2.sbs.gob.pe/estadistica/financiera/{year}/{folder}/B-220932-{code}{year}.XLS",
       "fetched_at": "2026-10-05",
       "first": "2010-01",
       "last": "2026-08",
-      "months": 200
+      "months": 200,
+      "afps": [
+        "Integra",
+        "Prima",
+        "Profuturo"
+      ],
+      "levels_file": "mixtos__sbs_afp_fondo2_valor_cuota.csv",
+      "excluded_afps": {
+        "Habitat": "empieza en 2013-06; se incluye en mixtos__sbs_afp_fondo2_valor_cuota.csv solo como referencia"
+      },
+      "daily_spikes_rejected": {
+        "Integra": 0,
+        "Prima": 0,
+        "Profuturo": 0,
+        "Habitat": 0
+      },
+      "notes": [
+        "Aproximación: Fondo 2 de las AFP (fondo mixto por regulación), no un fondo mutuo minorista.",
+        "Cerca de 40-50 % del fondo está en activos del exterior: el retorno en soles incluye el efecto del tipo de cambio.",
+        "La comisión de la AFP se cobra fuera del valor cuota (no verificado), así que el retorno no la descuenta.",
+        "El valor cuota es un precio por cuota: aportes y retiros no distorsionan el retorno.",
+        "Promedio simple de los retornos mensuales de Integra, Prima y Profuturo, encadenado como índice (base 100 en el primer mes); Habitat se excluye porque empieza en 2013-06.",
+        "Filtro de datos: se descarta un valor diario que salta más de 50 % frente al anterior y vuelve al día siguiente; un salto persistente detiene la descarga."
+      ]
     },
     "debt": {
       "file": "deuda__bcrp_tasa_saldo_cd_bcrp.csv",

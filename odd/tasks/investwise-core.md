@@ -42,6 +42,7 @@ The repository is a skeleton. The v1.1 design misses the professor's feedback (n
 | W12 | Installation and user manuals, README update (F9) | delegated | done | `bc20e19`; passive docs (structural readback, links OK); 7 screenshots |
 | W13 | Polish from experiments/manual findings: c gene stranding, score note formula, chart label clipping, convergence ticks, % format, stale ping text, restart action, offline number words | delegated | done | `c326733` (regenerated results) + `bb745e1` (reviewed, approved); 247 py + 82 vitest; c stranding 2/60 → 0/600; offline golden set 97.1 % → 100 % |
 | W14 | Real market data for all five categories from BCRP (BVL index, BTP 10y, soles bonds ≤3y, deposit rate; mixed as documented composite) with manifest, descriptive file names, yield→return by duration; rerun experiments and fixtures | delegated | done | `785a4db` (reviewed: high risk, 4 lenses, no findings) + generated results/fixtures; 278 py + 82 vitest; all 5 categories data-backed |
+| W15 | Mixed funds from real data: SBS AFP Fondo 2 valor cuota (equal-weight Integra/Prima/Profuturo) replacing the 50/50 composite; rerun experiments and fixtures | delegated | pending | |
 
 ## Acceptance criteria
 
@@ -71,6 +72,8 @@ The repository is a skeleton. The v1.1 design misses the professor's feedback (n
 - W14 authorized by the user ("necesito datos reales"): BCRP web view is readable through headless chromium (anti-bot passed); series located: PN01142MM, PD31895MM, PN01113MM, PN07814NM. BCRP publishes no mutual-fund returns → mixed fund as composite of real series.
 
 - W14: debt series fallback to PN06503OM (CD BCRP yield, D≈0.5) because PN01113MM/PN01124MM are mostly 0.0 (no issuance). Mixed composite changed to 0.5 stocks + 0.5 BTP (ρ with stocks 0.97; GA rarely picks it — documented limitation). Real BTP σ 6.5 % vs prior 3.5 % → debt and term now dominate conservative/moderate portfolios. Integration test now asserts equity exposure (stocks+mixed).
+
+- W15 authorized ("haz lo que mejor creas conveniente") after research: SBS file B-220932 (static GET, verified 200, xlsx) gives daily SPP valor cuota by fund type since 1993; Fondo 2 2010–2026: μ 7.1 %, σ 7.6 %, ρ_BVL 0.72 vs composite 0.97. Alternative SMV SIMV retail funds rejected (redundant ρ 0.93–0.96 or global fund of funds).
 
 ## Next step
 

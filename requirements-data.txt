@@ -1,4 +1,6 @@
 # Optional data tooling, used only by scripts/fetch_market_data.py (not an app dependency).
-# The default BCRP download needs only the standard library plus a Chromium/Chrome binary;
+# The BCRP download needs only the standard library plus a Chromium/Chrome binary;
+# openpyxl reads the SBS valor cuota workbook (mixed funds, W15);
 # yfinance is required only for the stocks fallback (--stocks-source yahoo).
+openpyxl>=3.1
 yfinance>=0.2.50
