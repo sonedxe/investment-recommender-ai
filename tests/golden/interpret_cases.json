@@ -1,0 +1,464 @@
+{
+ "version": 1,
+ "description": "Golden set de interpretación (español peruano coloquial). 'expected' lista los campos del perfil esperados (null = no debe inventarse); solo se puntúan las claves presentes.",
+ "cases": [
+  {
+   "id": "completo-conservador",
+   "tipo": "completo",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Tengo S/ 5000 de mis S/ 20000 para invertir, no me gusta arriesgar y no los necesito en 3 años; tengo 4 meses de colchón"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 5000,
+    "horizonte_anios": 3,
+    "perfil_riesgo": "conservador",
+    "ahorro_total": 20000,
+    "cobertura_emergencia_meses": 4
+   },
+   "expected_complete": true,
+   "expected_question": null,
+   "requires_question": false
+  },
+  {
+   "id": "completo-moderado",
+   "tipo": "completo",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Quiero invertir 10 mil soles a 5 años, acepto algo de riesgo. En total tengo 40 mil ahorrados y un colchón de 6 meses."
+    }
+   ],
+   "expected": {
+    "monto_invertir": 10000,
+    "horizonte_anios": 5,
+    "perfil_riesgo": "moderado",
+    "ahorro_total": 40000,
+    "cobertura_emergencia_meses": 6
+   },
+   "expected_complete": true,
+   "expected_question": null,
+   "requires_question": false
+  },
+  {
+   "id": "completo-agresivo",
+   "tipo": "completo",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Pongo S/ 3,000 por 10 años, me animo a arriesgar. Tengo S/ 15,000 ahorrados y puedo cubrir mis gastos por 8 meses."
+    }
+   ],
+   "expected": {
+    "monto_invertir": 3000,
+    "horizonte_anios": 10,
+    "perfil_riesgo": "agresivo",
+    "ahorro_total": 15000,
+    "cobertura_emergencia_meses": 8
+   },
+   "expected_complete": true,
+   "expected_question": null,
+   "requires_question": false
+  },
+  {
+   "id": "edad-no-es-horizonte",
+   "tipo": "completo",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Tengo 30 años y quiero invertir S/ 4000 a 5 años con riesgo moderado; tengo S/ 12000 ahorrados y 3 meses de colchón"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 4000,
+    "horizonte_anios": 5,
+    "perfil_riesgo": "moderado",
+    "ahorro_total": 12000,
+    "cobertura_emergencia_meses": 3
+   },
+   "expected_complete": true,
+   "expected_question": null,
+   "requires_question": false
+  },
+  {
+   "id": "horizonte-vago-anitos",
+   "tipo": "horizonte_cualitativo",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Quiero invertir S/ 8000 para dentro de unos añitos, con riesgo moderado."
+    }
+   ],
+   "expected": {
+    "monto_invertir": 8000,
+    "horizonte_anios": null,
+    "perfil_riesgo": "moderado",
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "horizonte",
+   "requires_question": true
+  },
+  {
+   "id": "horizonte-etiqueta-largo",
+   "tipo": "horizonte_cualitativo",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Tengo 2000 soles para invertir a largo plazo, soy conservador"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 2000,
+    "horizonte_anios": null,
+    "perfil_riesgo": "conservador",
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null,
+    "horizonte_etiqueta": "largo"
+   },
+   "expected_complete": false,
+   "expected_question": "ahorro_total",
+   "requires_question": false
+  },
+  {
+   "id": "horizonte-en-meses",
+   "tipo": "completo_parcial",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Quiero invertir S/ 1000 en 18 meses, con poco riesgo"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 1000,
+    "horizonte_anios": 1.5,
+    "perfil_riesgo": "conservador",
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "ahorro_total",
+   "requires_question": false
+  },
+  {
+   "id": "falta-monto",
+   "tipo": "falta_monto",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Quiero invertir sin arriesgar mucho"
+    }
+   ],
+   "expected": {
+    "monto_invertir": null,
+    "horizonte_anios": null,
+    "perfil_riesgo": "conservador",
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "monto_invertir",
+   "requires_question": true
+  },
+  {
+   "id": "falta-monto-y-plazo",
+   "tipo": "falta_monto",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Hola, quiero empezar a invertir mi plata, nada muy arriesgado"
+    }
+   ],
+   "expected": {
+    "monto_invertir": null,
+    "horizonte_anios": null,
+    "perfil_riesgo": "conservador",
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "monto_invertir",
+   "requires_question": true
+  },
+  {
+   "id": "contradictorio-max-sin-perder",
+   "tipo": "contradictorio",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Quiero máxima ganancia pero no puedo perder nada, tengo S/ 5000 para 2 años"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 5000,
+    "horizonte_anios": 2,
+    "perfil_riesgo": null,
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "perfil_riesgo",
+   "requires_question": true
+  },
+  {
+   "id": "contradictorio-arriesgar-seguro",
+   "tipo": "contradictorio",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Me animo a arriesgar pero prefiero lo seguro; invierto S/ 4000 a 3 años"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 4000,
+    "horizonte_anios": 3,
+    "perfil_riesgo": null,
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "perfil_riesgo",
+   "requires_question": true
+  },
+  {
+   "id": "monto-en-palabras",
+   "tipo": "monto_en_palabras",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Quiero invertir cinco mil soles a 4 años con riesgo moderado"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 5000,
+    "horizonte_anios": 4,
+    "perfil_riesgo": "moderado",
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "ahorro_total",
+   "requires_question": false
+  },
+  {
+   "id": "monto-mil-con-palabras",
+   "tipo": "monto_en_palabras",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Tengo como veinte mil soles ahorrados y quiero meter diez mil a 6 años, nada muy arriesgado"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 10000,
+    "horizonte_anios": 6,
+    "perfil_riesgo": "conservador",
+    "ahorro_total": 20000,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "cobertura_emergencia_meses",
+   "requires_question": false
+  },
+  {
+   "id": "dolares-texto",
+   "tipo": "moneda_extranjera",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Quiero invertir 2000 dólares a 3 años, riesgo moderado"
+    }
+   ],
+   "expected": {
+    "monto_invertir": null,
+    "horizonte_anios": 3,
+    "perfil_riesgo": "moderado",
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "monto_invertir",
+   "requires_question": true
+  },
+  {
+   "id": "dolares-simbolo",
+   "tipo": "moneda_extranjera",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Tengo US$ 1500 para invertir por 5 años, soy agresivo"
+    }
+   ],
+   "expected": {
+    "monto_invertir": null,
+    "horizonte_anios": 5,
+    "perfil_riesgo": "agresivo",
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "monto_invertir",
+   "requires_question": true
+  },
+  {
+   "id": "rechaza-ahorros",
+   "tipo": "rechaza_ahorros",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Quiero invertir S/ 6000 a 4 años, riesgo moderado"
+    },
+    {
+     "role": "assistant",
+     "content": "¿Cuánto tienes ahorrado en total?",
+     "field": "ahorro_total"
+    },
+    {
+     "role": "user",
+     "content": "Prefiero no decir cuánto tengo ahorrado"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 6000,
+    "horizonte_anios": 4,
+    "perfil_riesgo": "moderado",
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": true,
+   "expected_question": null,
+   "requires_question": false,
+   "expected_rejected": [
+    "ahorro_total"
+   ]
+  },
+  {
+   "id": "multi-turno-monto",
+   "tipo": "multi_turno",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Quiero invertir a 5 años con riesgo moderado"
+    },
+    {
+     "role": "assistant",
+     "content": "¿Cuánto quieres invertir?",
+     "field": "monto_invertir"
+    },
+    {
+     "role": "user",
+     "content": "S/ 6000"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 6000,
+    "horizonte_anios": 5,
+    "perfil_riesgo": "moderado",
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "ahorro_total",
+   "requires_question": false
+  },
+  {
+   "id": "multi-turno-horizonte",
+   "tipo": "multi_turno",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Invierto S/ 7000, soy conservador"
+    },
+    {
+     "role": "assistant",
+     "content": "¿En cuánto tiempo necesitarás el dinero?",
+     "field": "horizonte"
+    },
+    {
+     "role": "user",
+     "content": "unos 2 años y medio"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 7000,
+    "horizonte_anios": 2.5,
+    "perfil_riesgo": "conservador",
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "ahorro_total",
+   "requires_question": false
+  },
+  {
+   "id": "multi-turno-completo",
+   "tipo": "multi_turno",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Quiero poner S/ 12000 a 8 años, acepto el riesgo"
+    },
+    {
+     "role": "assistant",
+     "content": "¿Cuánto tienes ahorrado en total?",
+     "field": "ahorro_total"
+    },
+    {
+     "role": "user",
+     "content": "en total tengo 50 mil"
+    },
+    {
+     "role": "assistant",
+     "content": "¿Cuántos meses de gastos podrías cubrir?",
+     "field": "cobertura_emergencia_meses"
+    },
+    {
+     "role": "user",
+     "content": "unos 5 meses"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 12000,
+    "horizonte_anios": 8,
+    "perfil_riesgo": "agresivo",
+    "ahorro_total": 50000,
+    "cobertura_emergencia_meses": 5
+   },
+   "expected_complete": true,
+   "expected_question": null,
+   "requires_question": false
+  },
+  {
+   "id": "multi-turno-resuelve-contradiccion",
+   "tipo": "multi_turno",
+   "conversation": [
+    {
+     "role": "user",
+     "content": "Quiero lo máximo posible pero sin riesgo, S/ 3000 a 4 años"
+    },
+    {
+     "role": "assistant",
+     "content": "¿Qué tanto riesgo aceptarías?",
+     "field": "perfil_riesgo"
+    },
+    {
+     "role": "user",
+     "content": "ok, moderado entonces"
+    }
+   ],
+   "expected": {
+    "monto_invertir": 3000,
+    "horizonte_anios": 4,
+    "perfil_riesgo": "moderado",
+    "ahorro_total": null,
+    "cobertura_emergencia_meses": null
+   },
+   "expected_complete": false,
+   "expected_question": "ahorro_total",
+   "requires_question": false
+  }
+ ]
+}

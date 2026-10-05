@@ -7,13 +7,13 @@ OpenAI-compatible APIs and Anthropic, plus a deterministic offline mode that
 needs no network or API key.
 """
 
-import os
+from ai.generative.adapters import OFFLINE, effective_provider
 
 
 def ping() -> dict:
-    """Check that the module responds (used by the connectivity test)."""
+    """Check that the module responds; ``mode`` is "api" only when an LLM provider is effective."""
     return {
         "module": "generative",
         "status": "ok",
-        "mode": "api" if os.getenv("OPENAI_API_KEY") else "offline",
+        "mode": "offline" if effective_provider() == OFFLINE else "api",
     }
