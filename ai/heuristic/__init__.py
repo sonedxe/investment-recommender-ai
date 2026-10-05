@@ -1,9 +1,15 @@
-"""Módulo de algoritmos heurísticos (en desarrollo).
+"""Módulo de algoritmos heurísticos.
 
-Aquí se implementarán los algoritmos heurísticos para búsqueda/optimización
-(por ejemplo: algoritmo genético, simulated annealing o A*) que resolverán
-el problema de optimización de cartera del sistema.
+Implementa el algoritmo genético (Módulo 3 del informe técnico) que resuelve
+el problema de optimización de portafolio: encontrar los pesos w1..w5 que
+maximizan la función de aptitud ampliada (retorno ajustado - aversión*riesgo
+- penalización por volatilidad excedida), sujeto a que sumen 100% y sean
+no negativos.
 """
+
+from ai.heuristic.genetic import GeneticResult, fitness_portafolio, optimize_portfolio
+
+__all__ = ["GeneticResult", "fitness_portafolio", "optimize_portfolio"]
 
 
 def ping() -> dict:
@@ -11,5 +17,5 @@ def ping() -> dict:
     return {
         "module": "heuristic",
         "status": "ok",
-        "planned": ["genetic_algorithm", "simulated_annealing"],
+        "implemented": ["genetic_algorithm"],
     }

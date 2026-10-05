@@ -1,60 +1,89 @@
-# Investment Recommender AI
+# Investment Recommender AI — InvestWise
 
 Software inteligente para el curso de **Software Inteligente**: un recomendador
-de inversiones que integra tres componentes:
+de inversiones del mercado peruano que integra, en una única aplicación con
+interfaz gráfica, los tres componentes exigidos por el enunciado:
 
-1. **IA generativa** (`ai/generative`) — se conecta a una API de LLM para
-   interpretar solicitudes, generar el universo de inversión y explicar resultados.
-2. **Algoritmos heurísticos** (`ai/heuristic`) — optimización/selección de cartera.
-3. **Razonamiento bajo incertidumbre** (`ai/uncertainty`) — lógica difusa,
-   razonamiento probabilístico / métodos bayesianos.
+1. **IA generativa** (`ai/generative`) — conexión a una API de LLM (OpenAI o
+   compatible) para interpretar la solicitud del usuario en lenguaje natural
+   (con loop de clarificación) y explicar los resultados en lenguaje simple.
+   Si no hay clave de API, opera en modo **offline** determinista.
+2. **Algoritmo heurístico** (`ai/heuristic`) — algoritmo genético que optimiza
+   la distribución del portafolio entre 5 categorías de inversión.
+3. **Razonamiento bajo incertidumbre** (`ai/uncertainty`) — inferencia
+   bayesiana (retorno, riesgo, covarianza y tendencia por categoría), lógica
+   difusa tipo Sugeno (horizonte temporal y capacidad de absorción) y reglas
+   de contexto (panorama político, estabilidad macroeconómica, tendencia).
+
+La especificación completa está en `docs/Informe_Tecnico_InvestWise_v1.1.txt`;
+la trazabilidad informe ↔ código, en `docs/README.md`.
 
 ## Estructura
 
 ```
-├── ai/                     # Módulos de inteligencia (3 componentes)
-│   ├── generative/         #   IA generativa (API LLM)
-│   ├── heuristic/          #   Algoritmos heurísticos
-│   └── uncertainty/        #   Razonamiento bajo incertidumbre
-├── backend/                # API REST con FastAPI (orquestador)
+├── ai/                     # Módulos de inteligencia
+│   ├── generative/         #   M1: IA generativa (API LLM + fallback offline)
+│   ├── heuristic/          #   M3: algoritmo genético
+│   ├── uncertainty/        #   M2 bayesiano · M4 lógica difusa · M5 contexto
+│   └── reference_data.py   #   Anexos A y C del informe técnico
+├── backend/                # API REST con FastAPI (orquestador del flujo)
 │   └── app/
 ├── frontend/               # Interfaz gráfica: React + Vite + TypeScript
-├── docs/                   # Manuales + informe técnico (entregables)
-└── tests/                  # Pruebas de conectividad
+├── docs/                   # Entregables: manuales + informe técnico
+└── tests/                  # 43 pruebas unitarias y de integración
 ```
 
-## Puesta en marcha (esqueleto de prueba)
+## Puesta en marcha
 
 ### 1. Backend
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+python -m venv .venv
+.venv\Scripts\activate          # Windows
+# source .venv/bin/activate     # macOS/Linux
 pip install -r requirements.txt
 cp .env.example .env            # opcional: añade OPENAI_API_KEY
 uvicorn backend.app.main:app --reload --port 8000
 ```
 
 Verifica:
+
 ```bash
 curl http://localhost:8000/health
 curl http://localhost:8000/api/ping   # consulta los 3 módulos de IA
 ```
+
+API (Swagger interactivo): http://localhost:8000/docs
+
+| Endpoint | Descripción |
+|---|---|
+| `GET /health` | Verificación de vida |
+| `GET /api/ping` | Conectividad con los 3 módulos de IA |
+| `GET /api/categories` | Categorías y parámetros de referencia |
+| `POST /api/interpret` | Interpreta el texto del usuario (loop de clarificación) |
+| `POST /api/recommend` | Flujo completo: bayesiano → difuso → contexto → genético → explicación |
 
 ### 2. Frontend
 
 ```bash
 cd frontend
 npm install
-npm run dev          # http://localhost:5173  (hace proxy a /api → :8000)
+npm run dev          # http://localhost:5173  (hace proxy de /api → :8000)
 ```
 
 ### 3. Pruebas automatizadas
 
 ```bash
-pytest                        # desde la raíz del repositorio
+pytest                        # desde la raíz del repositorio (43 pruebas)
 ```
 
-> El módulo de IA generativa funciona en modo `api` si hay `OPENAI_API_KEY`
-> configurada, y en modo `offline` si no. La conexión entre módulos se
-> desarrollará en las siguientes iteraciones.
+## Modo API vs. modo offline de la IA generativa
+
+- **Modo `api`**: se activa al configurar `OPENAI_API_KEY` en `.env` (compatible
+  con cualquier proveedor con protocolo OpenAI: Azure, Groq, Ollama, etc.).
+- **Modo `offline`**: sin clave (o ante cualquier fallo de la API), un parser
+  léxico y un explicador por plantillas cumplen el mismo contrato, de forma
+  determinista. La aplicación nunca se queda sin responder.
+
+> **Aviso:** proyecto académico. Las recomendaciones usan promedios históricos
+> de referencia y no constituyen asesoría financiera real.

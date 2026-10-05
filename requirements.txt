@@ -1,7 +1,13 @@
-# Dependencias del backend (se ampliarán al implementar los módulos de IA)
+# Dependencias del backend
 fastapi>=0.115,<1.0
 uvicorn[standard]>=0.32,<1.0
 python-dotenv>=1.0,<2.0
+
+# Cálculo numérico (módulos bayesiano, difuso, contexto y genético)
+numpy>=1.26
+
+# IA generativa (opcional: solo se usa si hay OPENAI_API_KEY configurada)
+# Se accede vía httpx (ya incluido abajo); no requiere SDK adicional.
 
 # Testing
 pytest>=8.3,<9.0
