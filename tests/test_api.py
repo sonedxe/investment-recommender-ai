@@ -105,4 +105,5 @@ def test_categories() -> None:
     assert res.status_code == 200
     body = res.json()
     assert len(body["categorias"]) == 5
-    assert body["categorias"][0]["mu_referencia"] == 0.122
+    # mu calibrada con datos reales (AAFMP 2019-2025, ver ai/reference_data.py)
+    assert body["categorias"][0]["mu_referencia"] == 0.079471

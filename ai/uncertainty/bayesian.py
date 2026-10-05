@@ -6,17 +6,22 @@ Estima, para cada una de las 5 categorías de inversión del mercado peruano:
 - un indicador de tendencia reciente s_tend en [-1, +1] (sección 4.3).
 
 El componente "bayesiano" consiste en una actualización conjugada sobre un
-modelo normal: la estimación previa (prior, tomada del Anexo A) se combina
-con los datos históricos de forma ponderada, en vez de mantener valores fijos
-indefinidamente. Cuando llega una observación nueva (`bayesian_update`), la
-estimación se desplaza hacia el dato nuevo con un peso proporcional a la
-confianza acumulada.
+modelo normal: la estimación previa (prior, calibrada con datos reales — ver
+`ai/reference_data.py`) se combina con los datos históricos de forma
+ponderada, en vez de mantener valores fijos indefinidamente. Cuando llega una
+observación nueva (`bayesian_update`), la estimación se desplaza hacia el
+dato nuevo con un peso proporcional a la confianza acumulada.
 
-Datos históricos: el sistema incluye series anuales de referencia (10 años,
-2015-2024) construidas de forma documentada para reproducir exactamente las
-medias y desviaciones del Anexo A (ver `_build_historial`). Son datos de
-trabajo reemplazables por series reales (AAFMP, BCRP) sin tocar el código del
-módulo: basta pasar otro `historial` a `estimate()`.
+Datos históricos (oct-2026): series REALES documentadas y citables en
+`ai/data/market_data.py` — rentabilidades anuales de fondos mutuos por tipo
+(AAFMP/SMV 2019-2025), tasa de depósitos (Banco Mundial/FMI-IFS-BCRP y
+SBS-BBVA) y rendimiento del bono soberano a 10 años (BCRP vía CEIC/TE; MEF).
+Detalle y citas: `docs/FUENTES_DE_DATOS.md`.
+
+La matriz de covarianza se construye como cov_ij = rho_ij * sigma_i * sigma_j,
+con rho de la matriz documentada `CORRELACIONES` (bloque de fondos empírico
+sobre las series AAFMP; BTP/depósito como parámetros de diseño documentados),
+porque las series reales no comparten todos los años calendario.
 """
 
 from __future__ import annotations
@@ -25,27 +30,12 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from ai.reference_data import CATEGORIAS, MU_REF, SIGMA_REF
-
-# Años de las series de referencia (el último año representa los "últimos
-# 12 meses" para el indicador de tendencia).
-ANIOS_HISTORIAL: list[int] = list(range(2015, 2025))
-
-# Patrones de desviaciones estandarizadas (media muestral 0) por categoría.
-# Se normalizan en `_build_historial` para que su desviación muestral sea 1 y
-# luego se escalan con mu/sigma de referencia; así la media y el riesgo de
-# cada serie coinciden exactamente con el Anexo A por construcción.
-_Z_PATTERNS: dict[str, list[float]] = {
-    "fondos_acciones": [-1.4, -0.8, -0.3, 0.1, 0.4, 0.6, -0.5, 0.9, 1.2, -0.2],
-    "fondos_mixtos": [-1.0, -0.6, -0.2, 0.2, 0.3, 0.5, -0.3, 0.6, 0.8, -0.3],
-    "fondos_deuda": [0.3, 0.5, 0.6, 0.2, -0.1, -0.4, -0.6, 0.1, -0.2, -0.4],
-    "bonos_soberanos": [0.2, 0.4, 0.5, 0.3, -0.2, -0.5, -0.7, 0.2, 0.1, -0.3],
-    "deposito_plazo_fijo": [0.1, 0.2, 0.2, 0.1, 0.0, -0.1, -0.1, -0.2, -1.0, 0.9],
-}
+from ai.data import historial_decimal
+from ai.reference_data import CATEGORIAS, CORRELACIONES, MU_REF, SIGMA_REF
 
 # Confianza del prior expresada como número de observaciones equivalentes.
-# Con n0 = n_datos, el posterior es el promedio simple entre prior y datos.
-N0: float = 10.0
+# Con n0 ≈ n_datos, el posterior queda cerca del promedio entre prior y datos.
+N0: float = 7.0
 
 
 @dataclass
@@ -77,32 +67,17 @@ class EstimacionMercado:
         return [a.s_tend for a in self.activos]
 
 
-def _build_historial() -> dict[str, list[float]]:
-    """Construye las series anuales de referencia (2015-2024).
-
-    Cada serie es mu_ref + sigma_ref * z, con z normalizado a media 0 y
-    desviación muestral 1; por tanto, la media y la desviación muestral de la
-    serie reproducen exactamente los valores del Anexo A.
-    """
-    historial: dict[str, list[float]] = {}
-    for cat in CATEGORIAS:
-        z = np.asarray(_Z_PATTERNS[cat], dtype=float)
-        z = z - z.mean()
-        z = z / z.std(ddof=1)
-        serie = MU_REF[cat] + SIGMA_REF[cat] * z
-        historial[cat] = [round(float(v), 6) for v in serie]
-    return historial
-
-
-# Historial de referencia cargado una sola vez (reemplazable vía `estimate`).
-HISTORIAL_REF: dict[str, list[float]] = _build_historial()
+# Historial real de referencia cargado una sola vez (reemplazable vía
+# `estimate(historial=...)` o actualizable con `bayesian_update`).
+HISTORIAL_REF: dict[str, list[float]] = historial_decimal()
 
 
 def _tendencia(serie: list[float], mu: float, sigma: float) -> float:
     """Indicador de tendencia reciente: s_tend = clip((r_12m - mu)/sigma, ±1).
 
-    Compara el retorno de los últimos 12 meses (último dato de la serie) con
-    el promedio histórico. Si no hay datos suficientes, devuelve 0 (neutral).
+    Compara el retorno más reciente de la serie (equivalente a los últimos
+    12 meses) con el promedio histórico. Si no hay datos suficientes,
+    devuelve 0 (neutral).
     """
     if len(serie) < 2 or sigma <= 0:
         return 0.0
@@ -115,15 +90,14 @@ def estimate(historial: dict[str, list[float]] | None = None) -> EstimacionMerca
 
     Actualización bayesiana conjugada (modelo normal con media desconocida):
         mu_post = (n0 * mu_prior + n * media_datos) / (n0 + n)
-    donde mu_prior es el valor del Anexo A y n0 la confianza del prior. Como
-    las series de referencia tienen media igual al prior, por defecto
-    mu_post coincide exactamente con el Anexo A. El riesgo se toma de la
-    desviación muestral de los datos (que incluyen ya al prior por
-    construcción), y la covarianza se calcula sobre las series completas.
+    donde mu_prior es el valor calibrado de `MU_REF` y n0 la confianza del
+    prior. Como los priors se calibraron con las mismas series de referencia,
+    por defecto mu_post coincide con ellas. El riesgo se toma de la desviación
+    muestral de los datos, y la covarianza se construye con las correlaciones
+    documentadas (`CORRELACIONES`) y las sigmas estimadas.
     """
     hist = historial if historial is not None else HISTORIAL_REF
     activos: list[EstimacionActivo] = []
-    series: list[np.ndarray] = []
 
     for cat in CATEGORIAS:
         datos = np.asarray(hist[cat], dtype=float)
@@ -135,9 +109,12 @@ def estimate(historial: dict[str, list[float]] | None = None) -> EstimacionMerca
         activos.append(
             EstimacionActivo(activo=cat, mu=mu_post, sigma=sigma_post, s_tend=s_tend, n_obs=int(n))
         )
-        series.append(datos)
 
-    covarianza = np.cov(np.vstack(series), ddof=1).tolist()
+    # Covarianza: cov_ij = rho_ij * sigma_i * sigma_j con rho documentada.
+    sigma_vec = np.asarray([a.sigma for a in activos])
+    rho = np.asarray(CORRELACIONES, dtype=float)
+    covarianza = (rho * np.outer(sigma_vec, sigma_vec)).tolist()
+
     return EstimacionMercado(activos=activos, covarianza=covarianza, historial=hist)
 
 

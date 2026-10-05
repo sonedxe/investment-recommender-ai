@@ -15,6 +15,11 @@ interfaz gráfica, los tres componentes exigidos por el enunciado:
    difusa tipo Sugeno (horizonte temporal y capacidad de absorción) y reglas
    de contexto (panorama político, estabilidad macroeconómica, tendencia).
 
+**Datos de mercado reales** (`ai/data/market_data.py`): rentabilidades anuales
+de fondos mutuos por tipo (AAFMP/SMV 2019-2025), tasas de depósitos (Banco
+Mundial/FMI-BCRP y SBS) y rendimiento del bono soberano a 10 años (BCRP vía
+CEIC/TE; MEF) — documentados y citables en `docs/FUENTES_DE_DATOS.md`.
+
 La especificación completa está en `docs/Informe_Tecnico_InvestWise_v1.1.txt`;
 la trazabilidad informe ↔ código, en `docs/README.md`.
 
@@ -25,7 +30,8 @@ la trazabilidad informe ↔ código, en `docs/README.md`.
 │   ├── generative/         #   M1: IA generativa (API LLM + fallback offline)
 │   ├── heuristic/          #   M3: algoritmo genético
 │   ├── uncertainty/        #   M2 bayesiano · M4 lógica difusa · M5 contexto
-│   └── reference_data.py   #   Anexos A y C del informe técnico
+│   ├── data/               #   Datos reales de mercado (documentados/citables)
+│   └── reference_data.py   #   Parámetros calibrados + Anexo C del informe
 ├── backend/                # API REST con FastAPI (orquestador del flujo)
 │   └── app/
 ├── frontend/               # Interfaz gráfica: React + Vite + TypeScript

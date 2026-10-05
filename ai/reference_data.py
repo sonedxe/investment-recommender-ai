@@ -48,24 +48,46 @@ DESCRIPCIONES_SIMPLES: dict[str, str] = {
     "deposito_plazo_fijo": "depósito a plazo fijo (ahorro bancario con tasa pactada, el más estable de todos)",
 }
 
-# Retorno esperado anual de referencia (mu) por categoría — Anexo A.
+# Retorno esperado anual de referencia (mu) por categoría.
+# CALIBRADO (oct-2026): media muestral de las series reales de
+# `ai/data/market_data.py` (docs/FUENTES_DE_DATOS.md). Sustituye a los
+# valores iniciales de diseño del Anexo A del informe v1.1.
 MU_REF: dict[str, float] = {
-    "fondos_acciones": 0.122,
-    "fondos_mixtos": 0.061,
-    "fondos_deuda": 0.024,
-    "bonos_soberanos": 0.065,
-    "deposito_plazo_fijo": 0.045,
+    "fondos_acciones": 0.079471,   # AAFMP 2019-2025
+    "fondos_mixtos": 0.057400,     # AAFMP 2019-2025
+    "fondos_deuda": 0.036214,      # AAFMP 2019-2025
+    "bonos_soberanos": 0.056680,   # BTP 10Y, puntos 2020-2026
+    "deposito_plazo_fijo": 0.030898,  # Banco Mundial/SBS 2019-2025
 }
 
-# Riesgo anual de referencia (sigma) por categoría — Anexo A (punto medio de
-# los rangos reportados: ~18-20%, ~8-10%, ~2-3%, ~3-4%, ~0.5%).
+# Riesgo anual de referencia (sigma) por categoría.
+# CALIBRADO (oct-2026): desviación muestral de las series reales de
+# `ai/data/market_data.py`.
 SIGMA_REF: dict[str, float] = {
-    "fondos_acciones": 0.19,
-    "fondos_mixtos": 0.09,
-    "fondos_deuda": 0.025,
-    "bonos_soberanos": 0.035,
-    "deposito_plazo_fijo": 0.005,
+    "fondos_acciones": 0.139480,
+    "fondos_mixtos": 0.063039,
+    "fondos_deuda": 0.027760,
+    "bonos_soberanos": 0.014399,
+    "deposito_plazo_fijo": 0.017526,
 }
+
+# Matriz de correlaciones entre categorías (orden de CATEGORIAS).
+# - Bloque fondos (acciones, mixtos, deuda): EMPÍRICO, calculado sobre las
+#   series anuales AAFMP 2019-2025 (docs/FUENTES_DE_DATOS.md, sección 4).
+# - Filas/columnas BTP y depósito: PARÁMETROS DE DISEÑO documentados (las
+#   series de BTP y depósito no comparten años calendario completos con las
+#   de los fondos): correlación baja de la renta fija bancaria con la renta
+#   variable y moderada entre instrumentos guiados por tasas (BTP↔deuda).
+#   Pendiente de calibración cuando se disponga de series alineadas (sección
+#   10 del informe, trabajo futuro).
+CORRELACIONES: list[list[float]] = [
+    #    acciones  mixtos  deuda   btp    dpf
+    [1.000, 0.934, 0.496, 0.10, 0.05],   # fondos_acciones
+    [0.934, 1.000, 0.737, 0.25, 0.05],   # fondos_mixtos
+    [0.496, 0.737, 1.000, 0.40, 0.10],   # fondos_deuda
+    [0.100, 0.250, 0.400, 1.00, 0.30],   # bonos_soberanos
+    [0.050, 0.050, 0.100, 0.30, 1.000],  # deposito_plazo_fijo
+]
 
 # ---------------------------------------------------------------------------
 # Anexo C.1 — Sensibilidades por categoría (reglas de contexto)
