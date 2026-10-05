@@ -1,0 +1,2 @@
+# Optional data tooling, used only by scripts/fetch_market_data.py (not an app dependency)
+yfinance>=0.2.50

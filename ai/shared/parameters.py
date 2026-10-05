@@ -140,12 +140,22 @@ class RiskProfileParameters:
 
 
 @dataclass(frozen=True)
+class BayesParameters:
+    """Prior sd of each category's expected return (annual) and data requirements."""
+
+    prior_mean_sd: np.ndarray
+    min_months: int
+    trend_window_months: int
+
+
+@dataclass(frozen=True)
 class Parameters:
     categories: CategoryParameters
     context: ContextParameters
     fuzzy: FuzzyParameters
     optimization: OptimizationParameters
     risk_profiles: RiskProfileParameters
+    bayes: BayesParameters
 
 
 def _read(base_dir: Path, name: str) -> dict[str, Any]:
@@ -342,6 +352,22 @@ def load_risk_profiles(base_dir: Path) -> RiskProfileParameters:
     return RiskProfileParameters(lambda_base=MappingProxyType(lambdas))
 
 
+def load_bayes(base_dir: Path) -> BayesParameters:
+    raw = _read(base_dir, "bayes.json")
+    sds = raw.get("prior_mean_sd", {})
+    missing = [c.value for c in CATEGORY_ORDER if c.value not in sds]
+    if missing:
+        raise ParameterError(f"bayes.json: missing categories {missing}")
+    prior_sd = np.array([_in_range(sds[c.value], 0.0, 1.0, f"prior_mean_sd[{c.value}]") for c in CATEGORY_ORDER])
+    if np.any(prior_sd <= 0):
+        raise ParameterError("bayes.json: prior_mean_sd must be positive")
+    return BayesParameters(
+        prior_mean_sd=_readonly(prior_sd),
+        min_months=_positive_int(raw.get("min_months"), "min_months"),
+        trend_window_months=_positive_int(raw.get("trend_window_months"), "trend_window_months"),
+    )
+
+
 def load_parameters(base_dir: Path | str | None = None) -> Parameters:
     """Load and validate every parameter file from ``base_dir`` (default ``data/parameters``)."""
     directory = Path(base_dir) if base_dir is not None else DEFAULT_PARAMETERS_DIR
@@ -351,4 +377,5 @@ def load_parameters(base_dir: Path | str | None = None) -> Parameters:
         fuzzy=load_fuzzy(directory),
         optimization=load_optimization(directory),
         risk_profiles=load_risk_profiles(directory),
+        bayes=load_bayes(directory),
     )

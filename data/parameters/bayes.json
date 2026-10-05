@@ -1,0 +1,14 @@
+{
+  "description": "Bayesian market module: conjugate normal-normal update of each category's expected return",
+  "units": "Annual rates as decimals; prior_mean_sd is the prior standard deviation of the expected return mu (not of the returns)",
+  "design_choice": "Prior means are the Annex A mu values; prior_mean_sd expresses how uncertain we are about each Annex A mu (wider for equity, tight for deposits). Chosen by the team, not estimated.",
+  "prior_mean_sd": {
+    "stocks": 0.03,
+    "mixed": 0.02,
+    "debt": 0.01,
+    "bonds": 0.01,
+    "term": 0.005
+  },
+  "min_months": 24,
+  "trend_window_months": 12
+}
