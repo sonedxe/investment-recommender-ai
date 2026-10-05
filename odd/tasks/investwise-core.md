@@ -75,6 +75,8 @@ The repository is a skeleton. The v1.1 design misses the professor's feedback (n
 
 - W15 authorized ("haz lo que mejor creas conveniente") after research: SBS file B-220932 (static GET, verified 200, xlsx) gives daily SPP valor cuota by fund type since 1993; Fondo 2 2010–2026: μ 7.1 %, σ 7.6 %, ρ_BVL 0.72 vs composite 0.97. Alternative SMV SIMV retail funds rejected (redundant ρ 0.93–0.96 or global fund of funds).
 
+- User-reported bug: clicking "Ver los mismos datos en tabla" collapsed the technical panel (React delivered nested <details> toggle events to the controlled parent, whose handler flipped state). RED test reproduced it; fixed `c88d58c` (ignore non-own toggles, report real open state); verified in the real app via CDP. Assess `f6e43f7..c88d58c`: medium, under_budget (39 lines) → pending in slice.
+
 ## Next step
 
 Feature complete. Open items for the team (outside this feature's code scope):
