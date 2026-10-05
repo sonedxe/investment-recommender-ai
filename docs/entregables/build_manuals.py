@@ -47,7 +47,7 @@ COVER = {
     "school": "Escuela Profesional de Ingeniería de Software",
     "crest": OUT / "assets" / "escudo-unmsm.png",
     "course": "Software Inteligente",
-    "proposal": "Propuesta 4: Recomendador de Inversión / Portafolio Personal",
+    "proposal": "Recomendador de Inversión / Portafolio Personal",
     "group": "Grupo 4:",
     # As written on the team's official cover.
     "members": [
@@ -63,6 +63,13 @@ COVER = {
 }
 
 MANUALS = [
+    {
+        "source": ROOT / "docs" / "informe" / "01-funcionalidades.md",
+        "output": OUT / "Descripcion_de_Funcionalidades_InvestWise.pdf",
+        "title": "Descripción de Funcionalidades",
+        "footer": "Descripción de Funcionalidades — ",
+        "lead": "",
+    },
     {
         "source": SRC / "instalacion.md",
         "output": OUT / "Manual_de_Instalacion_InvestWise.pdf",
