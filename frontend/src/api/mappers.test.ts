@@ -154,7 +154,7 @@ describe('recommendation mappers', () => {
       contextAdj: 0.02,
       source: 'data',
     })
-    // W14: every category is data-backed (mixed is a composite of real series).
+    // W15: every category is data-backed (mixed is the SBS AFP Fondo 2 index).
     expect(t.params.map((p) => p.source)).toEqual(['data', 'data', 'data', 'data', 'data'])
     expect([t.lambdaBase, t.mH, t.lambdaEff]).toEqual([2, 1, 2])
   })
@@ -228,9 +228,9 @@ describe('recommendation mappers', () => {
     expect(Object.is(t.score.rows[3].value, -0)).toBe(false)
     expect(t.score.total).toBe(s.total)
     expect(t.score.rows[4].note).toBe('Pertenencia μ_CA(c) = 1.00')
-    expect(t.score.rows[3].note).toBe('σ = 1.48 % frente al límite de 9.50 %')
+    expect(t.score.rows[3].note).toBe('σ = 1.33 % frente al límite de 9.50 %')
     // The fitness risk term is λ_ef · σ (not ½ · λ · σ²).
-    expect(t.score.rows[2].note).toBe('λ efectiva × σ del portafolio, con σ = 1.48 %')
+    expect(t.score.rows[2].note).toBe('λ efectiva × σ del portafolio, con σ = 1.33 %')
     expect(t.convergence.values).toEqual(raw.convergence.best)
   })
 
