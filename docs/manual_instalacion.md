@@ -54,14 +54,36 @@ Dependencias instaladas: `fastapi`, `uvicorn`, `python-dotenv`, `numpy`,
 cp .env.example .env
 ```
 
-Edite `.env` si desea el modo **API** de IA generativa:
+Sin clave de API, el sistema opera en modo **offline**. Para activar el modo
+**API** de IA generativa, la opción recomendada es **Groq (capa gratuita,
+sin tarjeta de crédito)**:
+
+1. Cree una cuenta en <https://console.groq.com> (email o Google/GitHub).
+2. Abra **API Keys → Create API Key** y copie la clave `gsk_...` (se muestra
+   una sola vez).
+3. Péguela en `OPENAI_API_KEY` de su archivo `.env` (la URL y el modelo ya
+   vienen preconfigurados para Groq en `.env.example`).
+4. Reinicie el backend y verifique:
+
+```bash
+python scripts/test_groq.py
+# debe terminar con: "OK: la API de IA generativa responde correctamente."
+```
+
+Capa gratuita de Groq: ~30 solicitudes/minuto y ~14,400/día (de sobra para
+este sistema, que hace 1-2 llamadas por consulta).
 
 | Variable | Descripción | Por defecto |
 |---|---|---|
 | `OPENAI_API_KEY` | Clave del proveedor de LLM. Vacío = modo offline. | *(vacío)* |
-| `OPENAI_BASE_URL` | Endpoint compatible con OpenAI (OpenAI, Azure, Groq, Ollama…). | `https://api.openai.com/v1` |
-| `OPENAI_MODEL` | Modelo a usar. | `gpt-4o-mini` |
+| `OPENAI_BASE_URL` | Endpoint compatible con OpenAI. Groq: `https://api.groq.com/openai/v1` | Groq |
+| `OPENAI_MODEL` | Modelo de la capa gratuita de Groq (verificados oct-2026): `openai/gpt-oss-120b` (recomendado), `openai/gpt-oss-20b` (más rápido) o `qwen/qwen3.8-27b`. Lista vigente: `GET https://api.groq.com/openai/v1/models` con su clave. | `openai/gpt-oss-120b` |
 | `CORS_ORIGINS` | Orígenes permitidos (separados por coma). | `http://localhost:5173,...` |
+
+> **Importante:** los modelos gratuitos de Groq cambian con el tiempo. Si el
+> log del backend muestra un `404` al llamar la API, consulte la lista vigente
+> con `curl https://api.groq.com/openai/v1/models -H "Authorization: Bearer
+> <su_clave>"` y actualice `OPENAI_MODEL`.
 
 > **Nota:** con cualquier error de la API (red, clave inválida, formato), el
 > sistema hace *fallback* automático al modo offline: la aplicación nunca se
