@@ -117,7 +117,13 @@ def _offline_extraction(conversation: Sequence[Mapping[str, Any]]) -> Extraction
 
 def _from_llm_json(data: Mapping[str, Any]) -> Extraction:
     """Convert validated JSON; a non-null field without evidence is dropped (never assumed)."""
-    evidence = {k: str(v) for k, v in (data.get("evidencia") or {}).items() if k in ALL_FIELDS and v}
+    # Models often key horizon evidence by the JSON field that carries the value.
+    aliases = {"horizonte_anios": FIELD_HORIZON, "horizonte_etiqueta": FIELD_HORIZON}
+    evidence: dict[str, str] = {}
+    for key, text in (data.get("evidencia") or {}).items():
+        field_id = aliases.get(key, key)
+        if field_id in ALL_FIELDS and text and field_id not in evidence:
+            evidence[field_id] = str(text)
     out = Extraction(evidence=evidence)
     for key, attr in _JSON_KEYS.items():
         value = data.get(key)

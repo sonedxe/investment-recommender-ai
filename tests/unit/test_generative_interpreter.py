@@ -124,3 +124,13 @@ def test_llm_risk_label_is_mapped_by_code_not_by_the_model() -> None:
     data = dict(LLM_JSON, perfil_riesgo="muy_agresivo")
     result = interpret([user(COMPLETE)], llm=FakeLLM(data))
     assert result.profile.lambda_base == 0.2
+
+
+def test_horizon_evidence_keyed_by_its_json_field_is_accepted() -> None:
+    # Real Claude output keys horizon evidence as "horizonte_anios" instead of "horizonte".
+    data = {**LLM_JSON, "evidencia": {**LLM_JSON["evidencia"]}}
+    data["evidencia"]["horizonte_anios"] = data["evidencia"].pop("horizonte")
+    result = interpret([user(COMPLETE)], llm=FakeLLM(data))
+    assert result.source == "llm" and result.complete
+    assert result.profile.horizon_years == 3
+    assert result.evidence[FIELD_HORIZON] == "unos 3 años"
