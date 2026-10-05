@@ -65,12 +65,13 @@ The repository is a skeleton. The v1.1 design misses the professor's feedback (n
 - W11–W12 delegated to one writer. RDD: W11+W12 range exceeded reviewer budget (CSV/PNG results); recommitted as code+docs `e63030a` (reviewed, approved), generated results `78f80ed` (unreviewed data, deviation recorded), manuals `bc20e19` (assessed passive, no review). Boundary → `bc20e19`.
 - W13 added from findings and delegated; parent completed the uncertainty ping key. Commits reordered (results first) so the code range `c326733..bb745e1` fit the reviewer budget; approved. Final boundary → `bb745e1`.
 
+- Post-feature (2026-10-05): live Anthropic key configured (workspace-scoped; an organization-scoped key is rejected by the API). First live run exposed a real bug: Claude keys horizon evidence as `horizonte_anios`, so the interpreter dropped the horizon → fixed `6127c15` with regression test. Found tests were reading the developer `.env` and calling the live API → `tests/conftest.py` pins offline. Live golden set: 98.0 % field accuracy, 100 % valid JSON, 3.1 s mean latency; D4 decided: Anthropic. Assess `89b1b8a..6127c15`: medium, `under_budget` (84 lines) → pending in slice.
+
 ## Next step
 
 Feature complete. Open items for the team (outside this feature's code scope):
 
 - Validate the absorption-gene interpretation with the professor (guide: `docs/analisis/10-decisiones-d1-d2-d5.md`, D1).
-- Run the golden set with real OpenAI / Anthropic keys (`scripts/eval_golden_set.py`) and record the D4 choice.
 - Optionally download BCRP series (BTP, deposits) manually to replace Annex A priors (`docs/analisis/09-fuentes-de-datos.md`).
 - Write technical report v2.0 using `docs/plan/04-entregables.md` and `docs/experimentos/`.
 - Push / PR / merge remain the user's decisions.
