@@ -1,6 +1,6 @@
 """Datos históricos REALES del mercado peruano, documentados y citables.
 
-Reemplaza a las series sintéticas de la versión anterior. Cada serie declara:
+Cada serie declara:
 - sus valores y años,
 - la fuente exacta (documento, entidad y URL),
 - qué celdas son observaciones directas y cuáles son estimaciones
