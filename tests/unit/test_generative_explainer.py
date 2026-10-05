@@ -102,3 +102,29 @@ def test_altered_scenario_amount_is_rejected(explanation_input) -> None:
     data = valid_llm_answer(explanation_input)
     data["escenarios"][1]["amount"] = 300
     assert any("escenario" in e for e in validate_explanation(data, explanation_input))
+
+
+def test_malformed_number_in_llm_text_falls_back_instead_of_raising(explanation_input) -> None:
+    bad = valid_llm_answer(explanation_input)
+    bad["parrafos"][0] = "Según datos al 04.10.2026, 1,2,3 categorías concentran el dinero."
+    llm = FakeLLM(bad, bad)
+    result = explain(explanation_input, llm=llm)
+    assert result.source == "offline" and result.validation.fallback
+    assert find_invalid_numbers("04.10.2026", [2026.0]) == ["04.10.2026"]
+
+
+def test_assumption_with_malformed_number_does_not_break_input() -> None:
+    data = build_explanation_input(
+        amount=5000, allocation=ALLOCATION, expected_return=0.052, sigma=0.04, risk_profile="conservador",
+        horizon_years=3, assumptions=["Datos actualizados al 04.10.2026."],
+    )
+    assert explain(data).validation.passed
+
+
+def test_template_handles_allocation_without_amounts() -> None:
+    empty = [(cat, name, 0.0, 0.0) for cat, name, _, _ in ALLOCATION]
+    data = build_explanation_input(
+        amount=5000, allocation=empty, expected_return=0.0, sigma=0.0, risk_profile="moderado", horizon_years=3,
+    )
+    out = template_explanation(data)
+    assert out["resumen"] and out["parrafos"] and out["escenarios"] == []

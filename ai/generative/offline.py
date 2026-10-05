@@ -132,6 +132,14 @@ def parse_number(raw: str) -> float:
     return float(raw.replace(",", "."))
 
 
+def try_parse_number(raw: str) -> float | None:
+    """``parse_number`` that returns None for malformed numbers (``04.10.2026``, ``1,2,3``)."""
+    try:
+        return parse_number(raw)
+    except ValueError:
+        return None
+
+
 def _overlaps(span: tuple[int, int], taken: list[tuple[int, int]]) -> bool:
     return any(span[0] < end and start < span[1] for start, end in taken)
 
@@ -390,6 +398,14 @@ def _lower_first(name: str) -> str:
 def template_explanation(data: ExplanationInput) -> dict:
     """Explanation with the same JSON shape as the language model output (Spanish keys)."""
     lines = sorted((a for a in data.allocation if a.amount >= 0.005), key=lambda a: -a.weight)
+    if not lines:
+        # Final fallback must never raise: nothing was allocated, so explain only that.
+        return {
+            "resumen": f"No hay montos para repartir de tus {format_money(data.amount)}.",
+            "parrafos": ["No se asignó dinero a ninguna categoría, por lo que no hay un reparto que explicar."],
+            "escenarios": [],
+            "supuestos": list(data.assumptions),
+        }
     top = lines[0]
     summary = (
         f"Repartimos tus {format_money(data.amount)} entre varias inversiones, "

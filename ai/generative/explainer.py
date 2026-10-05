@@ -25,7 +25,7 @@ from dataclasses import dataclass, field
 from typing import Any, Mapping, Sequence
 
 from ai.generative import offline
-from ai.generative.offline import OFFLINE_VERSION, parse_number
+from ai.generative.offline import OFFLINE_VERSION, try_parse_number
 from ai.generative.port import LanguageModel, LanguageModelError
 from ai.generative.prompts import load_prompt
 from ai.generative.schema import EXPLAIN_SCHEMA, validate
@@ -191,7 +191,8 @@ def build_explanation_input(
     if horizon_years is not None:
         numbers.append(horizon_years)
     for text in assumptions:
-        numbers += [parse_number(n) for n in _NUMBER.findall(text)]
+        parsed = (try_parse_number(n) for n in _NUMBER.findall(text))
+        numbers += [v for v in parsed if v is not None]
     return ExplanationInput(
         amount=round(amount, 2),
         allocation=lines,
@@ -207,8 +208,13 @@ def build_explanation_input(
 
 
 def _number_candidates(raw: str) -> tuple[list[float], int]:
-    """Possible values of a written number and its decimals (``1.250`` may be 1250 or 1.25)."""
-    candidates = {parse_number(raw)}
+    """Possible values of a written number and its decimals (``1.250`` may be 1250 or 1.25).
+
+    A malformed number (e.g. a dotted date) yields no candidates, so it is reported as
+    invalid and handled by the retry/template path instead of raising.
+    """
+    parsed = try_parse_number(raw)
+    candidates = set() if parsed is None else {parsed}
     if re.fullmatch(r"\d+[.,]\d+", raw):
         candidates.add(float(raw.replace(",", ".")))
     decimals = len(re.split(r"[.,]", raw)[-1]) if re.search(r"[.,]\d{1,2}$", raw) else 0
@@ -239,7 +245,11 @@ def validate_explanation(data: Mapping[str, Any], explanation_input: Explanation
     texts += data["supuestos"]
     allowed = explanation_input.allowed_numbers
     for text in texts:
-        bad = find_invalid_numbers(text, allowed)
+        # Assumptions are given input: quoting one verbatim may repeat its own numbers.
+        scanned = text
+        for assumption in explanation_input.assumptions:
+            scanned = scanned.replace(assumption, "")
+        bad = find_invalid_numbers(scanned, allowed)
         if bad:
             errors.append(f"cifras no permitidas: {', '.join(bad)} en «{text[:80]}»")
         if text.count("S/") != len(_MONEY_OK.findall(text)):
