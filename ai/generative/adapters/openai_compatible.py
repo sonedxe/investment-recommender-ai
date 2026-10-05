@@ -57,7 +57,11 @@ class OpenAICompatibleModel:
                         "type": "json_schema",
                         "json_schema": {"name": "respuesta", "schema": schema, "strict": False},
                     })
-                except openai.BadRequestError:
+                except openai.BadRequestError as exc:
+                    # Downgrade only when the provider rejects json_schema itself; any other
+                    # 400 (context length, invalid message) must not weaken later requests.
+                    if not _rejects_json_schema(exc):
+                        raise
                     self.json_schema_supported = False
             prompt = system + _SCHEMA_INSTRUCTION.format(schema=json.dumps(schema, ensure_ascii=False))
             return self._call(prompt, messages, temperature, max_tokens, {"type": "json_object"})
@@ -93,3 +97,9 @@ def parse_json_object(text: Any, provider: str) -> dict[str, Any]:
     if not isinstance(data, dict):
         raise LanguageModelError(f"{provider}: JSON is not an object")
     return data
+
+
+def _rejects_json_schema(exc: Exception) -> bool:
+    """True when a 400 error is about the ``response_format`` / ``json_schema`` option."""
+    text = f"{exc} {getattr(exc, 'body', '') or ''} {getattr(exc, 'param', '') or ''}".lower()
+    return "response_format" in text or "json_schema" in text

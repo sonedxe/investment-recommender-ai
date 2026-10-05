@@ -9,6 +9,8 @@ numpy>=2.3,<3
 # Language-model SDKs (lazy-imported by ai/generative/adapters; offline mode works without them)
 openai>=3.24,<4
 anthropic>=1.11,<2
+# HTTP client of both SDKs; declared because adapter tests build its Request/Response objects
+httpx2>=2.13,<3
 
 # Testing
 pytest>=8.3,<9.0

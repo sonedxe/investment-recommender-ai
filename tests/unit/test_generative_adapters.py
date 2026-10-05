@@ -22,8 +22,8 @@ ANSWER = {"pregunta": "¿Cuánto quieres invertir?", "ayuda": None}
 _REQUEST = httpx2.Request("POST", "https://example.invalid/v1")
 
 
-def _status_error(cls, status: int):
-    return cls("boom", response=httpx2.Response(status, request=_REQUEST), body=None)
+def _status_error(cls, status: int, message: str = "boom"):
+    return cls(message, response=httpx2.Response(status, request=_REQUEST), body=None)
 
 
 class _Recorder:
@@ -67,13 +67,24 @@ def test_openai_request_shape_uses_non_strict_json_schema():
 
 
 def test_openai_falls_back_to_json_object_when_json_schema_is_rejected():
-    model, rec = _openai(_status_error(openai.BadRequestError, 400), _chat(json.dumps(ANSWER)), _chat(json.dumps(ANSWER)))
+    rejected = _status_error(openai.BadRequestError, 400, "response_format json_schema is not supported")
+    model, rec = _openai(rejected, _chat(json.dumps(ANSWER)), _chat(json.dumps(ANSWER)))
     assert model.complete_json("sistema", MESSAGES, CLARIFY_SCHEMA, temperature=0.3, max_tokens=150) == ANSWER
     retry = rec.calls[1]
     assert retry["response_format"] == {"type": "json_object"}
     assert '"pregunta"' in retry["messages"][0]["content"]  # schema appended to the system prompt
     model.complete_json("sistema", MESSAGES, CLARIFY_SCHEMA, temperature=0.3, max_tokens=150)
     assert rec.calls[2]["response_format"] == {"type": "json_object"}  # downgrade remembered
+
+
+def test_openai_unrelated_bad_request_does_not_downgrade_json_schema():
+    overflow = _status_error(openai.BadRequestError, 400, "maximum context length exceeded")
+    model, rec = _openai(overflow, _chat(json.dumps(ANSWER)))
+    with pytest.raises(LanguageModelError):
+        model.complete_json("sistema", MESSAGES, CLARIFY_SCHEMA, temperature=0.3, max_tokens=150)
+    assert model.json_schema_supported is True
+    model.complete_json("sistema", MESSAGES, CLARIFY_SCHEMA, temperature=0.3, max_tokens=150)
+    assert rec.calls[1]["response_format"]["type"] == "json_schema"
 
 
 @pytest.mark.parametrize("error", [
