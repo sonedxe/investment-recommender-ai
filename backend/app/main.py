@@ -1,18 +1,12 @@
-"""Backend FastAPI — esqueleto de conectividad.
-
-Expone endpoints mínimos para comprobar que el backend responde y que
-los tres módulos de IA (`ai.generative`, `ai.heuristic`, `ai.uncertainty`)
-quedan conectados a la aplicación. La lógica completa se implementará después.
-"""
+"""FastAPI backend: health checks plus the recommendation flow routes (``/api/...``)."""
 
 from __future__ import annotations
-
-import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from ai import generative, heuristic, uncertainty
+from backend.app.api.routes import router
 from backend.app.core import config
 
 app = FastAPI(
@@ -28,6 +22,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(router)
 
 
 @app.get("/health")
