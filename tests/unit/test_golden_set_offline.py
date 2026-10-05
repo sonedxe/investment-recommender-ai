@@ -39,7 +39,7 @@ def summary():
     sys.modules[spec.name] = module  # dataclasses resolve their module through sys.modules
     spec.loader.exec_module(module)
     cases = module.load_cases()
-    assert 15 <= len(cases) <= 20
+    assert len(cases) >= 15  # the set grows with new regression cases (23 since W17)
     return module.evaluate(cases).summary()
 
 
