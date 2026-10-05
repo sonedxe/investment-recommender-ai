@@ -74,6 +74,8 @@ La pantalla **Tu distribución de ejemplo** tiene cuatro partes:
 
 Estos escenarios son estimaciones educativas, no promesas: un año real puede quedar fuera de ese rango.
 
+Para hacer otra consulta, pulsa **Nueva consulta** (debajo de **Ajustar el contexto**): vuelves a la pantalla de inicio con el cuadro de texto vacío.
+
 ## 5. Ajusta el contexto
 
 ![Panel de contexto con panorama político adverso](img/04-contexto-adverso.png)
@@ -87,7 +89,7 @@ Pulsa **Ajustar el contexto** para ver cómo cambiaría el reparto según cómo 
 
 Al elegir un nivel, la distribución se recalcula. A la derecha verás **Antes** (con contexto neutral) y **Después** (con tu ajuste), y una tabla con el **Cambio** en puntos porcentuales por tipo de inversión. En la captura, un panorama político adverso pasa dinero de acciones y fondos mixtos a deuda y plazo fijo, que son más estables.
 
-Estos factores son supuestos que tú eliges para comparar, no predicciones. **Restablecer a Neutral** vuelve al punto de partida y **Volver al resultado** te lleva al resultado con el contexto elegido.
+Estos factores son supuestos que tú eliges para comparar, no predicciones. **Restablecer a Neutral** vuelve al punto de partida, **Volver al resultado** te lleva al resultado con el contexto elegido y **Nueva consulta** vuelve a la pantalla de inicio para describir otra situación.
 
 ## 6. Detalle técnico
 
@@ -127,5 +129,5 @@ En pantallas pequeñas el contenido se apila en una sola columna: primero el rep
 ## 10. Preguntas frecuentes
 
 - **¿Por qué el resultado cambia un poco si vuelvo a empezar?** El algoritmo genético tiene una parte aleatoria. Dentro de una misma sesión se reutiliza la misma semilla, así que al ajustar el contexto solo cambia lo que tú cambiaste.
-- **¿Puedo corregir un dato?** Recarga la página para volver a la pantalla de inicio y describe tu situación otra vez con el dato corregido. El resultado no tiene todavía un botón para empezar de nuevo.
+- **¿Puedo corregir un dato?** Pulsa **Nueva consulta** en el resultado o en la pantalla de contexto para volver a la pantalla de inicio y describe tu situación otra vez con el dato corregido. Las capturas de esta guía son anteriores a ese botón.
 - **¿Se guardan mis datos?** No. La aplicación no tiene cuentas ni base de datos; solo recuerda el tema elegido en tu navegador.

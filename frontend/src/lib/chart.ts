@@ -28,6 +28,16 @@ export function linePath(points: Point[], sx: Scale, sy: Scale): string {
   return points.map((p, i) => `${i ? 'L' : 'M'}${sx(p.x).toFixed(1)} ${sy(p.y).toFixed(1)}`).join(' ')
 }
 
+/** Generation ticks: 1, then multiples of a nice step (1, 2, 2.5 or 5 × 10^k) up to `n`, about five of them. */
+export function generationTicks(n: number): Tick[] {
+  const raw = Math.max(n / 5, 1)
+  const magnitude = 10 ** Math.floor(Math.log10(raw))
+  const step = [1, 2, 2.5, 5, 10].map((f) => f * magnitude).find((s) => s >= raw && Number.isInteger(s)) ?? 10 * magnitude
+  const values = [1]
+  for (let v = step; v <= n; v += step) if (v > 1) values.push(v)
+  return values.map((v) => ({ v, label: String(v) }))
+}
+
 /** Linear interpolation over a piecewise-linear curve; 0 outside its support. */
 export function interpolate(points: Point[], x: number): number {
   for (let i = 1; i < points.length; i++) {

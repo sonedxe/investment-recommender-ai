@@ -57,7 +57,9 @@ def run_ga(
     n_elite = min(params.elitism, size - 1)
     n_children = size - n_elite
 
-    population = random_population(size, cap, rng)
+    # With fuzzy enabled, c starts on the absorption set (p proportional to mu_CA).
+    seed_set = (inputs.universe, inputs.mu_ca) if inputs.fuzzy_enabled else (None, None)
+    population = random_population(size, cap, rng, c_universe=seed_set[0], c_weights=seed_set[1])
     fitness = evaluate_population(population, inputs)
     best_index = int(np.argmax(fitness))
     history_best, history_mean = [float(fitness[best_index])], [float(fitness.mean())]
@@ -72,7 +74,9 @@ def run_ga(
             population[parents[:n_pairs]], population[parents[n_pairs:]], params.crossover_rate, cap, rng
         )
         children = np.vstack([child_a, child_b])[:n_children]
-        children = gaussian_mutation(children, params.mutation_rate, params.mutation_sigma, cap, rng)
+        children = gaussian_mutation(
+            children, params.mutation_rate, params.mutation_sigma, cap, rng, c_sigma=params.c_mutation_sigma
+        )
 
         population = np.vstack([elites, children])
         fitness = evaluate_population(population, inputs)

@@ -51,15 +51,17 @@ def gaussian_mutation(
     sigma: float,
     max_weight: float,
     rng: np.random.Generator,
+    c_sigma: float | None = None,
 ) -> np.ndarray:
-    """Add ``N(0, sigma)`` noise to each weight gene and ``N(0, 2*sigma)`` to ``c``
+    """Add ``N(0, sigma)`` noise to each weight gene and ``N(0, c_sigma)`` to ``c``
     with per-gene probability ``rate``, then repair.
 
     The gene ``c`` lives on [0, 1] while a single weight is at most ``max_weight``,
-    so it gets a wider step to explore the absorption set at a comparable pace.
+    so it gets a wider step (``c_sigma``, default ``2*sigma``) to explore the
+    absorption set and leave flat zero-membership regions.
     """
     scales = np.full(GENES, sigma)
-    scales[N_CATEGORIES] = 2.0 * sigma
+    scales[N_CATEGORIES] = 2.0 * sigma if c_sigma is None else c_sigma
     mask = rng.random(population.shape) < rate
     noise = rng.normal(0.0, 1.0, size=population.shape) * scales
     return repair(population + mask * noise, max_weight)

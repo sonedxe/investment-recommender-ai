@@ -30,3 +30,8 @@ def test_ping_generative_reports_mode() -> None:
     res = client.get("/api/ping")
     mode = res.json()["modules"]["generative"]["mode"]
     assert mode in {"api", "offline"}
+
+def test_ping_heuristic_reports_implemented_components() -> None:
+    heuristic = client.get("/api/ping").json()["modules"]["heuristic"]
+    assert heuristic["components"] == ["genetic_algorithm"]
+    assert "planned" not in heuristic

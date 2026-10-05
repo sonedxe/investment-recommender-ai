@@ -323,6 +323,8 @@ export interface ResultScreenProps {
   /** A recalculation is in progress; the current result stays visible. */
   pending?: boolean
   onAdjust?: () => void
+  /** Starts a new query from an empty text. */
+  onRestart?: () => void
   offline?: boolean
   /** A6: forwarded to TechnicalDetail. */
   switches?: SwitchState
@@ -331,5 +333,7 @@ export interface ResultScreenProps {
 export interface ContextScreenProps extends ContextPanelProps {
   onBack?: () => void
   onReset?: () => void
+  /** Starts a new query from an empty text. */
+  onRestart?: () => void
   offline?: boolean
 }

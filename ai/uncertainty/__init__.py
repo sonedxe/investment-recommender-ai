@@ -14,5 +14,5 @@ def ping() -> dict:
     return {
         "module": "uncertainty",
         "status": "ok",
-        "planned": ["fuzzy_logic", "bayesian_estimation"],
+        "components": ["fuzzy_logic", "bayesian_estimation"],
     }

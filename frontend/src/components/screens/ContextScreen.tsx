@@ -4,7 +4,7 @@ import { DisclaimerNotice } from '../atoms/DisclaimerNotice'
 import { AppHeader } from '../organisms/AppHeader'
 import { ContextPanel } from '../organisms/ContextPanel'
 
-export function ContextScreen({ onBack, onReset, offline, ...panel }: ContextScreenProps) {
+export function ContextScreen({ onBack, onReset, onRestart, offline, ...panel }: ContextScreenProps) {
   return (
     <div className="iw-screen">
       <AppHeader offline={offline} step="Contexto" />
@@ -22,6 +22,11 @@ export function ContextScreen({ onBack, onReset, offline, ...panel }: ContextScr
           <Button variant="quiet" onClick={onReset}>
             Restablecer a Neutral
           </Button>
+          {onRestart && (
+            <Button variant="quiet" onClick={onRestart}>
+              Nueva consulta
+            </Button>
+          )}
         </div>
         <DisclaimerNotice />
       </main>

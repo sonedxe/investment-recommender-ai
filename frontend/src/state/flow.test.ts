@@ -190,6 +190,7 @@ describe('flow reducer: errors', () => {
       { type: 'contextOpened' },
       { type: 'contextClosed' },
       { type: 'contextReset' },
+      { type: 'restarted' },
       { type: 'factorChanged', id: 'macro', value: 1 },
       { type: 'switchesChanged', switches: { fuzzy: false, context: false } },
       { type: 'textChanged', text: 'otro' },
@@ -198,5 +199,21 @@ describe('flow reducer: errors', () => {
     ] as FlowEvent[]) {
       expect(flowReducer(s, e)).toBe(s)
     }
+  })
+})
+
+describe('flow reducer: restart', () => {
+  it('result -> input with an empty text and no previous result', () => {
+    const before = result()
+    const s = flowReducer(before, { type: 'restarted' })
+    expect(s).toEqual({ ...initialFlowState, nextId: before.nextId, offline: before.offline })
+    expect([s.phase, s.text, s.recommendation, s.request]).toEqual(['input', '', null, null])
+  })
+
+  it('context -> input and a pending recalculation is ignored afterwards', () => {
+    const pending = flowReducer(inContext(), { type: 'factorChanged', id: 'political', value: -1 })
+    const s = flowReducer(pending, { type: 'restarted' })
+    expect(s.phase).toBe('input')
+    expect(flowReducer(s, { type: 'recommended', id: reqId(pending), response: fixtures.recommendAdverse() })).toBe(s)
   })
 })

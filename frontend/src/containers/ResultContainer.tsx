@@ -11,9 +11,10 @@ export interface ResultContainerProps {
   offline: boolean
   onSwitchesChange: (next: Switches) => void
   onAdjust: () => void
+  onRestart: () => void
 }
 
-export function ResultContainer({ recommendation, switches, pending, offline, onSwitchesChange, onAdjust }: ResultContainerProps) {
+export function ResultContainer({ recommendation, switches, pending, offline, onSwitchesChange, onAdjust, onRestart }: ResultContainerProps) {
   const [technicalOpen, setTechnicalOpen] = useState(false)
   const data = toResult(recommendation)
   return (
@@ -24,6 +25,7 @@ export function ResultContainer({ recommendation, switches, pending, offline, on
       pending={pending}
       offline={offline}
       onAdjust={onAdjust}
+      onRestart={onRestart}
       // The switches show the requested selection while a recalculation is pending.
       switches={switches}
       onSwitchesChange={onSwitchesChange}

@@ -26,7 +26,7 @@ python experiments/ablation.py --no-plots       # sin matplotlib
 | Elemento | Valor |
 |---|---|
 | Monto | S/ 10,000 |
-| AG | población 80, máximo 200 generaciones, paciencia 25, torneo 3, cruce 0.9, mutación 0.1 (σ 0.05), elitismo 1 |
+| AG | población 80, máximo 200 generaciones, paciencia 25, torneo 3, cruce 0.9, mutación 0.1 (σ 0.05 en los pesos, 0.15 en `c`), elitismo 1; con el difuso activo, `c` inicial muestreado de μ_CA |
 | Fitness | κ = 0.03, φ = 50, tope wᵢ ≤ 0.40, σ_max(c) = 0.03 + 0.13·c |
 | Mercado | μ (acciones, mixtos, deuda, bonos, plazo fijo) = 12.8, 6.1, 2.4, 6.5, 4.5 %; σ = 22.0, 9.0, 2.5, 3.5, 0.5 % |
 
@@ -42,4 +42,4 @@ python experiments/ablation.py --no-plots       # sin matplotlib
 2. **El contexto adverso reduce la exposición a acciones** (agresivo completo: de 40.0 % a 16.0 % con político −0.5) y en el moderado, con ambos factores en −1, quita 2.9 pp a acciones y 5.7 pp a mixtos, que pasan a deuda (+8.6 pp).
 3. **El gen `c` solo negocia contra la volatilidad cuando la absorción es baja y el perfil busca riesgo** (λ_base ≤ 0.5). Ahí la penalización baja σ de 10.1 % a 6.0 % (λ 0.2) y de 8.5 % a 5.6 % (λ 0.5). En el resto de casos `c` se queda en la meseta de máxima pertenencia y no afecta los pesos.
 4. **κ y φ son poco sensibles en el rango probado; el tope sí importa.** Con tope 0.50 aparecen portafolios de dos categorías (agresivo 50/50, HHI 0.500). Se mantienen los valores por defecto.
-5. **Debilidades** (detalladas en cada documento): el tope de 40 % se alcanza casi siempre en bonos y plazo fijo; la penalización difusa no actúa en los tres arquetipos estándar; y en 2 de 60 corridas el AG dejó `c` en una zona con μ_CA = 0 (conservador, semilla 7).
+5. **Debilidades** (detalladas en cada documento): el tope de 40 % se alcanza casi siempre en bonos y plazo fijo; la penalización difusa no actúa en los tres arquetipos estándar. En la primera versión, 2 de 60 corridas dejaban `c` en una zona con μ_CA = 0 (conservador, semilla 7); se corrigió muestreando los `c` iniciales de μ_CA y ampliando su mutación (σ 0.15), y ya no ocurre en ninguna de las 600 corridas.

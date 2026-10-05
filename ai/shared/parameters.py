@@ -132,6 +132,7 @@ class OptimizationParameters:
     mutation_rate: float
     mutation_sigma: float
     elitism: int
+    c_mutation_sigma: float = 0.15
 
 
 @dataclass(frozen=True)
@@ -335,6 +336,7 @@ def load_optimization(base_dir: Path) -> OptimizationParameters:
         mutation_rate=_in_range(raw.get("mutation_rate"), 0.0, 1.0, "mutation_rate"),
         mutation_sigma=_in_range(raw.get("mutation_sigma"), 0.0, 1.0, "mutation_sigma"),
         elitism=int(_in_range(raw.get("elitism"), 0, population - 1, "elitism")),
+        c_mutation_sigma=_in_range(raw.get("c_mutation_sigma", 0.15), 0.0, 1.0, "c_mutation_sigma"),
     )
     if params.tournament_size > population:
         raise ParameterError("tournament_size cannot exceed population_size")

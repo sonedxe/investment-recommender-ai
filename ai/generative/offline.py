@@ -39,6 +39,33 @@ _WORDS = {
     "veinte": 20, "medio": 0.5,
 }
 WORD_NUM = "|".join(sorted(_WORDS, key=len, reverse=True))
+
+# Spelled-out amounts ("cinco mil", "mil quinientos", "treinta y cinco mil", "un millon").
+_UNITS = {
+    "un": 1, "uno": 1, "una": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5, "seis": 6,
+    "siete": 7, "ocho": 8, "nueve": 9,
+}
+_SPELLED_VALUES = {
+    **_UNITS,
+    "diez": 10, "once": 11, "doce": 12, "trece": 13, "catorce": 14, "quince": 15,
+    "dieciseis": 16, "diecisiete": 17, "dieciocho": 18, "diecinueve": 19,
+    "veinte": 20, "veintiun": 21, "veintiuno": 21, "veintiuna": 21, "veintidos": 22, "veintitres": 23,
+    "veinticuatro": 24, "veinticinco": 25, "veintiseis": 26, "veintisiete": 27, "veintiocho": 28,
+    "veintinueve": 29, "treinta": 30, "cuarenta": 40, "cincuenta": 50, "sesenta": 60, "setenta": 70,
+    "ochenta": 80, "noventa": 90, "cien": 100, "ciento": 100, "doscientos": 200, "doscientas": 200,
+    "trescientos": 300, "trescientas": 300, "cuatrocientos": 400, "cuatrocientas": 400,
+    "quinientos": 500, "quinientas": 500, "seiscientos": 600, "seiscientas": 600,
+    "setecientos": 700, "setecientas": 700, "ochocientos": 800, "ochocientas": 800,
+    "novecientos": 900, "novecientas": 900,
+}
+_SCALES = {"mil": 1_000, "millon": 1_000_000, "millones": 1_000_000}
+_SPELLED_WORD = "|".join(sorted([*_SPELLED_VALUES, *_SCALES], key=len, reverse=True))
+_UNIT_WORD = "|".join(sorted(_UNITS, key=len, reverse=True))
+_TENS_WORD = "treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa"
+# One token is a number word or "tens y unit" ("treinta y cinco"); "y" never joins
+# other words, so "cinco mil y tres anos" stops at "mil".
+_SPELLED_TOKEN = rf"(?:(?:{_TENS_WORD})\s+y\s+(?:{_UNIT_WORD})|{_SPELLED_WORD})"
+SPELLED = rf"\b{_SPELLED_TOKEN}(?:\s+{_SPELLED_TOKEN}\b)*\b"
 _QTY = rf"(?P<n>{NUM}|\b(?:{WORD_NUM})\b)"
 _APPROX = r"(?:(?:unos|unas|como|aproximadamente|mas o menos|alrededor de)\s+)?"
 _EMERGENCY_CUE = r"(?:de\s+)?(?:colchon|gastos|emergencia|ahorros?|reserva)"
@@ -61,10 +88,10 @@ _HORIZON_LABELS = (
 )
 
 _MONEY = re.compile(
-    rf"(?P<cur>s/\.?|us\$|\$)?\s*(?P<num>{NUM})(?P<mil>\s*(?:mil|k)\b)?"
+    rf"(?P<cur>s/\.?|us\$|\$)?\s*(?P<num>{NUM}|{SPELLED})(?P<mil>\s*(?:mil|k)\b)?"
     r"(?:\s*(?P<unit>soles|sol|dolares|dolar|usd)\b)?"
 )
-_AMOUNT_CUE = re.compile(r"invert\w*|\bmonto\b|\bpongo\b|\bponer\b|\bdestinar\b")
+_AMOUNT_CUE = re.compile(r"invert\w*|\bmonto\b|\bpongo\b|\bponer\b|\bdestinar\b|\bmeter\b|\bmeto\b")
 _SAVINGS_CUE = re.compile(r"de mis|de mi\b|ahorrad\w*|ahorros?|guardad\w*|en total")
 _SAVINGS_AFTER = re.compile(r"^\s*(?:de ahorros?|ahorrad\w*|en total|guardad\w*)")
 
@@ -120,11 +147,39 @@ def fold(text: str) -> str:
     return folded if len(folded) == len(text) else text.translate(_FOLD).lower()
 
 
+def _parse_spelled(raw: str) -> float | None:
+    """Value of a phrase of Spanish number words, or None when a token is not one."""
+    tokens = [token for token in fold(raw).split() if token != "y"]
+    if not tokens or any(token not in _SPELLED_VALUES and token not in _SCALES for token in tokens):
+        return None
+    total = current = 0
+    for token in tokens:
+        if token in _SCALES:
+            scale = _SCALES[token]
+            if scale == 1_000:
+                total += (current or 1) * scale
+            else:
+                total = (total + (current or 1)) * scale
+            current = 0
+        else:
+            current += _SPELLED_VALUES[token]
+    return float(total + current)
+
+
+def is_spelled_amount(raw: str) -> bool:
+    """True for a spelled phrase that carries a scale word ("cinco mil", "un millon")."""
+    return _parse_spelled(raw) is not None and any(token in _SCALES for token in fold(raw).split())
+
+
 def parse_number(raw: str) -> float:
-    """Parse ``5000``, ``5,000``, ``20.000``, ``1,250.50``, ``12,5`` or a Spanish number word."""
+    """Parse ``5000``, ``5,000``, ``20.000``, ``1,250.50``, ``12,5`` or Spanish number words
+    (``cinco``, ``mil quinientos``, ``treinta y cinco mil``)."""
     raw = raw.strip()
     if raw in _WORDS:
         return float(_WORDS[raw])
+    spelled = _parse_spelled(raw)
+    if spelled is not None:
+        return spelled
     match = re.fullmatch(r"(\d{1,3}(?:[.,]\d{3})+)(?:[.,](\d{1,2}))?", raw)
     if match:
         integer = re.sub(r"[.,]", "", match.group(1))
@@ -186,6 +241,9 @@ def _money(text: str, folded: str, out: Extraction, taken: list[tuple[int, int]]
         if _overlaps(match.span(), taken):
             continue
         cur, unit, mil = match.group("cur"), match.group("unit"), match.group("mil")
+        spelled = not match.group("num")[0].isdigit()
+        if spelled and not (cur or unit or is_spelled_amount(match.group("num"))):
+            continue  # "una parte", "dos fondos": small words are money only with a scale or currency
         window = folded[max(previous_end, match.start() - 35):match.start()]
         previous_end = match.end()
         amount_cue = max((m.end() for m in _AMOUNT_CUE.finditer(window)), default=-1)
@@ -281,7 +339,7 @@ def _asked_fallback(text: str, folded: str, out: Extraction, taken: list[tuple[i
         return
     if asked == FIELD_HORIZON and out.horizon_label is not None:
         return
-    pattern = re.compile(rf"(?P<n>{NUM}|\b(?:{WORD_NUM})\b)(?P<mil>\s*(?:mil|k)\b)?")
+    pattern = re.compile(rf"(?P<n>{NUM}|{SPELLED}|\b(?:{WORD_NUM})\b)(?P<mil>\s*(?:mil|k)\b)?")
     for match in pattern.finditer(folded):
         if _overlaps(match.span(), taken):
             continue

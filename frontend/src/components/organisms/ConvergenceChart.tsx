@@ -1,5 +1,5 @@
 import type { ConvergenceChartProps } from '../../types/ui'
-import { CHART_HEIGHT, CHART_WIDTH, linePath, scale, type Tick } from '../../lib/chart'
+import { CHART_HEIGHT, CHART_WIDTH, generationTicks, linePath, scale, type Tick } from '../../lib/chart'
 import { AxisLabels, ChartShell, GridY, TicksX } from './ChartShell'
 
 const M = { l: 60, r: 24, t: 32, b: 52 }
@@ -16,11 +16,11 @@ export function ConvergenceChart({ title, values }: ConvergenceChartProps) {
     const v = lo + ((hi - lo) * i) / 3
     return { v, label: v.toFixed(3) }
   })
-  const xTicks: Tick[] = [1, 25, 50, 75, 100].filter((g) => g <= n).map((g) => ({ v: g, label: String(g) }))
+  const xTicks = generationTicks(n)
   const points = values.map((v, i) => ({ x: i + 1, y: v }))
   const first = points[0]
   const last = points[points.length - 1]
-  const generations = [1, 5, 10, 20, 30, 50, 75, 100].filter((g) => g <= n)
+  const generations = [...new Set([1, 5, 10, 20, 30, 50, 75, 100, 150, 200].filter((g) => g <= n).concat(n))]
   const alt =
     `Mejor puntaje del portafolio por generación del algoritmo genético, de ${first.y.toFixed(4)} en la generación 1 ` +
     `a ${last.y.toFixed(4)} en la generación ${n}.`

@@ -31,9 +31,10 @@ export function formatMoney(n: number, decimals = 2, signed = false): string {
   return `${sign}S/ ${formatNumber(Math.abs(n), decimals)}`
 }
 
-/** Percentage given on a 0–100 scale: `25 %`, `12.5 %`. */
+/** Percentage given on a 0–100 scale: `25 %`, `12.5 %`; one decimal only when the rounded value needs it. */
 export function formatPct(p: number): string {
-  return `${formatNumber(p, Number.isInteger(p) ? 0 : 1)} %`
+  const rounded = Math.round(p * 10) / 10
+  return `${formatNumber(rounded, Number.isInteger(rounded) ? 0 : 1)} %`
 }
 
 /** Percentage given as a fraction: 0.09 -> `9.0 %`. */

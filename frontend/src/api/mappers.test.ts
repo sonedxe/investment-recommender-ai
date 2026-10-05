@@ -228,6 +228,8 @@ describe('recommendation mappers', () => {
     expect(t.score.total).toBe(s.total)
     expect(t.score.rows[4].note).toBe('Pertenencia μ_CA(c) = 1.00')
     expect(t.score.rows[3].note).toBe('σ = 1.65 % frente al límite de 9.50 %')
+    // The fitness risk term is λ_ef · σ (not ½ · λ · σ²).
+    expect(t.score.rows[2].note).toBe('λ efectiva × σ del portafolio, con σ = 1.65 %')
     expect(t.convergence.values).toEqual(raw.convergence.best)
   })
 

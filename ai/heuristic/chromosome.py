@@ -76,11 +76,39 @@ def repair(individuals: ArrayLike, max_weight: float) -> np.ndarray:
     return repaired
 
 
-def random_population(size: int, max_weight: float, rng: np.random.Generator) -> np.ndarray:
-    """Dirichlet(1) weights (uniform on the simplex) repaired to the cap, plus uniform ``c``."""
+def random_population(
+    size: int,
+    max_weight: float,
+    rng: np.random.Generator,
+    c_universe: ArrayLike | None = None,
+    c_weights: ArrayLike | None = None,
+) -> np.ndarray:
+    """Dirichlet(1) weights (uniform on the simplex) repaired to the cap, plus the gene ``c``.
+
+    ``c`` is uniform on [0, 1] unless ``c_universe``/``c_weights`` are given: then it
+    is sampled from the grid with probability proportional to the weights (the
+    absorption set mu_CA), so the search starts where the membership is positive
+    instead of in a flat zero-membership region. A set with no positive weight
+    falls back to uniform.
+    """
     if size < 1:
         raise ValueError("size must be positive")
     population = np.empty((size, GENES))
     population[:, :N_CATEGORIES] = rng.dirichlet(np.ones(N_CATEGORIES), size=size)
-    population[:, C_INDEX] = rng.uniform(0.0, 1.0, size=size)
+    population[:, C_INDEX] = _initial_c(size, rng, c_universe, c_weights)
     return repair(population, max_weight)
+
+
+def _initial_c(
+    size: int, rng: np.random.Generator, universe: ArrayLike | None, weights: ArrayLike | None
+) -> np.ndarray:
+    if universe is None or weights is None:
+        return rng.uniform(0.0, 1.0, size=size)
+    grid = np.array(universe, dtype=float)
+    mass = np.clip(np.array(weights, dtype=float), 0.0, None)
+    if grid.shape != mass.shape or grid.ndim != 1:
+        raise ValueError("c_universe and c_weights must be 1-D arrays of equal length")
+    total = mass.sum()
+    if not np.isfinite(total) or total <= 0:
+        return rng.uniform(0.0, 1.0, size=size)
+    return rng.choice(grid, size=size, p=mass / total)

@@ -121,3 +121,59 @@ def test_spanish_money_and_percent_formatting() -> None:
     assert format_percent(0.4) == "40 %"
     assert format_percent(0.125) == "12.5 %"
     assert parse_number("1,250.00") == 1250 and parse_number("12,5") == 12.5 and parse_number("20.000") == 20000
+
+
+@pytest.mark.parametrize(
+    ("raw", "value"),
+    [
+        ("cinco mil", 5000),
+        ("diez mil", 10000),
+        ("veinte mil", 20000),
+        ("mil quinientos", 1500),
+        ("dos mil quinientos", 2500),
+        ("treinta y cinco mil", 35000),
+        ("ciento veinte mil", 120000),
+        ("veinticinco mil", 25000),
+        ("un millón", 1_000_000),
+        ("dos millones quinientos mil", 2_500_000),
+    ],
+)
+def test_parse_spanish_number_words(raw: str, value: float) -> None:
+    assert parse_number(raw) == value
+
+
+@pytest.mark.parametrize(
+    ("text", "amount"),
+    [
+        ("Quiero invertir cinco mil soles a 4 años", 5000),
+        ("Quiero invertir diez mil", 10000),
+        ("Voy a invertir mil quinientos soles", 1500),
+        ("Quiero invertir veinte mil soles", 20000),
+    ],
+)
+def test_amount_written_as_words(text: str, amount: float) -> None:
+    out = extract(text)
+    assert out.amount == amount
+    assert out.evidence[FIELD_AMOUNT] in text
+
+
+def test_amount_and_savings_written_as_words() -> None:
+    out = extract("Tengo como veinte mil soles ahorrados y quiero meter diez mil a 6 años")
+    assert out.total_savings == 20000
+    assert out.amount == 10000
+    assert out.horizon_years == 6
+
+
+def test_small_number_words_are_not_money_without_scale_or_currency() -> None:
+    out = extract("Quiero invertir una parte de mis ahorros en dos fondos")
+    assert out.amount is None and out.total_savings is None
+
+
+def test_bare_words_answer_the_asked_amount() -> None:
+    assert extract("mil quinientos", asked=FIELD_AMOUNT).amount == 1500
+
+
+def test_y_does_not_glue_an_amount_to_the_next_quantity() -> None:
+    out = extract("Quiero invertir cinco mil y tres años de plazo")
+    assert out.amount == 5000
+    assert out.horizon_years == 3

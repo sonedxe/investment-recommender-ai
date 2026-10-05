@@ -19,27 +19,27 @@ Medias entre semillas; pesos, E y σ en %. "En el tope" es el número medio de c
 
 | Caso | Parámetro | Valor | Acciones | Mixtos | Deuda | Bonos | Plazo fijo | E | σ | HHI | En el tope | c | \|c − centroide\| | μ_CA(c) | Penalización activa |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Moderado | κ | 0.01 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.836 | 0.105 | 0.467 | 0 % |
-| Moderado | κ | 0.03 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.887 | 0.156 | 0.500 | 0 % |
-| Moderado | κ | 0.05 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.869 | 0.138 | 0.500 | 0 % |
-| Moderado | φ | 10 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.891 | 0.160 | 0.500 | 0 % |
-| Moderado | φ | 200 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.887 | 0.156 | 0.500 | 0 % |
-| Moderado | Tope | 0.35 | 2.9 | 6.2 | 20.9 | 35.0 | 35.0 | 5.1 | 2.1 | 0.293 | 2.0 | 0.850 | 0.119 | 0.500 | 0 % |
-| Moderado | Tope | 0.50 | 2.2 | 0.0 | 0.0 | 47.8 | 50.0 | 5.6 | 1.9 | 0.479 | 1.0 | 0.852 | 0.121 | 0.500 | 0 % |
-| Agresivo | κ | 0.01 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.928 | 0.075 | 1.000 | 0 % |
-| Agresivo | κ | 0.03 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.953 | 0.100 | 1.000 | 0 % |
+| Moderado | κ | 0.01 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.904 | 0.174 | 0.500 | 0 % |
+| Moderado | κ | 0.03 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.913 | 0.182 | 0.500 | 0 % |
+| Moderado | κ | 0.05 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.920 | 0.189 | 0.500 | 0 % |
+| Moderado | φ | 10 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.913 | 0.182 | 0.500 | 0 % |
+| Moderado | φ | 200 | 2.9 | 5.8 | 11.3 | 40.0 | 40.0 | 5.4 | 2.1 | 0.337 | 2.0 | 0.913 | 0.182 | 0.500 | 0 % |
+| Moderado | Tope | 0.35 | 2.9 | 6.2 | 20.9 | 35.0 | 35.0 | 5.1 | 2.1 | 0.293 | 2.0 | 0.900 | 0.169 | 0.500 | 0 % |
+| Moderado | Tope | 0.50 | 2.2 | 0.0 | 0.0 | 47.8 | 50.0 | 5.6 | 1.9 | 0.479 | 1.0 | 0.916 | 0.185 | 0.500 | 0 % |
+| Agresivo | κ | 0.01 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.931 | 0.078 | 1.000 | 0 % |
+| Agresivo | κ | 0.03 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.952 | 0.099 | 1.000 | 0 % |
 | Agresivo | κ | 0.05 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.948 | 0.095 | 1.000 | 0 % |
-| Agresivo | φ | 10 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.954 | 0.101 | 1.000 | 0 % |
-| Agresivo | φ | 200 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.944 | 0.091 | 1.000 | 0 % |
-| Agresivo | Tope | 0.35 | 35.0 | 30.0 | 0.0 | 35.0 | 0.0 | 9.5 | 9.4 | 0.335 | 2.0 | 0.944 | 0.091 | 1.000 | 0 % |
-| Agresivo | Tope | 0.50 | 50.0 | 0.0 | 0.0 | 50.0 | 0.0 | 10.8 | 11.6 | 0.500 | 2.0 | 0.943 | 0.090 | 1.000 | 0 % |
-| Estrés | κ | 0.01 | 21.3 | 9.7 | 0.0 | 40.0 | 28.9 | 7.7 | 5.6 | 0.299 | 1.0 | 0.203 | 0.047 | 0.778 | 90 % |
-| Estrés | κ | 0.03 | 21.3 | 9.7 | 0.0 | 40.0 | 28.9 | 7.7 | 5.6 | 0.299 | 1.0 | 0.203 | 0.047 | 0.778 | 70 % |
-| Estrés | κ | 0.05 | 21.3 | 9.8 | 0.0 | 40.0 | 28.9 | 7.7 | 5.6 | 0.299 | 1.0 | 0.203 | 0.047 | 0.778 | 100 % |
-| Estrés | φ | 10 | 21.5 | 10.1 | 0.0 | 40.0 | 28.4 | 7.7 | 5.7 | 0.297 | 1.0 | 0.204 | 0.048 | 0.778 | 100 % |
-| Estrés | φ | 200 | 21.2 | 9.6 | 0.0 | 40.0 | 29.2 | 7.7 | 5.6 | 0.299 | 1.0 | 0.202 | 0.045 | 0.778 | 80 % |
-| Estrés | Tope | 0.35 | 21.6 | 10.4 | 0.0 | 35.0 | 33.0 | 7.6 | 5.6 | 0.289 | 1.0 | 0.203 | 0.046 | 0.778 | 70 % |
-| Estrés | Tope | 0.50 | 20.7 | 8.5 | 0.0 | 50.0 | 20.8 | 7.8 | 5.7 | 0.343 | 1.0 | 0.204 | 0.048 | 0.778 | 80 % |
+| Agresivo | φ | 10 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.952 | 0.099 | 1.000 | 0 % |
+| Agresivo | φ | 200 | 40.0 | 20.0 | 0.0 | 40.0 | 0.0 | 9.9 | 10.1 | 0.360 | 2.0 | 0.952 | 0.099 | 1.000 | 0 % |
+| Agresivo | Tope | 0.35 | 35.0 | 30.0 | 0.0 | 35.0 | 0.0 | 9.5 | 9.4 | 0.335 | 2.0 | 0.932 | 0.079 | 1.000 | 0 % |
+| Agresivo | Tope | 0.50 | 50.0 | 0.0 | 0.0 | 50.0 | 0.0 | 10.8 | 11.6 | 0.500 | 2.0 | 0.943 | 0.089 | 1.000 | 0 % |
+| Estrés | κ | 0.01 | 21.3 | 9.8 | 0.0 | 40.0 | 29.0 | 7.7 | 5.6 | 0.299 | 1.0 | 0.202 | 0.046 | 0.778 | 90 % |
+| Estrés | κ | 0.03 | 21.3 | 9.7 | 0.0 | 40.0 | 29.0 | 7.7 | 5.6 | 0.299 | 1.0 | 0.203 | 0.046 | 0.778 | 70 % |
+| Estrés | κ | 0.05 | 21.2 | 9.7 | 0.0 | 40.0 | 29.1 | 7.7 | 5.6 | 0.299 | 1.0 | 0.202 | 0.046 | 0.778 | 70 % |
+| Estrés | φ | 10 | 21.5 | 10.0 | 0.0 | 40.0 | 28.5 | 7.7 | 5.7 | 0.297 | 1.0 | 0.204 | 0.047 | 0.778 | 100 % |
+| Estrés | φ | 200 | 21.2 | 9.7 | 0.0 | 40.0 | 29.2 | 7.7 | 5.6 | 0.299 | 1.0 | 0.201 | 0.045 | 0.778 | 80 % |
+| Estrés | Tope | 0.35 | 21.5 | 10.4 | 0.0 | 35.0 | 33.1 | 7.6 | 5.6 | 0.289 | 1.0 | 0.202 | 0.045 | 0.778 | 70 % |
+| Estrés | Tope | 0.50 | 20.7 | 8.6 | 0.0 | 50.0 | 20.7 | 7.8 | 5.7 | 0.343 | 1.0 | 0.204 | 0.047 | 0.778 | 90 % |
 
 Las filas φ = 50 y tope = 0.40 coinciden con κ = 0.03 (los tres son la configuración por defecto) y se omiten. La tabla completa está en `experiments/results/README.md`.
 
@@ -47,7 +47,7 @@ Las filas φ = 50 y tope = 0.40 coinciden con κ = 0.03 (los tres son la configu
 
 ## Interpretación (para el informe, sección 9.x)
 
-**κ (recompensa difusa).** En el rango 0.01–0.05 no cambia ningún peso en los tres casos; solo mueve `c` dentro de la meseta de μ_CA (por ejemplo, moderado 0.836 a 0.887). Con κ = 0.01 la señal es tan débil que en el moderado una parte de las semillas termina con `c` fuera de la meseta (μ_CA(c) medio 0.467 frente a 0.500). κ = 0.03 da una recompensa (≤ 0.03) del mismo orden que las diferencias de fitness entre portafolios cercanos sin dominar el término de retorno y riesgo. **Se mantiene κ = 0.03.**
+**κ (recompensa difusa).** En el rango 0.01–0.05 no cambia ningún peso en los tres casos; solo mueve `c` dentro de la meseta de μ_CA (por ejemplo, moderado 0.904 a 0.920). En la primera versión del experimento, con κ = 0.01 una parte de las semillas del moderado terminaba con `c` fuera de la meseta (μ_CA(c) medio 0.467 frente a 0.500); desde que los `c` iniciales se muestrean de μ_CA y su mutación es más amplia (ver [01 · Ablación](01-ablacion.md#limitaciones-observadas)), todas las semillas quedan en la meseta también con κ = 0.01. κ = 0.03 da una recompensa (≤ 0.03) del mismo orden que las diferencias de fitness entre portafolios cercanos sin dominar el término de retorno y riesgo. **Se mantiene κ = 0.03.**
 
 **φ (dureza de la penalización).** Solo actúa en el caso de estrés y su efecto es pequeño: σ pasa de 5.7 % (φ 10) a 5.6 % (φ 50 y 200), y los pesos varían menos de 1 pp. A partir de φ ≈ 50 la restricción ya se comporta casi como un límite duro (σ queda a 0.1 pp o menos de σ_max(c) = 5.6 %). φ = 10 deja pasar algo más de exceso; φ = 200 no aporta diferencia medible y vuelve más abrupta la superficie de fitness. **Se mantiene φ = 50.**
 

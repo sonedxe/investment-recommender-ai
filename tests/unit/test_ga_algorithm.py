@@ -113,3 +113,40 @@ def test_tournament_works_with_negative_fitness() -> None:
     fitness = np.array([-3.0, -0.1, -2.0, -5.0])
     winners = tournament_selection(fitness, 1000, 4, np.random.default_rng(0))
     assert np.bincount(winners, minlength=4).argmax() == 1
+
+
+def test_c_mutation_uses_its_own_sigma() -> None:
+    population = np.tile([0.2, 0.2, 0.2, 0.2, 0.2, 0.5], (4000, 1))
+    mutated = gaussian_mutation(population, 1.0, 0.0, 0.4, np.random.default_rng(0), c_sigma=0.15)
+    assert np.allclose(mutated[:, :5], 0.2)
+    assert np.std(mutated[:, 5]) == pytest.approx(0.15, rel=0.05)
+
+
+def test_initial_c_is_sampled_from_the_absorption_set() -> None:
+    mu_ca = np.interp(UNIVERSE, [0.0, 0.206, 0.4, 1.0], [0.778, 0.778, 0.0, 0.0])
+    pop = random_population(500, 0.4, np.random.default_rng(1), c_universe=UNIVERSE, c_weights=mu_ca)
+    assert np.all(np.interp(pop[:, 5], UNIVERSE, mu_ca) > 0)
+    again = random_population(500, 0.4, np.random.default_rng(1), c_universe=UNIVERSE, c_weights=mu_ca)
+    assert np.array_equal(pop, again)
+
+
+def _conservative_case(seed: int):
+    from experiments.ablation import ARCHETYPE_BY_NAME, Environment, Settings, archetype_case, run_case
+
+    env = Environment.load()
+    case = archetype_case(ARCHETYPE_BY_NAME["conservador"], fuzzy=True, context=False, factors=None)
+    return run_case(env, case, env.optimization(Settings()), seed).row
+
+
+def test_regression_conservative_seed_7_c_is_not_stranded() -> None:
+    # Before the fix this run ended with c = 0.759 and mu_CA(c) = 0 (flat zero-membership region).
+    row = _conservative_case(7)
+    assert row["mu_ca_c"] > 0
+
+
+@pytest.mark.parametrize("output_set", ["baja", "media", "alta"])
+def test_evolved_c_keeps_positive_membership_across_seeds(params, output_set) -> None:
+    inputs = annex_inputs(params, 2.0, output_set)
+    for seed in range(12):
+        result = run_ga(inputs, params.optimization, seed=seed)
+        assert result.breakdown.membership_at_c > 0, seed

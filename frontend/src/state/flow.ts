@@ -67,6 +67,7 @@ export type FlowEvent =
   | { type: 'contextClosed' }
   | { type: 'factorChanged'; id: FactorId; value: number }
   | { type: 'contextReset' }
+  | { type: 'restarted' }
 
 export const initialFlowState: FlowState = {
   phase: 'input',
@@ -246,5 +247,10 @@ export function flowReducer(state: FlowState, event: FlowEvent): FlowState {
     case 'contextReset':
       if (state.phase !== 'context') return state
       return recalculate(state, null)
+
+    case 'restarted':
+      // New query: back to an empty input. nextId keeps counting so a late response is ignored.
+      if (state.phase !== 'result' && state.phase !== 'context') return state
+      return { ...initialFlowState, nextId: state.nextId, offline: state.offline }
   }
 }

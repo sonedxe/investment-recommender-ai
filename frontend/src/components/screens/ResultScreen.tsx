@@ -10,7 +10,7 @@ import { ExplanationText } from '../organisms/ExplanationText'
 import { TechnicalDetail } from '../organisms/TechnicalDetail'
 
 export function ResultScreen(props: ResultScreenProps) {
-  const { summary, total, allocation, assumptions, explanation, technical, technicalOpen, onAdjust, offline, pending } = props
+  const { summary, total, allocation, assumptions, explanation, technical, technicalOpen, onAdjust, onRestart, offline, pending } = props
   return (
     <div className="iw-screen">
       <AppHeader offline={offline} step="Resultado" />
@@ -27,6 +27,11 @@ export function ResultScreen(props: ResultScreenProps) {
             <Button variant="secondary" full onClick={onAdjust}>
               Ajustar el contexto
             </Button>
+            {onRestart && (
+              <Button variant="quiet" full onClick={onRestart}>
+                Nueva consulta
+              </Button>
+            )}
           </aside>
         </div>
         <ExplanationText {...explanation} />

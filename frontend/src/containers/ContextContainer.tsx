@@ -14,6 +14,7 @@ export interface ContextContainerProps {
   onFactorChange: (id: FactorId, value: number) => void
   onReset: () => void
   onBack: () => void
+  onRestart: () => void
 }
 
 /** Before = latest neutral result with the same switches; after = the current (adjusted) result. */
@@ -37,6 +38,7 @@ export function ContextContainer(props: ContextContainerProps) {
       note={pending ? 'Recalculando la distribución con los factores elegidos…' : undefined}
       onBack={props.onBack}
       onReset={props.onReset}
+      onRestart={props.onRestart}
       offline={offline}
     />
   )

@@ -206,7 +206,7 @@ function toScore(t: TechnicalOut): ScoreBreakdownProps {
     rows: [
       { label: 'Retorno esperado', note: `Σ pesos × μ ajustado = ${formatFraction(s.expected_return, 2)}`, value: clean(s.return_term) },
       { label: 'Ajuste por contexto', note: 'Σ pesos × ajuste cᵢ', value: clean(s.context_term) },
-      { label: 'Penalización por riesgo', note: `½ × λ efectiva × σ², con σ = ${formatFraction(s.sigma, 2)}`, value: clean(s.risk_term) },
+      { label: 'Penalización por riesgo', note: `λ efectiva × σ del portafolio, con σ = ${formatFraction(s.sigma, 2)}`, value: clean(s.risk_term) },
       { label: 'Penalización por exceso de volatilidad', note: volatility, value: clean(s.penalty_term) },
       {
         label: 'Recompensa difusa',

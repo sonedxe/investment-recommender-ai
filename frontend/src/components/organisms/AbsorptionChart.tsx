@@ -11,6 +11,29 @@ const Y_TICKS: Tick[] = [
 ]
 const SAMPLE_X = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
 
+type Anchor = 'start' | 'end'
+
+export interface AbsorptionLabelLayout {
+  cAnchor: Anchor
+  centroidAnchor: Anchor
+  /** 0 = top row; 1 = second row, used when both labels grow in the same direction and could overlap. */
+  centroidRow: 0 | 1
+}
+
+/**
+ * Text anchors that keep the top labels inside the plot. By default each label grows away from the other
+ * mark; near an edge it grows inwards instead (the c label is long, so its edge zone is wider).
+ */
+export function absorptionLabelLayout(c: number, centroid: number): AbsorptionLabelLayout {
+  const cLeft = c <= centroid
+  const cAnchor: Anchor = c >= 0.8 ? 'end' : c <= 0.2 ? 'start' : cLeft ? 'end' : 'start'
+  const centroidAnchor: Anchor = centroid >= 0.85 ? 'end' : centroid <= 0.15 ? 'start' : cLeft ? 'start' : 'end'
+  return { cAnchor, centroidAnchor, centroidRow: cAnchor === centroidAnchor ? 1 : 0 }
+}
+
+const LABEL_ROWS = [14, 28] as const
+const offset = (anchor: Anchor, gap: number) => (anchor === 'end' ? -gap : gap)
+
 const formatR = (r: number | null | undefined) => (r == null ? 'No informado' : r.toFixed(2))
 const formatE = (e: number | null | undefined) => (e == null ? 'No informado' : `${e.toFixed(1)} meses`)
 
@@ -27,7 +50,7 @@ export function AbsorptionChart(props: AbsorptionChartProps) {
       curve.map((q) => `L${sx(q.x).toFixed(1)} ${sy(q.y).toFixed(1)}`).join(' ') +
       ` L${sx(curve[curve.length - 1].x).toFixed(1)} ${sy(0).toFixed(1)} Z`
     : ''
-  const cLeft = c <= centroid
+  const layout = absorptionLabelLayout(c, centroid)
   const alt =
     `Conjunto difuso resultante de capacidad de absorción entre 0 y 1. El algoritmo genético eligió c = ${c.toFixed(2)}, ` +
     `con pertenencia μ_CA(c) = ${membershipAtC.toFixed(2)}, y el centroide del conjunto es ${centroid.toFixed(2)}.`
@@ -100,20 +123,25 @@ export function AbsorptionChart(props: AbsorptionChartProps) {
       <line x1={sx(c)} x2={sx(c)} y1={M.t - 14} y2={CHART_HEIGHT - M.b} className="iw-c-mark" />
       <circle cx={sx(c)} cy={sy(membershipAtC)} r={4.5} className="iw-c-dot" stroke="var(--ink)" />
       <text
-        x={sx(c) + (cLeft ? -10 : 10)}
+        x={sx(c) + offset(layout.cAnchor, 10)}
         y={sy(membershipAtC) + 4}
-        textAnchor={cLeft ? 'end' : 'start'}
+        textAnchor={layout.cAnchor}
         className="iw-c-num"
       >
         {membershipAtC.toFixed(2)}
       </text>
-      <text x={sx(c) + (cLeft ? -7 : 7)} y={14} textAnchor={cLeft ? 'end' : 'start'} className="iw-c-label iw-c-label--ink">
+      <text
+        x={sx(c) + offset(layout.cAnchor, 7)}
+        y={LABEL_ROWS[0]}
+        textAnchor={layout.cAnchor}
+        className="iw-c-label iw-c-label--ink"
+      >
         {`c = ${c.toFixed(2)} (algoritmo genético)`}
       </text>
       <text
-        x={sx(centroid) + (cLeft ? 7 : -7)}
-        y={14}
-        textAnchor={cLeft ? 'start' : 'end'}
+        x={sx(centroid) + offset(layout.centroidAnchor, 7)}
+        y={LABEL_ROWS[layout.centroidRow]}
+        textAnchor={layout.centroidAnchor}
         className="iw-c-label"
         fill="var(--series-2)"
       >

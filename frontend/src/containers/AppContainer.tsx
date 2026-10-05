@@ -106,6 +106,7 @@ export function AppContainer() {
         offline={offline}
         onSwitchesChange={(switches) => dispatch({ type: 'switchesChanged', switches })}
         onAdjust={() => dispatch({ type: 'contextOpened' })}
+        onRestart={() => dispatch({ type: 'restarted' })}
       />
     )
   } else if (phase === 'context' && state.recommendation) {
@@ -122,6 +123,7 @@ export function AppContainer() {
           onFactorChange={(id, value) => dispatch({ type: 'factorChanged', id, value })}
           onReset={() => dispatch({ type: 'contextReset' })}
           onBack={() => dispatch({ type: 'contextClosed' })}
+          onRestart={() => dispatch({ type: 'restarted' })}
         />
       )
     } else if (defaults.status === 'failed') {

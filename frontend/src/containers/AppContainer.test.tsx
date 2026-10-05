@@ -146,6 +146,25 @@ describe('AppContainer', () => {
     expect(screen.queryByText('Recalculando la distribución…')).toBeNull()
   })
 
+  it('starts a new query from the result and from the context screen', async () => {
+    mockApi({
+      interpret: [{ ...fixtures.interpretRefusal(), assumptions: [] }, { ...fixtures.interpretRefusal(), assumptions: [] }],
+      recommend: [fixtures.recommendNeutral(), fixtures.recommendNeutral()],
+    })
+    render(<AppContainer />)
+    submitText()
+    await screen.findByRole('heading', { level: 2, name: 'Cómo repartir S/ 5,000.00' })
+    fireEvent.click(screen.getByRole('button', { name: 'Nueva consulta' }))
+    expect(screen.getByLabelText('Describe tu situación')).toHaveValue('')
+
+    submitText()
+    await screen.findByRole('heading', { level: 2, name: 'Cómo repartir S/ 5,000.00' })
+    fireEvent.click(screen.getByRole('button', { name: 'Ajustar el contexto' }))
+    await screen.findByRole('group', { name: 'Panorama político' })
+    fireEvent.click(screen.getByRole('button', { name: 'Nueva consulta' }))
+    expect(screen.getByLabelText('Describe tu situación')).toHaveValue('')
+  })
+
   it('asks for text before calling the API', () => {
     const sent = mockApi({})
     render(<AppContainer />)

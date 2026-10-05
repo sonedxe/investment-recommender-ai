@@ -77,6 +77,7 @@ def test_optimization_parameters(params) -> None:
     assert opt.crossover_rate == pytest.approx(0.9)
     assert opt.mutation_rate == pytest.approx(0.1)
     assert opt.mutation_sigma == pytest.approx(0.05)
+    assert opt.c_mutation_sigma == pytest.approx(0.15)
 
 
 def test_risk_profiles_lambda_base(params) -> None:

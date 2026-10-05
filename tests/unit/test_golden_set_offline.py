@@ -1,9 +1,9 @@
 """The offline extractor must not regress below its measured golden-set baseline.
 
-Baseline measured on 2026-10-04 with ``scripts/eval_golden_set.py --provider offline``
-(20 cases; see ``experiments/results/golden_offline.md``). The two known misses are
-amounts written as words ("cinco mil", "diez mil"), which the offline extractor does
-not parse.
+Baseline measured on 2026-10-05 with ``scripts/eval_golden_set.py --provider offline``
+(20 cases; see ``experiments/results/golden_offline.md``). Every field is correct since
+the extractor parses amounts written as words ("cinco mil", "diez mil"); before that
+fix the baseline was 97.1 % overall, 90 % on the asked field and 90 % on the amount.
 """
 
 from __future__ import annotations
@@ -16,14 +16,14 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 BASELINE = {
-    "overall_field_accuracy": 0.971,
+    "overall_field_accuracy": 1.0,
     "complete_accuracy": 1.0,
-    "question_field_accuracy": 0.90,
+    "question_field_accuracy": 1.0,
     "ambiguous_with_question": 1.0,
 }
 FIELD_BASELINE = {
-    "monto_invertir": 0.90,
-    "ahorro_total": 0.95,
+    "monto_invertir": 1.0,
+    "ahorro_total": 1.0,
     "horizonte_anios": 1.0,
     "horizonte_etiqueta": 1.0,
     "perfil_riesgo": 1.0,

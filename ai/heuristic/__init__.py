@@ -28,5 +28,5 @@ def ping() -> dict:
     return {
         "module": "heuristic",
         "status": "ok",
-        "planned": ["genetic_algorithm"],
+        "components": ["genetic_algorithm"],
     }
