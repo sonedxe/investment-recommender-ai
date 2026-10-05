@@ -43,110 +43,106 @@ FONTS_URL = (
 CHROME_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
 
 COVER = {
-    "university": "Universidad Nacional Mayor de San Marcos",
     "faculty": "Facultad de Ingeniería de Sistemas e Informática",
+    "school": "Escuela Profesional de Ingeniería de Software",
+    "crest": OUT / "assets" / "escudo-unmsm.png",
     "course": "Software Inteligente",
-    "teacher": "Hugo David Calderón Vilca",
-    "project": "InvestWise — Recomendador de inversiones con IA",
+    "proposal": "Propuesta 4: Recomendador de Inversión / Portafolio Personal",
+    "group": "Grupo 4:",
+    # As written on the team's official cover.
     "members": [
-        "Gutierrez Campos, Edson Luis",
-        "Arias Chumpitaz, Giovanni Alexander",
-        "Chavez Gave, José Luis",
-        "Limachi Sarmiento, José Luis",
         "León Robles, Illary Marcelo",
+        "Chavez Gave, Jose Luis",
+        "Limachi Sarmiento José Luis",
+        "Gutierrez Campos Edson Luis",
+        "Arias Chumpitaz, Giovanni",
     ],
-    "repo": "https://github.com/sonedxe/investment-recommender-ai",
-    "date": "Octubre de 2026",
-    "version": "Versión 1.0",
+    "teacher": "Calderón Vilca, David",
+    "place": "Lima, Perú",
+    "year": "2026",
 }
 
 MANUALS = [
     {
         "source": SRC / "instalacion.md",
         "output": OUT / "Manual_de_Instalacion_InvestWise.pdf",
-        "title": "Manual de instalación",
-        "footer": "InvestWise · Manual de instalación · página ",
+        "title": "Manual de Instalación",
+        "footer": "Manual de Instalación — ",
         "lead": "Instalación, configuración, ejecución y verificación del sistema en Linux, macOS y Windows.",
     },
     {
         "source": SRC / "usuario.md",
         "output": OUT / "Manual_de_Usuario_InvestWise.pdf",
-        "title": "Manual de usuario",
-        "footer": "InvestWise · Manual de usuario · página ",
+        "title": "Manual de Usuario",
+        "footer": "Manual de Usuario — ",
         "lead": "Guía para obtener y entender una distribución de ejemplo, sin conocimientos financieros previos.",
     },
 ]
 
 CSS = """
-@page { size: A4; margin: 20mm 19mm 20mm 19mm;
-  @bottom-center { content: "__FOOTER__" counter(page); font-family: "Source Sans 3", sans-serif;
-                   font-size: 8pt; color: #55514a; } }
+@page { size: A4; margin: 25mm 22mm 22mm 25mm;
+  @bottom-center { content: "__FOOTER__" counter(page); font-family: "Times New Roman", "Liberation Serif", serif;
+                   font-size: 9pt; color: #000; } }
 @page cover { margin: 0; @bottom-center { content: none; } }
-:root { --ink: #1c1a17; --muted: #55514a; --accent: #1f5c5a; --accent-surface: #e4eeeb;
-        --border: #dad5c9; --surface: #f6f4ee; --surface-2: #edeae2; }
+:root { --ink: #000; --muted: #333; --border: #9a9a9a; --surface: #f4f4f4; --surface-2: #e9e9e9; }
 html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-body { margin: 0; color: var(--ink); background: #fff; font-family: "Source Sans 3", "Noto Sans", sans-serif;
-       font-size: 10.5pt; line-height: 1.5; font-variant-numeric: lining-nums; hyphens: manual; }
-h1, h2, h3, h4 { font-family: "Source Serif 4", "Noto Serif", serif; font-weight: 600; color: var(--ink);
+body { margin: 0; color: var(--ink); background: #fff;
+       font-family: "Times New Roman", "Liberation Serif", "Noto Serif", serif;
+       font-size: 11.5pt; line-height: 1.5; text-align: justify; hyphens: manual; }
+h1, h2, h3, h4 { font-family: inherit; font-weight: 700; color: var(--ink); text-align: left;
                  break-after: avoid; page-break-after: avoid; break-inside: avoid; }
-h2 { font-size: 17pt; line-height: 1.2; color: var(--accent); margin: 22pt 0 8pt; padding-top: 2pt;
-     border-top: 0.6pt solid var(--border); padding-top: 10pt; }
-h3 { font-size: 12.5pt; line-height: 1.25; margin: 14pt 0 5pt; }
+h2 { font-size: 15pt; line-height: 1.25; margin: 20pt 0 8pt; }
+h3 { font-size: 12.5pt; line-height: 1.3; margin: 14pt 0 5pt; }
 p { margin: 0 0 7pt; orphans: 3; widows: 3; }
-ul, ol { margin: 0 0 8pt; padding-left: 18pt; }
+ul, ol { margin: 0 0 8pt; padding-left: 20pt; }
 li { margin-bottom: 3pt; }
-a { color: var(--accent); text-decoration: none; }
+a { color: var(--ink); text-decoration: none; }
 strong { font-weight: 700; }
-code { font-family: "Source Code Pro", "Noto Sans Mono", monospace; font-size: 8.8pt;
-       background: var(--surface-2); padding: 0.5pt 3pt; border-radius: 2pt; overflow-wrap: anywhere; }
-pre { background: var(--surface); border: 0.6pt solid var(--border); border-left: 2.5pt solid var(--accent);
-      border-radius: 3pt; padding: 7pt 9pt; margin: 4pt 0 10pt; white-space: pre-wrap;
-      overflow-wrap: anywhere; break-inside: avoid; }
-pre code { background: none; padding: 0; font-size: 8.6pt; line-height: 1.45; }
-table { width: 100%; border-collapse: collapse; margin: 4pt 0 11pt; font-size: 9pt; line-height: 1.38; }
+em { font-style: italic; }
+code { font-family: "Courier New", "Liberation Mono", monospace; font-size: 9.5pt;
+       background: var(--surface); padding: 0 2pt; overflow-wrap: anywhere; }
+pre { background: var(--surface); border: 0.6pt solid var(--border); padding: 7pt 9pt; margin: 4pt 0 10pt;
+      white-space: pre-wrap; overflow-wrap: anywhere; break-inside: avoid; text-align: left; }
+pre code { background: none; padding: 0; font-size: 9pt; line-height: 1.4; }
+table { width: 100%; border-collapse: collapse; margin: 4pt 0 11pt; font-size: 10pt; line-height: 1.35;
+        text-align: left; }
 thead { display: table-header-group; }
-th { text-align: left; font-weight: 700; background: var(--surface-2); color: var(--ink); }
+th { font-weight: 700; background: var(--surface-2); color: var(--ink); }
 th, td { border: 0.6pt solid var(--border); padding: 4pt 6pt; vertical-align: top; }
 tr { break-inside: avoid; }
 table.short { break-inside: avoid; }
-td code, th code { font-size: 8pt; }
+td code, th code { font-size: 9pt; }
 figure { margin: 8pt 0 14pt; break-inside: avoid; text-align: center; }
-figure img { max-width: 100%; max-height: 225mm; border: 0.6pt solid var(--border); border-radius: 2pt; }
+figure img { max-width: 100%; max-height: 215mm; border: 0.6pt solid var(--border); }
 figure.narrow img { max-width: 58%; }
-figcaption { font-size: 8.8pt; color: var(--muted); margin-top: 5pt; font-style: italic; }
-figcaption b { font-style: normal; color: var(--ink); }
+figcaption { font-size: 10pt; color: var(--ink); margin-top: 5pt; text-align: center; }
+figcaption b { font-weight: 700; }
 .keep { break-inside: avoid; }
 p:has(+ pre, + ul, + ol, + table, + .keep) { break-after: avoid; }
 
-/* Cover */
-.cover { page: cover; height: 297mm; box-sizing: border-box; padding: 26mm 22mm 20mm; display: flex;
-         flex-direction: column; background: var(--surface); break-after: page; position: relative; }
-.cover::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 7mm; background: var(--accent); }
-.cover .inst { font-family: "Source Serif 4", serif; font-size: 15pt; font-weight: 600; margin: 0; }
-.cover .fac { font-size: 11pt; color: var(--muted); margin: 2pt 0 0; }
-.cover .rule { height: 0.8pt; background: var(--border); margin: 16mm 0 14mm; }
-.cover .kicker { font-size: 10pt; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent);
-                 font-weight: 700; margin: 0 0 6pt; }
-.cover h1 { font-size: 36pt; line-height: 1.08; margin: 0 0 8pt; color: var(--ink); }
-.cover .project { font-family: "Source Serif 4", serif; font-size: 16pt; color: var(--accent); margin: 0 0 8pt; }
-.cover .lead { font-size: 11.5pt; color: var(--muted); max-width: 140mm; margin: 0; }
-.cover dl { margin: auto 0 0; display: grid; grid-template-columns: 34mm 1fr; row-gap: 5pt; column-gap: 6mm;
-            font-size: 10.5pt; }
-.cover dt { color: var(--muted); font-weight: 600; }
-.cover dd { margin: 0; }
-.cover dd ul { list-style: none; padding: 0; margin: 0; }
-.cover dd li { margin: 0 0 1pt; }
+/* Cover (academic format of the team) */
+.cover { page: cover; height: 297mm; box-sizing: border-box; padding: 24mm 25mm 20mm; text-align: center;
+         break-after: page; color: #000; }
+.cover p { margin: 0; text-align: center; }
+.cover .fac { font-size: 13pt; font-weight: 700; line-height: 1.3; }
+.cover .crest { display: block; width: 46mm; margin: 12mm auto 16mm; }
+.cover .title { font-size: 17pt; font-weight: 700; margin-bottom: 8pt; }
+.cover .subtitle { font-size: 14pt; font-weight: 700; margin-bottom: 26mm; }
+.cover .label { font-size: 12.5pt; font-weight: 700; margin-bottom: 4pt; }
+.cover .names { font-size: 12pt; line-height: 1.55; margin-bottom: 18mm; }
+.cover .teacher { font-size: 12pt; margin: 2pt 0 12mm; }
+.cover .course { font-size: 12.5pt; font-weight: 700; margin-bottom: 14mm; }
+.cover .place { font-size: 12.5pt; font-weight: 700; line-height: 1.5; }
 
 /* Index */
 .toc { break-after: page; }
-.toc h2 { border-top: none; padding-top: 0; margin-top: 0; }
+.toc h2 { margin-top: 0; text-align: center; }
 .toc ol { list-style: none; padding: 0; margin: 0; }
-.toc li { display: flex; align-items: baseline; margin: 0 0 4pt; font-size: 10.5pt; }
-.toc li.l3 { padding-left: 9mm; font-size: 9.8pt; color: var(--muted); margin-bottom: 2.5pt; }
-.toc li.l2 { font-weight: 600; margin-top: 6pt; }
-.toc .dots { flex: 1; border-bottom: 0.8pt dotted #b9b3a5; margin: 0 4pt 3pt; }
+.toc li { display: flex; align-items: baseline; margin: 0 0 4pt; font-size: 11.5pt; text-align: left; }
+.toc li.l3 { padding-left: 9mm; font-size: 11pt; margin-bottom: 2.5pt; }
+.toc li.l2 { font-weight: 700; margin-top: 6pt; }
+.toc .dots { flex: 1; border-bottom: 0.8pt dotted #000; margin: 0 4pt 3pt; }
 .toc .pg { min-width: 7mm; text-align: right; font-variant-numeric: tabular-nums; }
-.toc .figs { margin-top: 14pt; }
 """
 
 
@@ -226,24 +222,19 @@ def convert(md_text: str, base: Path) -> tuple[str, str, list[tuple[int, str, st
 
 def cover_html(manual: dict) -> str:
     c = COVER
-    members = "".join(f"<li>{html.escape(m)}</li>" for m in c["members"])
+    names = "<br>".join(html.escape(m) for m in c["members"])
     return f"""
 <section class="cover">
-  <p class="inst">{c['university']}</p>
-  <p class="fac">{c['faculty']}</p>
-  <div class="rule"></div>
-  <p class="kicker">Entregable del trabajo parcial</p>
-  <h1>{manual['title']}</h1>
-  <p class="project">{c['project']}</p>
-  <p class="lead">{manual['lead']}</p>
-  <dl>
-    <dt>Curso</dt><dd>{c['course']}</dd>
-    <dt>Docente</dt><dd>{c['teacher']}</dd>
-    <dt>Integrantes</dt><dd><ul>{members}</ul></dd>
-    <dt>Repositorio</dt><dd>{c['repo']}</dd>
-    <dt>Fecha</dt><dd>{c['date']}</dd>
-    <dt>Versión</dt><dd>{c['version'].replace('Versión ', '')}</dd>
-  </dl>
+  <p class="fac">{c['faculty']}<br>{c['school']}</p>
+  <img class="crest" src="{c['crest'].as_uri()}" alt="Escudo de la Universidad Nacional Mayor de San Marcos">
+  <p class="title">{c['course']} - {manual['title']}</p>
+  <p class="subtitle">{c['proposal']}</p>
+  <p class="label">{c['group']}</p>
+  <p class="names">{names}</p>
+  <p class="label">Docente:</p>
+  <p class="teacher">{c['teacher']}</p>
+  <p class="course">Curso: {c['course']}</p>
+  <p class="place">{c['place']}<br>{c['year']}</p>
 </section>"""
 
 
@@ -317,7 +308,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--keep-html", action="store_true", help="keep the intermediate HTML in docs/entregables/build/")
     args = parser.parse_args()
-    fonts = font_css()
+    fonts = ""  # academic style: system Times New Roman / Liberation Serif, no web fonts
     with tempfile.TemporaryDirectory(prefix="investwise-manuals-") as tmp:
         workdir = Path(tmp)
         for manual in MANUALS:
