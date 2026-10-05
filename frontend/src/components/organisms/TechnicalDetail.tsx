@@ -30,7 +30,16 @@ function Figure({ label, value }: { label: string; value: string }) {
 /** Collapsed by default; native `summary` works with keyboard and screen readers. */
 export function TechnicalDetail({ data, open, onToggle, switches, onSwitchesChange }: TechnicalDetailProps) {
   return (
-    <details className="iw-tech" open={!!open} onToggle={onToggle}>
+    <details
+      className="iw-tech"
+      open={!!open}
+      onToggle={(event) => {
+        // React delivers the nested "ver los mismos datos en tabla" toggles here too:
+        // react only to this panel, and report its real state instead of flipping it.
+        if (event.target !== event.currentTarget) return
+        onToggle?.(event.currentTarget.open)
+      }}
+    >
       <summary className="iw-tech__summary">
         <span>Ver detalle técnico</span>
         <span className="iw-tech__hint">Para evaluación académica</span>

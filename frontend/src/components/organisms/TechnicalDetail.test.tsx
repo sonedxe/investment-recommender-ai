@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { fireEvent, render, screen } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import { sample } from '../../fixtures/sample'
 import { TechnicalDetail } from './TechnicalDetail'
 
@@ -17,5 +17,23 @@ describe('TechnicalDetail', () => {
     rerender(<TechnicalDetail data={sample.technical} open switches={{ fuzzy: true, context: false }} />)
     expect(screen.getByRole('checkbox', { name: 'Lógica difusa' })).toBeChecked()
     expect(screen.getByRole('checkbox', { name: 'Reglas de contexto' })).not.toBeChecked()
+  })
+
+  it('ignores toggle events from the nested "ver los mismos datos en tabla" panels', () => {
+    const onToggle = vi.fn()
+    const { container } = render(<TechnicalDetail data={sample.technical} open onToggle={onToggle} />)
+    const nested = container.querySelector('details.iw-chart__details') as HTMLDetailsElement
+    nested.open = true
+    fireEvent(nested, new Event('toggle'))
+    expect(onToggle).not.toHaveBeenCalled()
+  })
+
+  it('reports the real open state of its own panel', () => {
+    const onToggle = vi.fn()
+    const { container } = render(<TechnicalDetail data={sample.technical} open={false} onToggle={onToggle} />)
+    const own = container.querySelector('details.iw-tech') as HTMLDetailsElement
+    own.open = true
+    fireEvent(own, new Event('toggle'))
+    expect(onToggle).toHaveBeenCalledWith(true)
   })
 })

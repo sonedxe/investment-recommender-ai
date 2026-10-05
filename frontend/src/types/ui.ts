@@ -290,7 +290,7 @@ export interface ScoreBreakdownProps {
 export interface TechnicalDetailProps {
   data: TechnicalData
   open?: boolean
-  onToggle?: () => void
+  onToggle?: (open: boolean) => void
   /** A6: optional ablation switches; nothing is rendered when absent. */
   switches?: SwitchState
   onSwitchesChange?: (next: SwitchState) => void
@@ -319,7 +319,7 @@ export interface ResultScreenProps {
   technical: TechnicalData
   technicalOpen?: boolean
   /** Fired when the technical detail is opened or closed. */
-  onTechnicalToggle?: () => void
+  onTechnicalToggle?: (open: boolean) => void
   /** A recalculation is in progress; the current result stays visible. */
   pending?: boolean
   onAdjust?: () => void

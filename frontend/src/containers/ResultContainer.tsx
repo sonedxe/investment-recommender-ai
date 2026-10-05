@@ -21,7 +21,7 @@ export function ResultContainer({ recommendation, switches, pending, offline, on
     <ResultScreen
       {...data}
       technicalOpen={technicalOpen}
-      onTechnicalToggle={() => setTechnicalOpen((open) => !open)}
+      onTechnicalToggle={setTechnicalOpen}
       pending={pending}
       offline={offline}
       onAdjust={onAdjust}
