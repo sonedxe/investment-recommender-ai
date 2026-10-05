@@ -62,19 +62,23 @@ def test_history_best_is_non_decreasing_with_elitism(d2_results) -> None:
 def test_ga_beats_random_search(params) -> None:
     inputs = annex_inputs(params, 1.0)
     result = run_ga(inputs, params.optimization, seed=2)
-    sample = random_population(20_000, params.optimization.max_weight, np.random.default_rng(99))
+    opt = params.optimization
+    sample = random_population(20_000, opt.max_weight, np.random.default_rng(99), min_weight=opt.min_weight)
     assert result.breakdown.total >= evaluate_population(sample, inputs).max() - 1e-4
 
 
-def test_d2_regression_cap_and_risk_ordering(d2_results) -> None:
+def test_d2_regression_cap_floor_and_risk_ordering(d2_results) -> None:
     stocks, term, debt, bonds = 0, 4, 2, 3
     for result in d2_results.values():
         assert result.weights.max() <= 0.40 + 1e-9
+        assert result.weights.min() >= 0.05 - 1e-9
+        assert result.min_weight == pytest.approx(0.05)
         assert result.weights.sum() == pytest.approx(1.0)
         assert 0.0 <= result.c <= 1.0
     assert d2_results[0.2].weights[stocks] > d2_results[2.0].weights[stocks]
     conservative = d2_results[2.0].weights
-    assert conservative[term] + conservative[debt] + conservative[bonds] >= 0.9
+    # The floor reserves 5 % for stocks and mixed: at most 0.90 is left for the defensive three.
+    assert conservative[term] + conservative[debt] + conservative[bonds] >= 0.9 - 1e-6
 
 
 def test_gene_c_follows_absorption_capacity(params) -> None:
@@ -91,6 +95,21 @@ def test_max_weight_override(params) -> None:
     assert result.weights.max() > 0.40
 
 
+def test_min_weight_override_zero_matches_cap_only_run(params) -> None:
+    from dataclasses import replace
+
+    inputs = annex_inputs(params, 0.5)
+    zero = run_ga(inputs, params.optimization, seed=3, min_weight=0.0)
+    legacy = run_ga(inputs, replace(params.optimization, min_weight=0.0), seed=3)
+    assert zero.min_weight == 0.0
+    assert np.array_equal(zero.weights, legacy.weights) and zero.c == legacy.c
+
+
+def test_infeasible_min_weight_override_raises(params) -> None:
+    with pytest.raises(ValueError):
+        run_ga(annex_inputs(params, 1.0), params.optimization, seed=0, min_weight=0.25)
+
+
 def test_full_run_is_fast(params) -> None:
     assert params.optimization.population_size == 80
     start = time.perf_counter()
@@ -98,14 +117,15 @@ def test_full_run_is_fast(params) -> None:
     assert time.perf_counter() - start < 2.0
 
 
-def test_operators_preserve_feasibility() -> None:
+@pytest.mark.parametrize("floor", [0.0, 0.05])
+def test_operators_preserve_feasibility(floor: float) -> None:
     rng = np.random.default_rng(0)
-    pop = random_population(200, 0.4, rng)
-    a, b = arithmetic_crossover(pop[:100], pop[100:], 1.0, 0.4, rng)
-    mutated = gaussian_mutation(np.vstack([a, b]), 0.5, 0.2, 0.4, rng)
+    pop = random_population(200, 0.4, rng, min_weight=floor)
+    a, b = arithmetic_crossover(pop[:100], pop[100:], 1.0, 0.4, rng, min_weight=floor)
+    mutated = gaussian_mutation(np.vstack([a, b]), 0.5, 0.2, 0.4, rng, min_weight=floor)
     for group in (a, b, mutated):
         assert np.allclose(group[:, :5].sum(axis=1), 1.0)
-        assert np.all(group[:, :5] <= 0.4 + 1e-9) and np.all(group[:, :5] >= 0)
+        assert np.all(group[:, :5] <= 0.4 + 1e-9) and np.all(group[:, :5] >= floor - 1e-9)
         assert np.all((group[:, 5] >= 0) & (group[:, 5] <= 1))
 
 

@@ -3,6 +3,7 @@
   "phi": 50,
   "kappa": 0.03,
   "max_weight": 0.40,
+  "min_weight": 0.05,
   "population_size": 80,
   "max_generations": 200,
   "patience": 25,

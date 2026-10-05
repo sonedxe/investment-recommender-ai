@@ -133,6 +133,8 @@ class OptimizationParameters:
     mutation_sigma: float
     elitism: int
     c_mutation_sigma: float = 0.15
+    # D2 floor: every category gets at least min_weight. 0.0 keeps the cap-only model.
+    min_weight: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -337,6 +339,9 @@ def load_optimization(base_dir: Path) -> OptimizationParameters:
         mutation_sigma=_in_range(raw.get("mutation_sigma"), 0.0, 1.0, "mutation_sigma"),
         elitism=int(_in_range(raw.get("elitism"), 0, population - 1, "elitism")),
         c_mutation_sigma=_in_range(raw.get("c_mutation_sigma", 0.15), 0.0, 1.0, "c_mutation_sigma"),
+        # Backward compatible: files written before W16 have no floor, which means 0.0
+        # (cap-only D2). N * min_weight <= 1 <= N * max_weight implies min_weight <= max_weight.
+        min_weight=_in_range(raw.get("min_weight", 0.0), 0.0, 1.0 / N_CATEGORIES, "min_weight"),
     )
     if params.tournament_size > population:
         raise ParameterError("tournament_size cannot exceed population_size")

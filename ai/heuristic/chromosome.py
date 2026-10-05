@@ -2,8 +2,9 @@
 
 An individual is a float vector of length 6: five portfolio weights (one per
 category, canonical order) followed by the fuzzy absorption gene ``c``.
-Feasibility: ``w_i >= 0``, ``sum(w) = 1``, ``w_i <= max_weight`` (D2) and
-``c in [0, 1]``. Every function accepts a single individual ``(6,)`` or a
+Feasibility: ``min_weight <= w_i <= max_weight`` (D2: floor 0.05, cap 0.40),
+``sum(w) = 1`` and ``c in [0, 1]``. ``min_weight = 0`` is the original cap-only
+model. Every function accepts a single individual ``(6,)`` or a
 population ``(n, 6)``.
 """
 
@@ -18,31 +19,81 @@ GENES = N_CATEGORIES + 1
 C_INDEX = N_CATEGORIES
 
 
+def check_bounds(min_weight: float, max_weight: float) -> None:
+    """Raise unless ``[min_weight, max_weight]`` admits a portfolio.
+
+    Feasible iff ``0 <= min_weight``, ``max_weight <= 1`` and
+    ``N * min_weight <= 1 <= N * max_weight`` (which implies ``min_weight <= max_weight``).
+    """
+    if (
+        not 0.0 < max_weight <= 1.0
+        or min_weight < 0.0
+        or N_CATEGORIES * max_weight < 1.0 - 1e-12
+        or N_CATEGORIES * min_weight > 1.0 + 1e-12
+        or min_weight > max_weight
+    ):
+        raise ValueError(
+            f"bounds [{min_weight}, {max_weight}] are infeasible for {N_CATEGORIES} categories"
+        )
+
+
 def check_cap(max_weight: float) -> None:
     """Raise unless ``max_weight`` admits a portfolio (``5 * max_weight >= 1``)."""
-    if not 0.0 < max_weight <= 1.0 or N_CATEGORIES * max_weight < 1.0 - 1e-12:
-        raise ValueError(f"max_weight={max_weight} is infeasible for {N_CATEGORIES} categories")
+    check_bounds(0.0, max_weight)
 
 
-def repair_weights(w: ArrayLike, max_weight: float) -> np.ndarray:
-    """Project weights onto the capped simplex.
+def repair_weights(w: ArrayLike, max_weight: float, min_weight: float = 0.0) -> np.ndarray:
+    """Project weights onto the bounded simplex ``min_weight <= w_i <= max_weight``.
 
     Negatives are clipped to 0 and the vector normalized to sum 1 (all-zero rows
-    become uniform). The cap is enforced by water-filling: the excess above
+    become uniform). With ``min_weight = 0`` only the cap applies (``_repair_cap``,
+    unchanged since D2). With a floor the repair water-fills in both directions:
+
+    1. every category below the floor is raised to it, and the deficit is taken
+       from the others proportionally to their slack above the floor;
+    2. the cap is then water-filled in that floor-shifted space.
+
+    Both steps run on the slack ``v = w - min_weight`` (rescaled to sum 1), where
+    the bounds become ``v >= 0`` and ``v <= cap'`` with
+    ``cap' = (max_weight - min_weight) / (1 - N * min_weight)``. Mapping back,
+    ``w = min_weight + (1 - N * min_weight) * v`` satisfies both bounds and sums to
+    1. Already-feasible weights are returned unchanged (idempotent), so elites
+    and copied parents are not pulled toward the uniform portfolio.
+    """
+    check_bounds(min_weight, max_weight)
+    if min_weight == 0.0:
+        return _repair_cap(w, max_weight)
+
+    free_mass = 1.0 - N_CATEGORIES * min_weight
+    weights = _normalize(w)
+    if free_mass <= 1e-12:  # N * min_weight == 1: the uniform portfolio is the only feasible one
+        result = np.full_like(weights, 1.0 / N_CATEGORIES)
+    else:
+        slack = _repair_cap(weights - min_weight, (max_weight - min_weight) / free_mass)
+        result = np.clip(min_weight + free_mass * slack, min_weight, max_weight)
+    return result[0] if np.ndim(w) == 1 else result
+
+
+def _normalize(w: ArrayLike) -> np.ndarray:
+    """Clip negatives and scale each row to sum 1 (all-zero rows become uniform); always 2-D."""
+    weights = np.atleast_2d(np.clip(np.array(w, dtype=float), 0.0, None))
+    if weights.shape[-1] != N_CATEGORIES:
+        raise ValueError(f"weights must have {N_CATEGORIES} columns, got {weights.shape[-1]}")
+    totals = weights.sum(axis=1, keepdims=True)
+    return np.where(totals > 0, weights / np.where(totals > 0, totals, 1.0), 1.0 / N_CATEGORIES)
+
+
+def _repair_cap(w: ArrayLike, max_weight: float) -> np.ndarray:
+    """Project weights onto the capped simplex (the D2 cap-only repair).
+
+    After ``_normalize``, the cap is enforced by water-filling: the excess above
     ``max_weight`` is redistributed among the categories still below the cap,
     proportionally to their weights (equally when they are all zero), until no
     category exceeds it. Each pass pins at least one more category at the cap,
     so at most ``N_CATEGORIES`` passes are needed.
     """
-    check_cap(max_weight)
-    weights = np.clip(np.array(w, dtype=float), 0.0, None)
-    single = weights.ndim == 1
-    weights = np.atleast_2d(weights)
-    if weights.shape[-1] != N_CATEGORIES:
-        raise ValueError(f"weights must have {N_CATEGORIES} columns, got {weights.shape[-1]}")
-
-    totals = weights.sum(axis=1, keepdims=True)
-    weights = np.where(totals > 0, weights / np.where(totals > 0, totals, 1.0), 1.0 / N_CATEGORIES)
+    single = np.ndim(w) == 1
+    weights = _normalize(w)
 
     for _ in range(N_CATEGORIES):
         over = weights > max_weight
@@ -65,13 +116,13 @@ def repair_weights(w: ArrayLike, max_weight: float) -> np.ndarray:
     return weights[0] if single else weights
 
 
-def repair(individuals: ArrayLike, max_weight: float) -> np.ndarray:
+def repair(individuals: ArrayLike, max_weight: float, min_weight: float = 0.0) -> np.ndarray:
     """Repair weights (see ``repair_weights``) and clip the gene ``c`` to [0, 1]."""
     array = np.array(individuals, dtype=float)
     if array.shape[-1] != GENES:
         raise ValueError(f"individuals must have {GENES} genes, got {array.shape[-1]}")
     repaired = np.empty_like(array)
-    repaired[..., :N_CATEGORIES] = repair_weights(array[..., :N_CATEGORIES], max_weight)
+    repaired[..., :N_CATEGORIES] = repair_weights(array[..., :N_CATEGORIES], max_weight, min_weight)
     repaired[..., C_INDEX] = np.clip(array[..., C_INDEX], 0.0, 1.0)
     return repaired
 
@@ -82,8 +133,9 @@ def random_population(
     rng: np.random.Generator,
     c_universe: ArrayLike | None = None,
     c_weights: ArrayLike | None = None,
+    min_weight: float = 0.0,
 ) -> np.ndarray:
-    """Dirichlet(1) weights (uniform on the simplex) repaired to the cap, plus the gene ``c``.
+    """Dirichlet(1) weights (uniform on the simplex) repaired to the bounds, plus the gene ``c``.
 
     ``c`` is uniform on [0, 1] unless ``c_universe``/``c_weights`` are given: then it
     is sampled from the grid with probability proportional to the weights (the
@@ -96,7 +148,7 @@ def random_population(
     population = np.empty((size, GENES))
     population[:, :N_CATEGORIES] = rng.dirichlet(np.ones(N_CATEGORIES), size=size)
     population[:, C_INDEX] = _initial_c(size, rng, c_universe, c_weights)
-    return repair(population, max_weight)
+    return repair(population, max_weight, min_weight)
 
 
 def _initial_c(

@@ -24,11 +24,11 @@ def post(**overrides) -> dict:
     return res.json()
 
 
-def test_recommendation_respects_cap_and_amounts() -> None:
+def test_recommendation_respects_floor_cap_and_amounts() -> None:
     body = post()
     weights = [a["weight"] for a in body["allocation"]]
     assert [a["category"] for a in body["allocation"]] == ["stocks", "mixed", "debt", "bonds", "term"]
-    assert all(0 <= w <= 0.40 + 1e-9 for w in weights)
+    assert all(0.05 - 1e-9 <= w <= 0.40 + 1e-9 for w in weights)
     assert sum(weights) == pytest.approx(1.0)
     assert round(sum(a["amount"] for a in body["allocation"]), 2) == 5000.00
     assert all(round(a["amount"], 2) == a["amount"] for a in body["allocation"])

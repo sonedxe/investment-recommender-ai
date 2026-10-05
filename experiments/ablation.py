@@ -92,6 +92,9 @@ CALIBRATION_GRID: dict[str, tuple[float, ...]] = {
     "phi": (10.0, 50.0, 200.0),
     "max_weight": (0.35, 0.40, 0.50),
 }
+# Floor sweep (W16): the cost of "no category at 0 %" in expected return and sigma. Kept out of
+# CALIBRATION_GRID because the calibration figure plots one panel per entry of that grid.
+FLOOR_GRID: dict[str, tuple[float, ...]] = {"min_weight": (0.0, 0.05)}
 # Stress case added to the requested moderado/agresivo sweeps: low absorption with a low lambda is the
 # only situation where the volatility penalty is active, so it is the one that exercises kappa and phi.
 STRESS_ARCHETYPE = Archetype("estres_baja_absorcion", 0.5, 5.0, 12_000.0, 1.0)
@@ -189,7 +192,9 @@ def run_case(env: Environment, case: Case, opt: OptimizationParameters, seed: in
         fitness=b.total,
         herfindahl=herfindahl(ga.weights),
         max_w=float(ga.weights.max()),
+        min_w=float(ga.weights.min()),
         n_at_cap=int(np.sum(ga.weights >= ga.max_weight - CAP_TOLERANCE)),
+        n_at_floor=int(np.sum(ga.weights <= ga.min_weight + CAP_TOLERANCE)),
         c=ga.c,
         mu_ca_c=absorption.membership_at(ga.c) if fuzzy_enabled else math.nan,
         centroid=absorption.centroid,
@@ -263,7 +268,7 @@ def calibration(env: Environment, settings: Settings) -> list[dict[str, Any]]:
     for name in CALIBRATION_ARCHETYPES:
         arch = STRESS_ARCHETYPE if name == STRESS_ARCHETYPE.name else ARCHETYPE_BY_NAME[name]
         case = archetype_case(arch, True, True, NEUTRAL_CONTEXT)
-        for parameter, values in CALIBRATION_GRID.items():
+        for parameter, values in {**CALIBRATION_GRID, **FLOOR_GRID}.items():
             for value in values:
                 opt = env.optimization(settings, **{parameter: value})
                 for seed in range(settings.seeds):
@@ -352,10 +357,10 @@ def gene_table(summary: Sequence[dict[str, Any]]) -> list[str]:
 
 def calibration_table(summary: Sequence[dict[str, Any]]) -> list[str]:
     header = ["Arquetipo", "Parámetro", "Valor", *(f"{c} %" for c in CATEGORIES), "E %", "σ %", "HHI",
-              "Pesos en el tope", "c", "|c − centroide|", "μ_CA(c)", "Penalización activa"]
+              "Pesos en el tope", "Pesos en el piso", "c", "|c − centroide|", "μ_CA(c)", "Penalización activa"]
     body = [[r["archetype"], r["parameter"], f"{r['value']:g}", *(_pct(r[w + "_mean"]) for w in WEIGHT_COLUMNS),
              _pct(r["expected_return_mean"]), _pct(r["sigma_mean"]), _num(r["herfindahl_mean"]),
-             _num(r["n_at_cap_mean"], 1), _num(r["c_mean"]), _num(abs(r["c_mean"] - r["centroid_mean"])),
+             _num(r["n_at_cap_mean"], 1), _num(r["n_at_floor_mean"], 1), _num(r["c_mean"]), _num(abs(r["c_mean"] - r["centroid_mean"])),
              _num(r["mu_ca_c_mean"]), f"{100 * r['penalty_active_mean']:.0f} %"] for r in summary]
     return _table(header, body)
 
@@ -370,7 +375,8 @@ def write_readme(out: Path, settings: Settings, env: Environment, tables: dict[s
         "",
         f"- Semillas por configuración: {settings.seeds} (0 a {settings.seeds - 1}).",
         f"- AG: población {opt.population_size}, máximo {opt.max_generations} generaciones, "
-        f"paciencia {opt.patience}, κ = {opt.kappa:g}, φ = {opt.phi:g}, tope = {opt.max_weight:g}.",
+        f"paciencia {opt.patience}, κ = {opt.kappa:g}, φ = {opt.phi:g}, tope = {opt.max_weight:g}, "
+        f"piso = {opt.min_weight:g}.",
         f"- Monto S/ {AMOUNT:,.0f}. Contexto de la ablación con contexto activo: político −0.5, macro 0.",
         f"- Tiempo de ejecución: {runtime_s:.1f} s.",
         "- Valores: media ± desviación estándar muestral entre semillas; pesos, E y σ en %.",
@@ -385,7 +391,7 @@ def write_readme(out: Path, settings: Settings, env: Environment, tables: dict[s
         "| `ablation_convergence.csv` | Mejor fitness y fitness medio por generación (semilla 0) |",
         "| `context_runs.csv` / `context_summary.csv` | Moderado, modelo completo, político × macro |",
         "| `gene_runs.csv` / `gene_summary.csv` | Gen difuso `c`: absorción × λ_base |",
-        "| `calibration_runs.csv` / `calibration_summary.csv` | Barridos de κ, φ y tope |",
+        "| `calibration_runs.csv` / `calibration_summary.csv` | Barridos de κ, φ, tope y piso |",
         "| `golden_offline.md` | Golden set de IA generativa en modo offline (`scripts/eval_golden_set.py`) |",
         *(f"| `{name}` | Figura |" for name in figures),
         "",

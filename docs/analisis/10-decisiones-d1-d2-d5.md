@@ -104,6 +104,17 @@ Combinar el tope de 40 % con el término de diversificación (δ = 0.01) dio los
 - **Parámetro configurable** (`max_weight` en el Anexo C) y verificado en las pruebas de ablación (tope 0.4 frente a 0.5 frente a sin tope).
 - **Advertencias:** los valores salen de un muestreo, no del AG; el AG puede encontrar soluciones algo mejores. Con los datos reales de [09](09-fuentes-de-datos.md) hay que repetir la comparación.
 
+### Ampliación W16: tope 40 % y piso 5 %
+
+Con el tope solo, el AG deja categorías exactamente en 0 % (por ejemplo, un perfil muy agresivo a 25 años recibía 40 % acciones, 40 % mixtos, 0 % deuda, 20 % bonos y 0 % plazo fijo). Es correcto en lo matemático (soluciones de esquina), pero para la presentación se decidió que ninguna categoría quede en 0 %.
+
+**Decisión: `0.05 ≤ wᵢ ≤ 0.40`, Σwᵢ = 1.** El piso es el espejo del tope: con cinco categorías fija 25 % del portafolio (5 % en cada una) y el AG decide el 75 % restante.
+
+- **Explicabilidad:** el usuario ve una parte en cada tipo de inversión y la explicación puede comentar las cinco categorías, en lugar de mostrar filas en 0 % que parecen un error.
+- **Práctica habitual:** las políticas de inversión reales suelen fijar bandas mínimas y máximas por clase de activo (asignación estratégica con rangos), no solo máximos.
+- **Costo medido:** en la calibración ([04](../experimentos/04-calibracion.md#qué-cambió-con-el-piso-del-5--w16)) el piso baja el fitness entre 0.0002 y 0.0026 y cambia E entre −0.23 y +0.24 pp: agresivo 9.93 % → 9.91 % (σ 11.1 % → 11.2 %), estrés 7.5 % → 7.2 % (σ 5.4 % → 5.0 %), moderado 5.1 % → 5.3 % (σ 1.4 % → 1.9 %, porque obliga a tener 5 % en acciones).
+- **Implementación:** la reparación del cromosoma trabaja con la holgura sobre el piso (`wᵢ − 0.05`): las categorías bajo el piso suben a 5 %, el déficit se descuenta de las demás en proporción a su holgura y el tope se aplica por llenado (*water-filling*) en ese espacio. Un portafolio ya factible no cambia. `min_weight` es configurable en `data/parameters/optimization.json`; con `min_weight = 0` el modelo es exactamente el de tope solo (verificado con una prueba de regresión). Cotas infactibles (`5 · min_weight > 1` o `5 · max_weight < 1`) se rechazan al cargar los parámetros.
+
 ---
 
 ## D5 · Escala de λ_base

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from ai.heuristic.chromosome import C_INDEX, N_CATEGORIES, check_cap, random_population
+from ai.heuristic.chromosome import C_INDEX, N_CATEGORIES, check_bounds, random_population
 from ai.heuristic.fitness import FitnessBreakdown, FitnessInputs, evaluate, evaluate_population
 from ai.heuristic.operators import (
     arithmetic_crossover,
@@ -36,6 +36,7 @@ class GAResult:
     converged: bool
     seed: int | None
     max_weight: float
+    min_weight: float = 0.0
 
 
 def run_ga(
@@ -43,15 +44,18 @@ def run_ga(
     params: OptimizationParameters,
     seed: int | None = None,
     max_weight: float | None = None,
+    min_weight: float | None = None,
 ) -> GAResult:
     """Evolve ``[w | c]`` maximizing the extended fitness.
 
     Stops when the best fitness has not improved by more than 1e-9 for
     ``params.patience`` consecutive generations (``converged=True``) or after
-    ``params.max_generations``. ``max_weight`` overrides the cap (ablation).
+    ``params.max_generations``. ``max_weight`` and ``min_weight`` override the
+    cap and the floor (ablation/calibration).
     """
     cap = params.max_weight if max_weight is None else max_weight
-    check_cap(cap)
+    floor = params.min_weight if min_weight is None else min_weight
+    check_bounds(floor, cap)
     rng = np.random.default_rng(seed)
     size = params.population_size
     n_elite = min(params.elitism, size - 1)
@@ -59,7 +63,9 @@ def run_ga(
 
     # With fuzzy enabled, c starts on the absorption set (p proportional to mu_CA).
     seed_set = (inputs.universe, inputs.mu_ca) if inputs.fuzzy_enabled else (None, None)
-    population = random_population(size, cap, rng, c_universe=seed_set[0], c_weights=seed_set[1])
+    population = random_population(
+        size, cap, rng, c_universe=seed_set[0], c_weights=seed_set[1], min_weight=floor
+    )
     fitness = evaluate_population(population, inputs)
     best_index = int(np.argmax(fitness))
     history_best, history_mean = [float(fitness[best_index])], [float(fitness.mean())]
@@ -71,11 +77,22 @@ def run_ga(
         n_pairs = (n_children + 1) // 2
         parents = tournament_selection(fitness, 2 * n_pairs, params.tournament_size, rng)
         child_a, child_b = arithmetic_crossover(
-            population[parents[:n_pairs]], population[parents[n_pairs:]], params.crossover_rate, cap, rng
+            population[parents[:n_pairs]],
+            population[parents[n_pairs:]],
+            params.crossover_rate,
+            cap,
+            rng,
+            min_weight=floor,
         )
         children = np.vstack([child_a, child_b])[:n_children]
         children = gaussian_mutation(
-            children, params.mutation_rate, params.mutation_sigma, cap, rng, c_sigma=params.c_mutation_sigma
+            children,
+            params.mutation_rate,
+            params.mutation_sigma,
+            cap,
+            rng,
+            c_sigma=params.c_mutation_sigma,
+            min_weight=floor,
         )
 
         population = np.vstack([elites, children])
@@ -105,4 +122,5 @@ def run_ga(
         converged=converged,
         seed=seed,
         max_weight=cap,
+        min_weight=floor,
     )

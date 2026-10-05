@@ -72,6 +72,7 @@ def test_optimization_parameters(params) -> None:
     opt = params.optimization
     assert opt.phi == 50 and opt.kappa == pytest.approx(0.03)
     assert opt.max_weight == pytest.approx(0.40)
+    assert opt.min_weight == pytest.approx(0.05)
     assert (opt.population_size, opt.max_generations, opt.patience) == (80, 200, 25)
     assert opt.tournament_size == 3 and opt.elitism == 1
     assert opt.crossover_rate == pytest.approx(0.9)
@@ -126,6 +127,25 @@ def test_max_weight_out_of_range_raises(broken_dir: Path) -> None:
     _edit(broken_dir / "optimization.json", lambda d: d.update(max_weight=0.1))
     with pytest.raises(ParameterError):
         load_parameters(broken_dir)
+
+
+@pytest.mark.parametrize("min_weight", [-0.01, 0.21, "x"])
+def test_min_weight_out_of_range_raises(broken_dir: Path, min_weight) -> None:
+    _edit(broken_dir / "optimization.json", lambda d: d.update(min_weight=min_weight))
+    with pytest.raises(ParameterError):
+        load_parameters(broken_dir)
+
+
+def test_min_weight_at_uniform_bound_is_accepted(broken_dir: Path) -> None:
+    # N*min_weight <= 1 <= N*max_weight already implies min_weight <= max_weight.
+    _edit(broken_dir / "optimization.json", lambda d: d.update(min_weight=0.2, max_weight=0.2))
+    opt = load_parameters(broken_dir).optimization
+    assert (opt.min_weight, opt.max_weight) == (0.2, 0.2)
+
+
+def test_missing_min_weight_defaults_to_zero(broken_dir: Path) -> None:
+    _edit(broken_dir / "optimization.json", lambda d: d.pop("min_weight"))
+    assert load_parameters(broken_dir).optimization.min_weight == 0.0
 
 
 def test_missing_risk_profile_raises(broken_dir: Path) -> None:

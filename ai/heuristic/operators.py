@@ -29,11 +29,12 @@ def arithmetic_crossover(
     rate: float,
     max_weight: float,
     rng: np.random.Generator,
+    min_weight: float = 0.0,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Blend each parent pair with ``alpha ~ U(0, 1)`` over all six genes, then repair.
 
     Arithmetic (convex) crossover keeps children on the simplex: a convex
-    combination of two portfolios still sums to 1 and respects the cap. A
+    combination of two portfolios still sums to 1 and respects the floor and cap. A
     one-point crossover would splice weights from different parents and break
     ``sum(w) = 1``. Pairs not selected (probability ``1 - rate``) are copied.
     """
@@ -42,7 +43,7 @@ def arithmetic_crossover(
     alpha = np.where(rng.random((n, 1)) < rate, alpha, 1.0)
     child_a = alpha * parents_a + (1.0 - alpha) * parents_b
     child_b = (1.0 - alpha) * parents_a + alpha * parents_b
-    return repair(child_a, max_weight), repair(child_b, max_weight)
+    return repair(child_a, max_weight, min_weight), repair(child_b, max_weight, min_weight)
 
 
 def gaussian_mutation(
@@ -52,6 +53,7 @@ def gaussian_mutation(
     max_weight: float,
     rng: np.random.Generator,
     c_sigma: float | None = None,
+    min_weight: float = 0.0,
 ) -> np.ndarray:
     """Add ``N(0, sigma)`` noise to each weight gene and ``N(0, c_sigma)`` to ``c``
     with per-gene probability ``rate``, then repair.
@@ -64,7 +66,7 @@ def gaussian_mutation(
     scales[N_CATEGORIES] = 2.0 * sigma if c_sigma is None else c_sigma
     mask = rng.random(population.shape) < rate
     noise = rng.normal(0.0, 1.0, size=population.shape) * scales
-    return repair(population + mask * noise, max_weight)
+    return repair(population + mask * noise, max_weight, min_weight)
 
 
 def elite_indices(fitness: np.ndarray, count: int) -> np.ndarray:

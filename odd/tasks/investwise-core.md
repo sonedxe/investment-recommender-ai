@@ -43,6 +43,7 @@ The repository is a skeleton. The v1.1 design misses the professor's feedback (n
 | W13 | Polish from experiments/manual findings: c gene stranding, score note formula, chart label clipping, convergence ticks, % format, stale ping text, restart action, offline number words | delegated | done | `c326733` (regenerated results) + `bb745e1` (reviewed, approved); 247 py + 82 vitest; c stranding 2/60 → 0/600; offline golden set 97.1 % → 100 % |
 | W14 | Real market data for all five categories from BCRP (BVL index, BTP 10y, soles bonds ≤3y, deposit rate; mixed as documented composite) with manifest, descriptive file names, yield→return by duration; rerun experiments and fixtures | delegated | done | `785a4db` (reviewed: high risk, 4 lenses, no findings) + generated results/fixtures; 278 py + 82 vitest; all 5 categories data-backed |
 | W15 | Mixed funds from real data: SBS AFP Fondo 2 valor cuota (equal-weight Integra/Prima/Profuturo) replacing the 50/50 composite; rerun experiments and fixtures | delegated | done | `b5a0d2a` (reviewed, approved) + generated results/fixtures; 288 py + 82 vitest; mixed μ 7.13 % σ 7.61 % ρ_BVL 0.72; mixed allocated in 12/12 ablation cells (8.3–40 %) |
+| W16 | Minimum weight floor 5 % per category (5 % ≤ w ≤ 40 %) so no category shows 0 %; rerun experiments, fixtures, docs | delegated | pending | |
 
 ## Acceptance criteria
 
@@ -76,6 +77,8 @@ The repository is a skeleton. The v1.1 design misses the professor's feedback (n
 - W15 authorized ("haz lo que mejor creas conveniente") after research: SBS file B-220932 (static GET, verified 200, xlsx) gives daily SPP valor cuota by fund type since 1993; Fondo 2 2010–2026: μ 7.1 %, σ 7.6 %, ρ_BVL 0.72 vs composite 0.97. Alternative SMV SIMV retail funds rejected (redundant ρ 0.93–0.96 or global fund of funds).
 
 - User-reported bug: clicking "Ver los mismos datos en tabla" collapsed the technical panel (React delivered nested <details> toggle events to the controlled parent, whose handler flipped state). RED test reproduced it; fixed `c88d58c` (ignore non-own toggles, report real open state); verified in the real app via CDP. Assess `f6e43f7..c88d58c`: medium, under_budget (39 lines) → pending in slice.
+
+- W16 authorized by the user: 0 % allocations raise questions in the presentation → floor min_weight 0.05 (configurable), mirror of the 0.40 cap.
 
 ## Next step
 

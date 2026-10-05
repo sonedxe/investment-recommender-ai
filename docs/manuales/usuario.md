@@ -64,7 +64,7 @@ Cuando la aplicación continúa con un supuesto, te lo muestra en un recuadro **
 
 La pantalla **Tu distribución de ejemplo** tiene cuatro partes:
 
-1. **Cómo repartir S/ …**: una barra de colores con el reparto y una fila por tipo de inversión con el monto en soles y el porcentaje. Los montos suman exactamente lo que vas a invertir (fila **Total a invertir**). Ningún tipo pasa del 40 %, para que el dinero no quede concentrado.
+1. **Cómo repartir S/ …**: una barra de colores con el reparto y una fila por tipo de inversión con el monto en soles y el porcentaje. Los montos suman exactamente lo que vas a invertir (fila **Total a invertir**). Cada categoría recibe entre 5 % y 40 %: ninguna pasa del 40 %, para que el dinero no quede concentrado, y ninguna queda en 0 %, para que veas una parte en cada tipo de inversión.
 2. **Supuestos aplicados**: lo que la aplicación asumió porque no lo dijiste (por ejemplo, un panorama político neutral) y qué categorías usan valores de referencia históricos en lugar de datos de mercado recientes.
 3. **Por qué esta distribución**: una explicación en lenguaje sencillo de cada parte del reparto, de cómo influyó tu horizonte y de tu capacidad para absorber pérdidas.
 4. **Qué podría pasar en un año (estimado)**: tres escenarios en soles.
