@@ -4,22 +4,22 @@ Casos: 20 · Generado por `scripts/eval_golden_set.py`.
 
 | Métrica | Valor |
 |---|---|
-| Exactitud global por campo | 97.1 % |
+| Exactitud global por campo | 100.0 % |
 | `complete` correcto | 100.0 % |
-| Campo preguntado correcto | 90.0 % |
+| Campo preguntado correcto | 100.0 % |
 | Ambiguos/contradictorios con pregunta (objetivo 100 %) | 100.0 % |
 | JSON válido (solo LLM) | n/a |
-| Latencia media / máxima | 0.9 ms / 1.6 ms |
+| Latencia media / máxima | 1.0 ms / 2.3 ms |
 
 ## Exactitud por campo
 
 | Campo | Exactitud |
 |---|---|
-| `ahorro_total` | 95.0 % |
+| `ahorro_total` | 100.0 % |
 | `cobertura_emergencia_meses` | 100.0 % |
 | `horizonte_anios` | 100.0 % |
 | `horizonte_etiqueta` | 100.0 % |
-| `monto_invertir` | 90.0 % |
+| `monto_invertir` | 100.0 % |
 | `perfil_riesgo` | 100.0 % |
 | `rechazos` | 100.0 % |
 
@@ -38,8 +38,8 @@ Casos: 20 · Generado por `scripts/eval_golden_set.py`.
 | falta-monto-y-plazo | — | ok | monto_invertir (ok) | offline |
 | contradictorio-max-sin-perder | — | ok | perfil_riesgo (ok) | offline |
 | contradictorio-arriesgar-seguro | — | ok | perfil_riesgo (ok) | offline |
-| monto-en-palabras | `monto_invertir` | ok | monto_invertir (FALLA) | offline |
-| monto-mil-con-palabras | `monto_invertir`, `ahorro_total` | ok | monto_invertir (FALLA) | offline |
+| monto-en-palabras | — | ok | ahorro_total (ok) | offline |
+| monto-mil-con-palabras | — | ok | cobertura_emergencia_meses (ok) | offline |
 | dolares-texto | — | ok | monto_invertir (ok) | offline |
 | dolares-simbolo | — | ok | monto_invertir (ok) | offline |
 | rechaza-ahorros | — | ok | — (ok) | offline |
