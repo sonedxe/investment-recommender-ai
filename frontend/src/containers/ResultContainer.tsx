@@ -1,0 +1,32 @@
+import { useState } from 'react'
+import { toResult } from '../api/mappers'
+import type { RecommendResponse } from '../api/types'
+import { ResultScreen } from '../components'
+import type { Switches } from '../state/flow'
+
+export interface ResultContainerProps {
+  recommendation: RecommendResponse
+  switches: Switches
+  pending: boolean
+  offline: boolean
+  onSwitchesChange: (next: Switches) => void
+  onAdjust: () => void
+}
+
+export function ResultContainer({ recommendation, switches, pending, offline, onSwitchesChange, onAdjust }: ResultContainerProps) {
+  const [technicalOpen, setTechnicalOpen] = useState(false)
+  const data = toResult(recommendation)
+  return (
+    <ResultScreen
+      {...data}
+      technicalOpen={technicalOpen}
+      onTechnicalToggle={() => setTechnicalOpen((open) => !open)}
+      pending={pending}
+      offline={offline}
+      onAdjust={onAdjust}
+      // The switches show the requested selection while a recalculation is pending.
+      switches={switches}
+      onSwitchesChange={onSwitchesChange}
+    />
+  )
+}

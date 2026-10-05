@@ -2,6 +2,7 @@ import type { ResultScreenProps } from '../../types/ui'
 import { formatMoney } from '../../lib/format'
 import { Button } from '../atoms/Button'
 import { DisclaimerNotice } from '../atoms/DisclaimerNotice'
+import { ProgressLine } from '../atoms/ProgressLine'
 import { AssumptionList } from '../molecules/AssumptionList'
 import { AllocationBreakdown } from '../organisms/AllocationBreakdown'
 import { AppHeader } from '../organisms/AppHeader'
@@ -9,13 +10,14 @@ import { ExplanationText } from '../organisms/ExplanationText'
 import { TechnicalDetail } from '../organisms/TechnicalDetail'
 
 export function ResultScreen(props: ResultScreenProps) {
-  const { summary, total, allocation, assumptions, explanation, technical, technicalOpen, onAdjust, offline } = props
+  const { summary, total, allocation, assumptions, explanation, technical, technicalOpen, onAdjust, offline, pending } = props
   return (
     <div className="iw-screen">
       <AppHeader offline={offline} step="Resultado" />
       <main className="iw-page">
         <h1 className="iw-h1">Tu distribución de ejemplo</h1>
         <p className="iw-lead">{summary}</p>
+        {pending && <ProgressLine label="Recalculando la distribución…" />}
         <div className="iw-result">
           <div className="iw-result__main">
             <AllocationBreakdown items={allocation} total={total} title={`Cómo repartir ${formatMoney(total)}`} />
@@ -31,6 +33,7 @@ export function ResultScreen(props: ResultScreenProps) {
         <TechnicalDetail
           data={technical}
           open={technicalOpen}
+          onToggle={props.onTechnicalToggle}
           switches={props.switches}
           onSwitchesChange={props.onSwitchesChange}
         />

@@ -318,6 +318,10 @@ export interface ResultScreenProps {
   explanation: ExplanationTextProps
   technical: TechnicalData
   technicalOpen?: boolean
+  /** Fired when the technical detail is opened or closed. */
+  onTechnicalToggle?: () => void
+  /** A recalculation is in progress; the current result stays visible. */
+  pending?: boolean
   onAdjust?: () => void
   offline?: boolean
   /** A6: forwarded to TechnicalDetail. */
