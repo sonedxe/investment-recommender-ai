@@ -1,0 +1,255 @@
+INFORME TÉCNICO DE DESARROLLO
+Recomendador de Inversión / Portafolio Personal
+Curso: Software Inteligente - Propuesta 4
+Entregable: Avance de Trabajo Parcial - Semana 5 (30%)
+Versión del documento: 1.1 - Setiembre 2026 (incorpora lógica difusa y reglas de contexto)
+
+Integrantes del equipo
+• Gutierrez Campos Edson Luis
+• Arias Chumpitaz, Giovanni Alexander
+• Chavez Gave, Jose Luis
+• Limachi Sarmiento Jose Luis
+• Leon Robles, Illary Marcelo
+
+Nombre del proyectoInvestWise - Recomendador de inversiones con IADocenteHUGO DAVID CALDERON VILCARepositorio de códigohttps://github.com/sonedxe/investment-recommender-ai
+Resumen de cambios de la versión 1.1
+Esta versión añade dos aportes al informe de la semana 5: (1) lógica difusa aplicada a dos conceptos imprecisos del perfil del usuario -el horizonte temporal y la capacidad de absorción- y (2) reglas de contexto (factores ambientales) que influyen de forma directa en la función de aptitud. También corrige dos errores de la versión 1.0 en la sección 5.
+SecciónCambio1, 3Se menciona la lógica difusa y el ajuste contextual como parte del sistema y de sus funcionalidades.4.1Flujo de datos actualizado (8 etapas) con nuevo diagrama.4.2, 4.7Nuevos campos que la IA generativa debe extraer (ahorro total y cobertura de emergencia) y contratos de datos de los nuevos módulos.4.3El módulo bayesiano entrega además un indicador de tendencia reciente por categoría.4.5 (nueva)Módulo 4 - Lógica difusa: horizonte temporal y capacidad de absorción.4.6 (nueva)Módulo 5 - Reglas de contexto: panorama político, estabilidad macroeconómica, tendencia y precedente por categoría.5.1Corrección: la fórmula de s(P) omitía el subíndice j y la covarianza sij; y el ejemplo ilustrativo daba fitness = -4 para ? = 2, cuando el valor correcto es -14.5.2 (nueva)Función de aptitud ampliada (fitness') con ? efectivo, ajuste contextual y penalización por capacidad de absorción.6, 8, 9, 10, 11Reglas de explicación, ventajas, estado, plan de trabajo y glosario actualizados.Anexo C (nuevo)Parámetros iniciales del módulo difuso y de las reglas de contexto.
+Tabla de Contenidos
+• 1. Introducción y Objetivo del Proyecto
+• 2. Alcance y Delimitación del Proyecto
+• 3. Descripción General de Funcionalidades
+• 4. Arquitectura de Software Inteligente
+• 5. Modelo Matemático Formal
+• 6. Capa de Explicación en Lenguaje Simple (Diseño UX)
+• 7. Población Objetivo y Casos de Uso
+• 8. Ventajas frente a Otros Softwares Existentes
+• 9. Estado Actual del Proyecto (Avance 30% - Semana 5)
+• 10. Plan de Trabajo Restante
+• 11. Glosario
+• Anexo A - Tabla de Categorías de Inversión de Referencia
+• Anexo B - Archivos del Proyecto
+• Anexo C - Parámetros del Módulo Difuso y de las Reglas de Contexto
+
+1. Introducción y Objetivo del Proyecto
+Este documento constituye el informe técnico del proyecto "Recomendador de Inversión / Portafolio Personal", desarrollado para el curso de Software Inteligente. Su propósito es doble: (1) cumplir con el entregable formal solicitado por el enunciado del trabajo parcial -descripción de funcionalidades, arquitectura, población objetivo y ventajas del software- y (2) servir como documento de referencia técnica lo suficientemente preciso para que cualquier integrante del equipo, o una herramienta de generación de código asistida por IA, pueda implementar cada componente sin ambigüedad.
+El sistema integra en una sola aplicación con interfaz gráfica las siguientes técnicas de inteligencia artificial:
+• Un módulo de IA generativa, conectado mediante API, que interpreta la solicitud del usuario en lenguaje natural y explica los resultados en lenguaje simple.
+• Un módulo de razonamiento bajo incertidumbre, basado en inferencia bayesiana, que estima el retorno y riesgo de cada clase de activo a partir de datos históricos.
+• Un módulo de algoritmo heurístico (algoritmo genético) que resuelve el problema de optimización de portafolio, es decir, encuentra la combinación de pesos que maximiza el retorno esperado ajustado al riesgo que el usuario está dispuesto a asumir.
+• Un módulo de lógica difusa que modela dos conceptos imprecisos del perfil del usuario -su horizonte temporal y su capacidad de absorber pérdidas- mediante conjuntos difusos, y los traduce en parámetros que modulan la optimización.
+De forma complementaria, un conjunto de reglas de contexto (panorama político, estabilidad macroeconómica, tendencia y precedente de cada categoría de inversión) ajusta directamente la función de aptitud del algoritmo genético, de modo que la recomendación no dependa únicamente del pasado estadístico sino también del entorno en que se invierte.
+El problema específico que resuelve el sistema es: dado un monto de dinero, un horizonte temporal, una tolerancia al riesgo y una capacidad de absorber pérdidas, ¿cómo debe una persona repartir ese dinero entre distintas categorías de inversión para obtener el mejor balance posible entre retorno esperado y riesgo asumido, en el contexto actual?
+Declaración de alcance: este es un proyecto académico diseñado para demostrar la integración de técnicas de inteligencia artificial del curso. No constituye asesoría financiera real ni debe usarse para tomar decisiones de inversión efectivas. Esta advertencia se muestra también dentro de la interfaz de la aplicación, en todo momento visible para el usuario final.
+2. Alcance y Delimitación del Proyecto
+Definir el alcance con precisión es un requisito de diseño, no un detalle secundario: un sistema que promete generalidad sin poder sustentarla (por ejemplo, funcionar para cualquier país sin datos ni lógica que lo respalden) termina siendo menos confiable que uno que declara honestamente sus límites. Por eso esta sección fija explícitamente qué cubre el sistema y qué no.
+2.1. Alcance geográfico y de mercado
+El sistema opera sobre el mercado financiero peruano. Todas las categorías de inversión, tasas de referencia y terminología utilizadas corresponden a instrumentos y datos disponibles en el Perú (fondos mutuos reportados por la Asociación de Fondos Mutuos del Perú - AAFMP, bonos soberanos y depósitos del sistema bancario peruano). Esta decisión se tomó deliberadamente en lugar de intentar generalizar a múltiples países en esta entrega, por dos razones:
+• Generalizar el mercado sin datos reales por país produciría recomendaciones genéricas o inventadas, lo cual es peor que acotar el alcance.
+• El foco de evaluación del curso son los módulos de IA (heurística, incertidumbre, lógica difusa e IA generativa) y su integración, no la cobertura geográfica del dominio de aplicación.
+La extensión a otros mercados (por ejemplo, agregando un parámetro de país y una tabla o API de instrumentos financieros locales) queda documentada como trabajo futuro en la sección 10.
+2.2. Categorías de inversión: representativas, no productos específicos
+Un error conceptual detectado y corregido durante el diseño: el documento de referencia inicial del equipo mezclaba un instrumento específico y real (el Bono Soberano Peruano, BTP) con categorías genéricas sin producto definido ("Fondo Mutuo de Acciones", que en realidad agrupa decenas de fondos distintos, cada uno con su propio retorno y riesgo real). Para eliminar esa ambigüedad, el sistema trata las cinco clases de inversión como categorías representativas de clase de activo, no como productos financieros específicos y comprables. Cada categoría usa como referencia numérica el promedio histórico reportado para ese tipo de instrumento en el mercado peruano (ver Anexo A), y esto se comunica explícitamente al usuario dentro de la propia respuesta del sistema, para no sugerir una precisión que los datos no tienen.
+2.3. Fuera de alcance (explícitamente)
+• Recomendaciones sobre productos financieros específicos de una entidad (un fondo mutuo de un banco en particular, por ejemplo).
+• Ejecución real de órdenes de inversión o conexión a cuentas bancarias/de corretaje.
+• Datos de mercado en tiempo real (se usan datos históricos de referencia, actualizables manualmente o mediante el módulo bayesiano).
+• Soporte multi-idioma o multi-moneda (la interfaz y los cálculos se manejan en soles, S/).
+• Obtención automática de los factores de contexto: el panorama político, la estabilidad macroeconómica y las tendencias se manejan como parámetros configurables desde un panel (por defecto neutrales), no se extraen de noticias ni de fuentes en tiempo real.
+3. Descripción General de Funcionalidades
+Desde la perspectiva del usuario final, el sistema ofrece las siguientes funcionalidades:
+• Ingreso de la situación financiera del usuario en lenguaje natural (texto libre), sin formularios rígidos ni términos técnicos obligatorios.
+• Detección automática de información faltante o ambigua, con preguntas de aclaración dirigidas al usuario antes de calcular una recomendación (ver sección 4.2).
+• Interpretación difusa del horizonte temporal: el sistema maneja transiciones graduales entre corto, mediano y largo plazo, en lugar de umbrales rígidos, y entiende expresiones imprecisas (ver sección 4.5).
+• Estimación difusa de la capacidad de absorción de pérdidas del usuario, a partir de qué parte de sus ahorros compromete y de cuánto fondo de emergencia tiene (ver sección 4.5).
+• Cálculo automático de un portafolio recomendado (distribución porcentual entre las 5 categorías de inversión) mediante algoritmo genético.
+• Estimación de retorno y riesgo de cada categoría de inversión mediante razonamiento bayesiano sobre datos históricos.
+• Ajuste contextual del portafolio mediante reglas ambientales (panorama político, estabilidad macroeconómica, tendencia y precedente de cada categoría), configurables desde un panel y neutrales por defecto (ver sección 4.6).
+• Explicación del resultado en lenguaje simple, sin jerga financiera sin traducir, con ejemplos numéricos concretos en soles, escenarios de riesgo y una mención de cómo influyeron el horizonte, la capacidad de absorción y el contexto (ver sección 6).
+• Visualización gráfica del portafolio recomendado y de la evolución del algoritmo genético (convergencia por generación).
+• Aviso permanente y visible de que se trata de una herramienta educativa/académica, no de asesoría financiera real.
+4. Arquitectura de Software Inteligente
+4.1. Visión general y flujo de datos
+La arquitectura conecta los módulos mediante un flujo de datos coordinado. El módulo bayesiano es independiente del usuario (puede ejecutarse antes, después o en paralelo a la interacción, porque solo usa datos de mercado). El módulo difuso depende únicamente del perfil del usuario. El módulo de reglas de contexto depende de las estimaciones bayesianas y de los factores configurados. El algoritmo genético, en cambio, requiere que todos los anteriores estén disponibles antes de ejecutarse, porque combina sus salidas en la función de aptitud. La IA generativa participa dos veces: al inicio, para interpretar al usuario, y al final, para explicar el resultado; en el tramo intermedio no interviene.
+EtapaDescripción1El usuario describe su situación en texto libre (ej. "Tengo 30 años, quiero invertir S/ 5000 de mis S/ 20000 de ahorro, no me gusta arriesgar mucho y no los necesitaré por unos 3 años").2La IA generativa interpreta el texto y extrae datos estructurados. Si falta información crítica o es ambigua, el sistema pregunta de vuelta al usuario antes de continuar (loop de clarificación, ver 4.2).3En paralelo, el módulo bayesiano calcula (o recupera, si ya fue calculado) el retorno esperado (µ) y riesgo (s) de cada una de las 5 categorías, junto con la covarianza entre ellas y un indicador de tendencia reciente.4El módulo difuso convierte el horizonte temporal y la capacidad de absorción del usuario en dos parámetros: la aversión al riesgo efectiva (?ef) y la volatilidad máxima tolerable (smax).5El módulo de reglas de contexto combina los factores ambientales (político, macroeconómico, tendencia) con los valores por defecto de cada categoría y produce µ', s' y covarianzas ajustados.6Con ?ef, smax y las estimaciones ajustadas, el algoritmo genético evoluciona una población de portafolios candidatos hasta converger en el mejor portafolio para ese usuario en ese contexto.7La IA generativa recibe el portafolio final y redacta una explicación en lenguaje simple, con ejemplos numéricos, escenarios de riesgo y los supuestos de contexto aplicados, dirigida a un usuario sin conocimientos financieros.8La interfaz gráfica muestra el portafolio (tabla y gráfico), la explicación en lenguaje simple, el panel de factores de contexto y el detalle técnico disponible bajo un panel opcional "ver detalle técnico".
+Diagrama de flujo
+
+Figura 1. Flujo de datos del sistema (versión 1.1). En naranja, los componentes incorporados en esta versión.
+4.2. Módulo 1 - IA Generativa
+Responsabilidad: puente en lenguaje natural entre el usuario y los módulos técnicos, en ambos sentidos (entrada y salida).
+Entrada (interpretación)
+Recibe el texto libre del usuario y debe devolver datos estructurados (formato JSON) con, como mínimo:
+• monto_invertir (numérico, en soles)
+• horizonte_anios (numérico, en años) u horizonte_etiqueta (corto / mediano / largo plazo) si el usuario solo dio una expresión cualitativa; el módulo difuso acepta ambos (ver 4.5.1)
+• tolerancia_riesgo (extraída del lenguaje del usuario, traducida al parámetro numérico ?base que usa el algoritmo genético antes de la modulación difusa)
+• ahorro_total (numérico, en soles): ahorros totales del usuario, necesarios para calcular qué proporción compromete
+• cobertura_emergencia_meses (numérico): cuántos meses de gastos puede cubrir con un fondo aparte de lo que va a invertir
+Requisito formal - loop de clarificación: si el texto del usuario no permite completar alguno de estos campos con confianza razonable, el sistema NO debe asumir valores por defecto en silencio. En su lugar, debe generar una pregunta de aclaración específica (por ejemplo: "¿Por cuánto tiempo aproximadamente no necesitarías este dinero?" o "Aparte de este dinero, ¿tienes ahorros para cubrir varios meses de tus gastos?") y esperar la respuesta del usuario antes de continuar. Este comportamiento se formaliza como requisito del módulo, no como mejora opcional, porque es la principal defensa del sistema contra recomendaciones basadas en suposiciones incorrectas.
+Si el usuario declina explícitamente responder por los campos de capacidad de absorción, el sistema puede continuar con la categoría difusa "Media" para esa variable, pero debe declararlo de forma visible en la explicación final ("como no indicaste tus ahorros totales, asumimos una capacidad media para asumir pérdidas"). Así se preserva el principio de no asumir en silencio.
+Salida (explicación)
+Recibe el portafolio final calculado (los 5 pesos) junto con µ, s del portafolio, el perfil del usuario, las pertenencias difusas calculadas y los factores de contexto activos, y redacta una explicación siguiendo las reglas de la sección 6 (capa de lenguaje simple). Esta es la segunda y última intervención de la IA generativa en el flujo.
+4.3. Módulo 2 - Razonamiento bajo Incertidumbre (Bayesiano)
+Responsabilidad: estimar, para cada una de las 5 categorías de inversión, el retorno esperado (µ) y el riesgo (s), junto con la covarianza entre categorías, a partir de datos históricos del mercado peruano. Este cálculo no depende del usuario ni del portafolio que arme el algoritmo genético después; se realiza una vez por categoría y se reutiliza.
+El componente "bayesiano" del módulo consiste en permitir que estas estimaciones se actualicen cuando llega información nueva, combinando la estimación previa con el dato nuevo (en vez de mantener valores fijos indefinidamente). Para esta entrega, se implementa una actualización bayesiana simple sobre una distribución normal (media y varianza conocidas, actualizadas de forma conjugada), suficiente para demostrar el concepto sin requerir un modelo más sofisticado.
+Indicador de tendencia (nuevo en v1.1). Para alimentar las reglas de contexto (sección 4.6), el módulo entrega también, para cada categoría i, un indicador de tendencia reciente stend,i ? [-1, +1], que compara el retorno de los últimos 12 meses con el promedio histórico de la categoría:
+stend,i = clip( (r12m,i - µi) / si , -1 , +1 )
+Un valor positivo indica que la categoría viene rindiendo por encima de su promedio; uno negativo, por debajo; cero, en línea con su historia. Si no hay datos suficientes, stend,i = 0 (neutral).
+4.4. Módulo 3 - Algoritmo Heurístico (Genético)
+Responsabilidad: resolver el problema de optimización combinatoria de encontrar los pesos w1...w5 que maximizan la función de aptitud (fitness) definida en la sección 5, sujeta a que los pesos sumen 1 y sean no negativos. En la versión 1.1 la estructura del algoritmo no cambia: los nuevos aportes (lógica difusa y reglas de contexto) modifican únicamente los parámetros y los términos de la función de aptitud que el algoritmo evalúa.
+ConceptoDefinición en este proyectoGenUn número: el peso (%) asignado a una categoría de inversión.CromosomaUn portafolio completo: los 5 genes juntos, sumando 100%.PoblaciónConjunto de 50 a 100 portafolios distintos generados aleatoriamente, que compiten entre sí.GeneraciónUna vuelta completa del ciclo evaluar ? seleccionar ? cruzar ? mutar. Se repite un número fijo de veces (100 por defecto).FitnessPuntaje de calidad de un portafolio, calculado con la fórmula ampliada de la sección 5.2.
+Parámetros por defecto (ajustables empíricamente durante las pruebas):
+• Tamaño de población: 50-100 individuos.
+• Número de generaciones: 100.
+• Tasa de mutación: ~10%, con reajuste posterior para que los pesos sigan sumando 100%.
+• Selección: por torneo (se compara un subgrupo aleatorio y gana el de mayor fitness).
+• Cruce: promedio ponderado de dos portafolios "ganadores", con normalización posterior a 100%.
+4.5. Módulo 4 - Lógica Difusa
+Responsabilidad: modelar dos conceptos del perfil del usuario que en el lenguaje cotidiano son graduales e imprecisos -el horizonte temporal y la capacidad de absorber pérdidas- y convertirlos en parámetros numéricos que modulan la optimización.
+Por qué lógica difusa. Expresiones como "unos años", "a mediano plazo" o "no quiero perder mucho" no tienen fronteras nítidas. Si se implementaran con umbrales rígidos (por ejemplo, "menos de 3 años = corto plazo"), un usuario con 2.9 años y otro con 3.1 años recibirían recomendaciones bruscamente distintas, lo cual no refleja la realidad. Los conjuntos difusos permiten que un mismo valor pertenezca parcialmente a varias categorías a la vez, y que la recomendación cambie de forma gradual y explicable. Se utiliza inferencia de tipo Sugeno de orden cero: las reglas asignan un valor numérico fijo a cada consecuente y la salida es el promedio ponderado por el grado de activación de cada regla. Este esquema es simple de implementar (basta NumPy) y permite auditar cada paso.
+4.5.1. Aplicación 1: Horizonte temporal
+Variable de entrada: H, horizonte en años, con universo de discurso [0, 30]. Se definen tres conjuntos difusos con funciones de pertenencia trapezoidales/triangulares:
+ConjuntoFunción de pertenencia µ(H)InterpretaciónCorto1 si H = 1
+(3 - H) / 2 si 1 < H < 3
+0 si H = 3Necesita el dinero pronto; poco tiempo para recuperarse de una caída.Mediano0 si H = 2 o H = 8
+(H - 2) / 3 si 2 < H = 5
+(8 - H) / 3 si 5 < H < 8Plazo intermedio; puede tolerar cierta variabilidad.Largo0 si H = 6
+(H - 6) / 4 si 6 < H < 10
+1 si H = 10Dinero que no necesitará por muchos años; mayor margen de recuperación.
+
+Figura 2. Conjuntos difusos del horizonte temporal.
+Manejo de entradas cualitativas. Si el usuario da una cifra ("unos 3 años"), se fuzzifica directamente. Si solo da una etiqueta ("a largo plazo"), se asigna pertenencia 1 a esa etiqueta y 0 a las demás; el resto del cálculo no cambia.
+Base de reglas y salida. Cada conjunto activa una regla cuyo consecuente es un multiplicador mH de la aversión al riesgo:
+ReglaAntecedenteConsecuente (z)JustificaciónRH1H es CortomH = 1.5Poco tiempo para recuperarse: se penaliza más la volatilidad.RH2H es MedianomH = 1.0Sin modulación: se usa la aversión declarada.RH3H es LargomH = 0.7Más tiempo para absorber caídas: se tolera más volatilidad.
+mH = Sk µk(H) · zk  /  Sk µk(H)          ?ef = ?base · mH
+Ejemplo. Para H = 2.5 años: µCorto = (3 - 2.5)/2 = 0.25; µMediano = (2.5 - 2)/3 ˜ 0.167; µLargo = 0. Entonces mH = (0.25 · 1.5 + 0.167 · 1.0) / (0.25 + 0.167) ˜ 1.30. Un usuario con ?base = 2 (conservador) pasa a ?ef = 2.6: al ser un plazo corto-mediano, el sistema se vuelve más cauteloso que lo que el usuario declaró.
+4.5.2. Aplicación 2: Capacidad de absorción
+Definición. La capacidad de absorción es la habilidad del usuario para soportar una pérdida temporal del capital invertido sin afectar sus necesidades básicas ni verse forzado a vender en mal momento. Es distinta de la tolerancia al riesgo (una preferencia subjetiva): una persona puede tener disposición a arriesgar pero poca capacidad real de absorber una pérdida, y viceversa.
+Variables de entrada (calculadas a partir de los campos extraídos en 4.2):
+• r = monto_invertir / ahorro_total, con r ? [0, 1]: la proporción de los ahorros que el usuario compromete.
+• E = cobertura_emergencia_meses, con E ? [0, 12] (se satura en 12): meses de gastos cubiertos por un fondo aparte.
+VariableConjuntoFunción de pertenenciarBajo1 si r = 0.2
+(0.4 - r) / 0.2 si 0.2 < r < 0.4
+0 si r = 0.4rMedio0 si r = 0.2 o r = 0.8
+(r - 0.2) / 0.3 si 0.2 < r = 0.5
+(0.8 - r) / 0.3 si 0.5 < r < 0.8rAlto0 si r = 0.6
+(r - 0.6) / 0.3 si 0.6 < r < 0.9
+1 si r = 0.9EInsuficiente1 si E = 1
+(4 - E) / 3 si 1 < E < 4
+0 si E = 4EAdecuada0 si E = 2
+(E - 2) / 4 si 2 < E < 6
+1 si E = 6
+
+Figura 3. Conjuntos difusos de las dos variables de entrada de la capacidad de absorción.
+Base de reglas. El operador Y se implementa con el mínimo. La salida es la capacidad de absorción CA ? [0, 1], con tres valores de consecuente: Baja = 0.20, Media = 0.50, Alta = 0.85.
+ReglaSi r es...y E es...entonces CA es...RA1BajoInsuficienteMedia (0.50)RA2BajoAdecuadaAlta (0.85)RA3MedioInsuficienteBaja (0.20)RA4MedioAdecuadaMedia (0.50)RA5AltoInsuficienteBaja (0.20)RA6AltoAdecuadaMedia (0.50)
+CA = Sk wk · zk  /  Sk wk          smax = spiso + a · CA
+donde wk es el grado de activación de la regla k (mínimo de sus dos pertenencias), spiso = 3% y a = 13% son parámetros iniciales (Anexo C). La CA se traduce así en una volatilidad máxima tolerable smax, que entra en la función de aptitud como una penalización (sección 5.2).
+Ejemplo. Un usuario invierte S/ 5,000 de S/ 20,000 de ahorro (r = 0.25) y tiene un fondo de emergencia de 3 meses (E = 3). Pertenencias: r ? Bajo = 0.75, Medio = 0.167, Alto = 0; E ? Insuficiente = 0.333, Adecuada = 0.25. Activaciones: RA1 = min(0.75, 0.333) = 0.333; RA2 = min(0.75, 0.25) = 0.25; RA3 = min(0.167, 0.333) = 0.167; RA4 = min(0.167, 0.25) = 0.167; RA5 y RA6 = 0. Entonces CA = (0.333·0.5 + 0.25·0.85 + 0.167·0.2 + 0.167·0.5) / 0.917 ˜ 0.54 y smax = 3% + 13% · 0.54 ˜ 10.0%.
+Nota de diseño. La penalización por smax solo se activa cuando ?ef por sí solo no alcanza para contener la volatilidad del portafolio, lo cual ocurre sobre todo en perfiles con ? bajo. En perfiles muy conservadores el efecto de la capacidad de absorción será pequeño. Este comportamiento debe verificarse en las pruebas de ablación (sección 9.2).
+4.6. Módulo 5 - Reglas de Contexto (factores ambientales)
+Responsabilidad: incorporar, dentro de la función de aptitud, factores del entorno que los promedios históricos no capturan por sí solos. Los factores no reemplazan a los datos históricos: los ajustan de forma acotada, transparente y neutral por defecto.
+4.6.1. Factores considerados
+FactorSímboloAlcanceRango y valor por defectoOrigen del valorPrecedente estructural de la categoríabiPor categoríaAjuste fijo en puntos porcentuales; valor por defecto propio de cada categoría (Anexo C)Tabla de parámetrosPanorama políticospolGlobal[-1, +1]; por defecto 0 (neutral)Panel configurableEstabilidad macroeconómica (inflación, tasas)smacGlobal[-1, +1]; por defecto 0 (neutral)Panel configurableTendencia reciente de la categoríastend,iPor categoría[-1, +1]; por defecto 0 (neutral)Módulo bayesiano (4.3)
+Para los factores globales, -1 significa condiciones adversas, 0 neutrales y +1 favorables. En la interfaz se muestran como un selector de tres posiciones (Adverso / Neutral / Favorable) con ajuste intermedio opcional, siempre visible y en Neutral al iniciar. El conjunto de factores es extensible: agregar uno nuevo solo requiere una columna de sensibilidades en el Anexo C.
+4.6.2. Reglas
+ReglaCondiciónEfecto sobre la función de aptitudRC1Un factor global no fue informadoSe asume s = 0 (neutral): no genera ningún ajuste.RC2SiempreCada categoría suma su valor por defecto bi (precedente estructural) al ajuste de retorno ci.RC3spol < 0 (panorama político adverso)El retorno esperado de cada categoría baja en ßpol,i·|spol| y su riesgo sube en un factor ?pol,i·|spol|; el efecto es mayor en renta variable.RC4spol > 0 (panorama político favorable)El retorno sube en ßpol,i·spol; el riesgo no se reduce (asimetría prudente).RC5smac ? 0 (estabilidad macroeconómica)Si es adverso, baja el retorno en ßmac,i·|smac| y sube el riesgo en ?mac,i·|smac|; si es favorable, solo sube el retorno en ßmac,i·smac.RC6stend,i ? 0 (tendencia de la categoría)El retorno de esa categoría se ajusta en ßtend·stend,i: sube si viene rindiendo sobre su promedio y baja si rinde por debajo.RC7|ci| supera cmaxEl ajuste se recorta a ±cmax (tope de influencia), para que el contexto nunca domine a los datos históricos.
+4.6.3. Fórmulas
+Todos los valores se expresan en decimales (12.2% = 0.122). El apóstrofo (') indica un valor ajustado por el contexto.
+ci = clip( bi + ßpol,i·spol + ßmac,i·smac + ßtend·stend,i , -cmax , +cmax )          µ'i = µi + ci
+s'i = si · ( 1 + ?pol,i·max(0, -spol) + ?mac,i·max(0, -smac) )
+S'ij = ?ij · s'i · s'j          con ?ij = sij / (si · sj)
+La asimetría entre µ' y s' es deliberada: un contexto favorable mejora el retorno esperado pero no reduce el riesgo; uno adverso hace ambas cosas. Es una decisión de prudencia consistente con el objetivo educativo del sistema. Al preservar las correlaciones ?ij, el ajuste no altera cómo se mueven las categorías entre sí, solo su nivel de variabilidad.
+4.6.4. Ejemplo: panorama político adverso
+Con spol = -1, smac = 0 y todas las tendencias en 0, y usando los parámetros iniciales del Anexo C con s de referencia en el punto medio de los rangos del Anexo A:
+Categoríaµ baseciµ's bases'Fondos de acciones12.2%-2.5 pp9.7%19.0%28.5%Fondos mixtos6.1%-1.2 pp4.9%9.0%11.3%Fondos de deuda2.4%-0.5 pp1.9%2.5%2.8%Bonos soberanos (BTP)6.5%-0.8 pp5.7%3.5%4.2%Depósito a plazo fijo4.5%-0.3 pp4.2%0.5%0.5%
+Como efecto esperado, el algoritmo genético tenderá a desplazar peso desde la renta variable hacia instrumentos de menor sensibilidad política. Este efecto se verificará en las pruebas (sección 9.2).
+Advertencia de rigor. Los valores del Anexo C (bi, ß, ?, cmax) son parámetros iniciales de trabajo, definidos con criterio de diseño y no estimados estadísticamente. Antes de la entrega final deben calibrarse o justificarse con fuentes (por ejemplo BCRP, SMV, AAFMP) y documentarse. La interfaz y la explicación deben presentar el contexto como un supuesto configurable, nunca como una predicción.
+4.7. Integración y contratos de datos entre módulos
+Para que la implementación en código (incluyendo generación asistida por IA) sea directa y sin ambigüedad, se define aquí el contrato de datos entre módulos. Cada módulo se implementa como una función o servicio independiente que recibe y devuelve exactamente estas estructuras.
+InterfazEntradaSalidaIA Generativa ? interpretacióntexto_usuario: string{ monto_invertir, horizonte_anios | horizonte_etiqueta, lambda_base, ahorro_total, cobertura_emergencia_meses, completo: bool, pregunta_aclaracion?: string }Módulo Bayesianohistorial_precios[activo], (opcional) nueva_observacion{ activo, mu, sigma, s_tend }[5], matriz_covarianza[5x5]Módulo Difusohorizonte_anios | horizonte_etiqueta, monto_invertir, ahorro_total, cobertura_emergencia_meses, lambda_base{ pertenencias: { horizonte, r, E }, m_H, CA, sigma_max, lambda_ef }Reglas de Contextomu[5], sigma[5], covarianza[5x5], s_tend[5], s_pol, s_mac, tabla_parametros{ c[5], mu_aj[5], sigma_aj[5], covarianza_aj[5x5] }Algoritmo Genéticolambda_ef, sigma_max, phi, mu_aj[5], sigma_aj[5], covarianza_aj[5x5]{ pesos[5], fitness, E_portafolio, C_contexto, sigma_portafolio, historial_convergencia }IA Generativa ? explicaciónresultado del algoritmo genético + perfil del usuario + pertenencias difusas + factores de contexto activostexto_explicacion: string (lenguaje simple, según reglas de la sección 6)
+Interruptores de módulo. Para permitir la comparación en las pruebas, el módulo difuso y el módulo de contexto pueden desactivarse de forma independiente. Con el módulo difuso desactivado, mH = 1 y smax = 8 (sin penalización). Con el de contexto desactivado, ci = 0 y s' = s. Con ambos desactivados, la función de aptitud coincide con el modelo base de la sección 5.1.
+5. Modelo Matemático Formal
+5.1. Modelo base
+Variables de decisión: w1, w2, w3, w4, w5 (peso asignado a cada una de las 5 categorías de inversión).
+Fitness(P) = E(P) - ? · s(P)
+• E(P) = Si ( wi × µi ): retorno esperado del portafolio, suma ponderada de los retornos individuales.
+• s(P) = v( Si Sj wi · wj · sij ): riesgo del portafolio, considerando la covarianza sij entre categorías (sii = si2).
+• ?: aversión al riesgo del usuario; sube si es conservador, baja si es agresivo. Proviene de la interpretación de la IA generativa.
+Restricciones:
+• w1 + w2 + w3 + w4 + w5 = 1 (el 100% del capital debe quedar distribuido).
+• wi = 0 para todo i (no se permiten posiciones negativas / apalancamiento).
+Ejemplo ilustrativo: un portafolio con E(P) = 6% y s(P) = 10% produce un fitness de 6 - 2 × 10 = -14 para un usuario conservador (? = 2) pero de 6 - 0.2 × 10 = 4 para un usuario agresivo (? = 0.2). Este contraste es precisamente lo que permite que el mismo algoritmo, sobre las mismas 5 categorías, recomiende portafolios distintos según el perfil de cada usuario.
+5.2. Modelo ampliado (versión 1.1)
+El modelo ampliado conserva la estructura E - ?s, pero cada término se calcula con las salidas de los módulos difuso y de contexto, y se añade una penalización por exceder la volatilidad tolerable del usuario:
+Fitness'(P) = Si wi · µ'i  -  ?ef · s'(P)  -  f · max(0, s'(P) - smax)2
+• µ'i = µi + ci: retorno esperado ajustado por el contexto (sección 4.6.3). Equivale a E(P) + C(P), con C(P) = S wi·ci el término contextual.
+• s'(P) = v( Si Sj wi · wj · S'ij ): riesgo del portafolio con la covarianza ajustada.
+• ?ef = ?base · mH(H): aversión al riesgo efectiva, modulada por el horizonte temporal (sección 4.5.1).
+• smax = spiso + a · CA: volatilidad máxima tolerable según la capacidad de absorción (sección 4.5.2).
+• f: coeficiente de penalización (valor inicial 50, a calibrar). La penalización es cuadrática y solo actúa cuando s'(P) > smax, por lo que es suave cerca del límite y firme lejos de él.
+Las restricciones del modelo base (suma de pesos igual a 1 y no negatividad) se mantienen como restricciones duras; la capacidad de absorción entra como restricción blanda mediante la penalización. Todas las magnitudes (µ, s, c, smax) se expresan en decimales, porque el término cuadrático depende de las unidades.
+6. Capa de Explicación en Lenguaje Simple (Diseño UX)
+Esta sección formaliza un punto que en la primera versión de referencia del proyecto quedaba implícito ("la IA explica el resultado en lenguaje simple") y que se identificó como crítico para que el sistema sea realmente utilizable por la población objetivo: ciudadanos sin conocimientos financieros. No es un módulo nuevo; es una especificación más exigente de la segunda intervención de la IA generativa (sección 4.2).
+Reglas obligatorias que debe seguir el prompt/plantilla de explicación:
+• Ningún término técnico aparece sin traducción inmediata en la misma oración. Ejemplo: "renta fija, es decir, inversiones más predecibles y de menor riesgo, como los bonos", en lugar de solo "renta fija".
+• Todo resultado numérico se acompaña de un ejemplo concreto en soles, no solo en porcentajes. Ejemplo: "de tus S/ 5,000, esto significa poner aproximadamente S/ 1,250 en...".
+• El riesgo se explica con un escenario, no con la palabra "riesgo" aislada. Ejemplo: "en un año malo, este portafolio podría llegar a bajar hasta un X%, es decir, unos S/ Y menos de lo invertido".
+• Se evita literalmente el nombre de categorías ambiguas sin aclaración (ver sección 2.2): en vez de solo "Fondo Mutuo de Acciones", se dice "fondos de acciones (inversiones en empresas, con mayor potencial de ganancia pero también mayor variabilidad)".
+• Nuevo: se explica en una o dos frases cómo influyeron el horizonte y la capacidad de absorción, sin nombrar la técnica. Ejemplo: "como piensas necesitar este dinero en unos 3 años, el sistema fue algo más cauteloso de lo que pediste"; o "como esta inversión es una parte pequeña de tus ahorros y tienes un fondo de emergencia, el sistema aceptó un poco más de variabilidad".
+• Nuevo: se declaran siempre los supuestos de contexto activos, en lenguaje simple ("se asumió un panorama político neutral; si este cambia, la recomendación podría cambiar"), y se presentan como supuestos ajustables, nunca como predicciones. Si se aplicó un valor por defecto porque el usuario no quiso responder algún dato, también se declara.
+• La respuesta cierra siempre con el recordatorio de que es una herramienta educativa, no asesoría financiera real.
+Adicionalmente, la interfaz gráfica ofrece un panel opcional "ver detalle técnico", colapsado por defecto, donde se muestran los valores exactos de µ, s, ?base, ?ef, las pertenencias difusas, CA, smax, los factores de contexto y los ajustes ci, y la descomposición del fitness (retorno histórico, término contextual, riesgo y penalización), para usuarios que sí quieran profundizar (por ejemplo, el propio docente evaluador). Esto evita elegir entre "simplificar para todos" o "ser preciso para todos": ambos públicos quedan cubiertos.
+7. Población Objetivo y Casos de Uso
+La población objetivo principal son ciudadanos comunes en el Perú, sin conocimientos financieros previos ni acceso a un asesor de inversiones, que buscan una orientación básica sobre cómo distribuir sus ahorros. Adicionalmente, el sistema es relevante para:
+• Estudiantes de finanzas o de este mismo curso, como herramienta didáctica para visualizar cómo interactúan optimización, incertidumbre, lógica difusa e IA generativa en un problema real.
+• Pequeñas empresas o profesionales independientes que gestionan un fondo de ahorro propio y quieren una primera referencia antes de consultar a un asesor certificado.
+• Instituciones educativas, como caso de estudio de integración de múltiples técnicas de IA en una aplicación con fines pedagógicos.
+No está dirigido a inversionistas institucionales, gestores de fondos profesionales, ni a ningún uso que requiera cumplimiento regulatorio financiero, dado el carácter académico del proyecto declarado en la sección 2.
+8. Ventajas frente a Otros Softwares Existentes
+Software existenteLimitación frente a este proyectoCalculadoras de perfil de riesgo (cuestionarios estáticos)Usan formularios rígidos de opción múltiple; no interpretan lenguaje natural ni piden aclaraciones cuando la información es ambigua.Robo-advisors comerciales (Perú y otros mercados)Optimizan portafolios pero no explican el razonamiento en lenguaje accesible; asumen que el usuario ya entiende términos financieros.Simuladores de portafolio académicosSuelen implementar solo el algoritmo de optimización (heurística), sin un componente de incertidumbre actualizable ni una capa conversacional.Chatbots financieros genéricos basados solo en LLMGeneran texto plausible pero no ejecutan una optimización matemática real ni un modelo probabilístico explícito detrás de la recomendación.Perfilamiento con umbrales rígidos y sin contextoAplican reglas del tipo "si el plazo es menor a 3 años, perfil conservador", que producen saltos bruscos en los bordes y no consideran el entorno; este proyecto usa transiciones graduales (lógica difusa) y ajustes contextuales acotados y visibles.
+La ventaja central del sistema es la integración coordinada de los enfoques: un cálculo matemáticamente fundamentado (heurística + incertidumbre), sensible al perfil real del usuario (lógica difusa) y al entorno (reglas de contexto), presentado a través de una interfaz verdaderamente comprensible para alguien sin formación financiera (IA generativa diseñada explícitamente para ese público), con transparencia explícita sobre sus límites de alcance.
+9. Estado Actual del Proyecto (Avance 30% - Semana 5)
+9.1. Completado
+• Definición del problema, alcance y población objetivo (secciones 1, 2 y 7 de este documento).
+• Diseño de gen, cromosoma y población del algoritmo genético, con datos de referencia de 5 categorías del mercado peruano.
+• Función de fitness definida matemáticamente y validada con ejemplos numéricos (sección 5).
+• Prototipo funcional del algoritmo genético (notebook de Google Colab), probado con 3 perfiles de riesgo distintos (conservador, moderado, agresivo), con resultados coherentes.
+• Contratos de datos entre los módulos especificados (sección 4.7), listos para servir de base a la implementación de código.
+• Diseño formal de la capa de explicación en lenguaje simple y del requisito de clarificación ante ambigüedad (secciones 4.2 y 6).
+• Nuevo: diseño formal del módulo de lógica difusa, con dos aplicaciones (horizonte temporal y capacidad de absorción), funciones de pertenencia, bases de reglas y ejemplos numéricos (sección 4.5).
+• Nuevo: diseño formal de las reglas de contexto, con factores, fórmulas, tope de influencia y parámetros iniciales (sección 4.6 y Anexo C), y de la función de aptitud ampliada (sección 5.2).
+9.2. Pendiente
+• Conexión a una API real de IA generativa (evaluar OpenAI, Anthropic u otra; definir criterio de selección).
+• Implementación del módulo bayesiano con datos históricos reales y la actualización bayesiana simple descrita en 4.3 (actualmente µ y s son valores de referencia fijos), incluido el indicador de tendencia stend,i.
+• Implementación del módulo difuso (funciones de pertenencia, reglas Sugeno de orden cero y cálculo de ?ef y smax) e incorporación de sus salidas a la función de aptitud del prototipo de Colab.
+• Implementación del módulo de reglas de contexto y del término de ajuste en la función de aptitud; calibración y justificación con fuentes de los parámetros iniciales del Anexo C.
+• Diseño e implementación de la interfaz gráfica que integre los módulos según el flujo de la sección 4.1, incluido el panel de factores de contexto.
+• Implementación del loop de clarificación como parte del prompt/lógica de la IA generativa, incluidos los campos de ahorro total y cobertura de emergencia.
+• Pruebas de ablación con cuatro configuraciones (modelo base; solo difuso; solo contexto; modelo completo) sobre los tres perfiles de riesgo, para mostrar el efecto de cada aporte.
+• Redacción de los manuales de instalación y de usuario.
+• Pruebas de integración de punta a punta (texto del usuario ? recomendación final explicada).
+10. Plan de Trabajo Restante
+SemanaMetaEntregable asociado6Avance 60%Integración de los módulos (incluidos el difuso y el de contexto) con datos reales; primera versión funcional de la interfaz gráfica con panel de factores de contexto; loop de clarificación operativo; primeras pruebas de ablación.7Entrega final y exposiciónManual de instalación, manual de usuario, código fuente completo, informe técnico final (con resultados de las pruebas de ablación y calibración de parámetros) y exposición del equipo.
+Trabajo futuro (fuera del alcance de esta entrega): extensión multi-país mediante un parámetro de mercado y una tabla o API de instrumentos financieros locales por país; actualización bayesiana con datos de mercado en tiempo real; obtención automática de los factores de contexto desde fuentes de datos; funciones de pertenencia calibradas con datos de usuarios; recomendación de productos específicos por entidad financiera.
+11. Glosario
+TérminoDefiniciónRenta fijaInversiones cuyo pago futuro está mayormente predefinido (bonos, depósitos), con menor variabilidad de resultado.Renta variableInversiones cuyo valor depende del desempeño de empresas o mercados (acciones), con mayor potencial de ganancia y de pérdida.Retorno esperado (µ)Promedio histórico de cuánto sube o baja el valor de una inversión en un periodo (típicamente un año).Riesgo (s)Qué tan variable ha sido históricamente el valor de una inversión; a mayor s, menos predecible el resultado.CovarianzaMedida de qué tanto se mueven juntos (o en direcciones opuestas) los valores de dos inversiones distintas.PortafolioCombinación de inversiones en distintas categorías, expresada como el porcentaje del dinero total puesto en cada una.Algoritmo genéticoMétodo de búsqueda inspirado en la evolución biológica: genera muchas soluciones candidatas y las mejora por selección, cruce y mutación a lo largo de varias generaciones.Inferencia bayesianaMétodo estadístico que actualiza una estimación previa cuando llega nueva información, combinando ambas de forma ponderada.Lógica difusaEnfoque que permite que un valor pertenezca parcialmente a varias categorías a la vez (por ejemplo, 2.5 años es en parte "corto" y en parte "mediano"), en lugar de obligar a elegir una sola.Función de pertenenciaCurva que indica en qué grado (entre 0 y 1) un valor pertenece a un conjunto difuso.Inferencia Sugeno de orden ceroEsquema de inferencia difusa en el que cada regla produce un valor numérico fijo y la salida es el promedio de esos valores ponderado por el grado de activación de las reglas.Horizonte temporal (H)Tiempo durante el cual el usuario no necesitará el dinero invertido.Capacidad de absorción (CA)Capacidad del usuario para soportar una pérdida temporal de lo invertido sin afectar sus necesidades básicas; se estima a partir de la proporción de ahorro comprometida y de su fondo de emergencia.? efectivo (?ef)Aversión al riesgo declarada por el usuario, modulada por su horizonte temporal.Factor de contextoCondición del entorno (panorama político, estabilidad macroeconómica, tendencia de una categoría) que ajusta de forma acotada el retorno y el riesgo esperados.Penalización por volatilidadTérmino que resta puntaje a los portafolios cuyo riesgo supera la volatilidad máxima tolerable del usuario.
+Anexo A - Tabla de Categorías de Inversión de Referencia
+Valores de referencia utilizados como datos iniciales del módulo bayesiano (sección 4.3), correspondientes a promedios históricos reportados por la Asociación de Fondos Mutuos del Perú (AAFMP) y tasas referenciales de bonos soberanos y depósitos del sistema bancario peruano. Se presentan como categorías representativas, no como productos específicos (ver sección 2.2).
+Categoría (representativa)TipoRetorno esperado µ (anual)Riesgo s (anual, aprox.)Fondos de accionesRenta variable12.2%Alto (~18-20%)Fondos mixtosRenta variable + fija6.1%Medio (~8-10%)Fondos de deudaRenta fija2.4%Bajo (~2-3%)Bonos soberanos (BTP)Renta fija gubernamental6.5%Bajo (~3-4%)Depósito a plazo fijoAhorro bancario4.5%Muy bajo (~0.5%)
+Ejemplo de cromosoma (portafolio): [0.25, 0.15, 0.20, 0.25, 0.15] equivale a 25% en fondos de acciones, 15% en fondos mixtos, 20% en fondos de deuda, 25% en bonos soberanos y 15% en depósito a plazo fijo.
+Anexo B - Archivos del Proyecto
+• Informe técnico (este documento): base para el avance de la semana 5 y punto de partida del informe final.
+• Prototipo de algoritmo genético (Google Colab): Prototipo_Algoritmo_Genetico_Portafolio.ipynb - implementación funcional y probada del módulo heurístico.
+• Documento de referencia inicial del equipo: guía interna usada como insumo para este informe.
+• [Completar en semana 6-7]: código fuente integrado, manual de instalación, manual de usuario.
+Anexo C - Parámetros del Módulo Difuso y de las Reglas de Contexto
+Todos los valores son parámetros iniciales de trabajo, definidos con criterio de diseño y sujetos a calibración y justificación con fuentes antes de la entrega final (ver advertencia en la sección 4.6). Los ajustes de retorno se expresan en puntos porcentuales (pp) anuales; el código debe convertirlos a decimales (1 pp = 0.01).
+C.1. Sensibilidades por categoría (reglas de contexto)
+Categoríabi (pp)ßpol,i (pp)ßmac,i (pp)?pol,i?mac,iFondos de acciones+0.53.01.00.500.20Fondos mixtos+0.31.50.80.250.10Fondos de deuda0.00.50.50.100.05Bonos soberanos (BTP)+0.21.00.50.200.10Depósito a plazo fijo-0.30.00.30.000.00
+Criterio de partida del valor por defecto: signo positivo para las categorías cuyo precedente histórico de rendimiento ha sido superior al de su referencia promedio (acciones, mixtos y bonos soberanos) y negativo para el depósito a plazo fijo, cuyo retorno real tiende a ser erosionado por la inflación. Criterio de ß y ?: mayor sensibilidad cuanto mayor es la exposición de la categoría a la renta variable. Estos criterios deben respaldarse con datos antes de la entrega final.
+C.2. Parámetros globales
+ParámetroSímboloValor inicialUsoTendencia: sensibilidadßtend1.5 ppAjuste de retorno por unidad de stend,i (igual para todas las categorías).Tope de influencia del contextocmax3.0 pp (0.03)Límite de |ci| (regla RC7).Multiplicadores de aversión (horizonte)zCorto, zMediano, zLargo1.5, 1.0, 0.7Consecuentes de RH1-RH3.Consecuentes de capacidad de absorciónzBaja, zMedia, zAlta0.20, 0.50, 0.85Consecuentes de RA1-RA6.Volatilidad mínima tolerablespiso3% (0.03)smax = spiso + a·CA.Amplitud de volatilidad tolerablea13% (0.13)smax varía entre 3% (CA = 0) y 16% (CA = 1).Coeficiente de penalizaciónf50Peso del término de penalización en Fitness'.Interruptores-Difuso: ON; Contexto: ONPermiten las pruebas de ablación (sección 4.7).
+Software Inteligente - Recomendador de Inversión / Portafolio Personal
+
+Página 1 de 2
+

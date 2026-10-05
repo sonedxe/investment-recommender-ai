@@ -1,0 +1,36 @@
+ENUNCIADO DEL TRABAJO PARCIAL  
+SOFTWARE INTELIGENTE 
+1. Objetivo y logro del curso 
+El objetivo del trabajo parcial y final es complementar la formación teórica y práctica de 
+Software Inteligente, como logro los estudiantes desarrollan un software inteligente. 
+2. Grupo de trabajo 
+Se forman grupos de 4 mínimo y 5 máximo de estudiantes para desarrollar la monografía. 
+3. Diseño de software 
+Diseñar un software inteligente utilizando principalmente: - 
+Algoritmos heurísticos y algoritmo basado en incertidumbre  - 
+IA generativa  
+Desarrollar un software inteligente con interfaz gráfica que integre tres componentes 
+principales:  
+(1) un módulo de inteligencia artificial generativa, al cual el sistema deberá conectarse 
+mediante una API, para interpretar las solicitudes del usuario, generar información de 
+entrada y explicar los resultados; 
+(2) un módulo de algoritmos heurísticos, que deberá ser diseñado e implementado para 
+resolver el problema de búsqueda, optimización, planificación o selección planteado; y  
+(3) un módulo de razonamiento bajo incertidumbre, que deberá ser programado, 
+utilizando técnicas como lógica difusa, razonamiento probabilístico o métodos bayesianos 
+para representar y procesar información imprecisa, incompleta o incierta.  
+Los tres componentes deberán integrarse en una única aplicación mediante una interfaz 
+gráfica, de manera que el usuario pueda ingresar información, solicitar una solución y 
+obtener una respuesta o recomendación generada a partir de la interacción coordinada 
+entre la IA generativa, el algoritmo heurístico y el mecanismo de razonamiento bajo 
+incertidumbre. 
+4. Entregables del trabajo parcial 
+• Manual de instalación, manual de usuario 
+• Informe técnico de desarrollo considerando: 
+o Descripción de funcionalidades de la aplicación 
+o Arquitectura de software inteligente, y su descripción detallada de cada uno 
+de los componentes  
+o Tipo de población que puede usar el software inteligente: empresas, 
+ciudadanos, instituciones, gobierno etc. 
+o Ventajas del software inteligente frente a otros softwares existentes 
+• Código fuente completo 
