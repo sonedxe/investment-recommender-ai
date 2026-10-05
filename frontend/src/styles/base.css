@@ -1,0 +1,16 @@
+/* Base styles ported from the InvestWise design system (bundle.css). Fonts are loaded in index.html. */
+
+body { margin: 0; background: var(--surface-0); color: var(--ink); }
+
+/* Base. Apply .iw-root on the app root; wrap any section that must reflow in .iw-cq (container queries). */
+.iw-root, .iw-screen { font-family: var(--font-sans); font-size: 16px; line-height: 1.5; color: var(--ink); background: var(--surface-0); font-variant-numeric: tabular-nums lining-nums; -webkit-font-smoothing: antialiased; }
+.iw-root *, .iw-screen *, .iw-root *::before, .iw-screen *::before, .iw-root *::after, .iw-screen *::after { box-sizing: border-box; }
+.iw-cq, .iw-screen { container-type: inline-size; }
+.iw-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.iw-root :focus-visible, .iw-screen :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+
+/* Type */
+.iw-h1 { font-family: var(--font-serif); font-size: 40px; line-height: 46px; font-weight: 500; margin: 0 0 var(--space-4); letter-spacing: -0.01em; text-wrap: balance; }
+.iw-h2 { font-family: var(--font-serif); font-size: 28px; line-height: 34px; font-weight: 500; margin: 0 0 var(--space-4); }
+.iw-h3 { font-size: 16px; line-height: 24px; font-weight: 600; margin: 0 0 var(--space-2); }
+.iw-lead { font-size: 18px; line-height: 28px; color: var(--ink-muted); margin: 0 0 var(--space-5); max-width: 62ch; }
