@@ -138,7 +138,7 @@ def components() -> None:
     card(s, 728, 588, 300, 256, HEU, "3 · Algoritmo heurístico", "ai/heuristic/", [
         "Algoritmo genético", "Cromosoma [w1..w5 | c]", "  5 pesos + gen difuso c",
         "Fitness = retorno + contexto", "  − λ·σ − penalización(σ_max(c))", "  + κ·μ_CA(c)",
-        "Torneo · cruce aritmético", "  mutación · elitismo", "Tope 40 % por categoría"], gap=16.5)
+        "Torneo · cruce aritmético", "  mutación · elitismo", "Cada categoría entre 5 % y 40 %"], gap=16.5)
     card(s, 1044, 588, 276, 256, CTX, "Reglas de contexto", "ai/context/", [
         "Base de reglas RC1–RC7", "Panorama político", "Estabilidad macroeconómica",
         "Precedente por categoría", "Tendencia reciente", "Ajusta μ y σ (μ', Σ')",
@@ -233,7 +233,7 @@ def flow() -> None:
     s.rect(L + 24 + 5 * 112 + 14, gy + 84, 150, 40, fill=ACCENT_SOFT, stroke=ACCENT, sw=1.8)
     s.text(L + 24 + 5 * 112 + 89, gy + 104, "c  · gen difuso", size=12.5, weight=600, color=ACCENT, anchor="middle")
     s.text(L + 24 + 5 * 112 + 89, gy + 119, "nivel de absorción", size=11, color=ACCENT, anchor="middle")
-    s.text(L + 24, gy + 146, "Σw = 1 · w ≥ 0 · w ≤ 40 %  ·  c ∈ [0, 1]", size=12, color=MUTED, family=MONO)
+    s.text(L + 24, gy + 146, "Σw = 1 · 5 % ≤ w ≤ 40 %  ·  c ∈ [0, 1]", size=12, color=MUTED, family=MONO)
     # fitness
     s.text(L + 780, gy + 72, "Función de aptitud (fitness):", size=13, color=MUTED)
     s.rect(L + 780, gy + 84, 476, 62, fill=SUNK, stroke=BORDER)

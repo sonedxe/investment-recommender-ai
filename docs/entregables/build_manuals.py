@@ -1,4 +1,7 @@
-"""Build the installation and user manuals as PDF from docs/manuales/*.md.
+"""Build the deliverable PDFs: installation and user manuals and the technical development report.
+
+Each document is built from an ordered list of Markdown sources concatenated into one body
+(the manuals have one source; the report concatenates docs/informe/00..06-*.md).
 
 Pipeline: Markdown -> HTML (python-markdown) with a print stylesheet, a cover page and a
 table of contents -> PDF with headless Chromium. The PDF is rendered twice: the first pass
@@ -62,27 +65,34 @@ COVER = {
     "year": "2026",
 }
 
+INFORME = ROOT / "docs" / "informe"
+
 MANUALS = [
     {
-        "source": ROOT / "docs" / "informe" / "01-funcionalidades.md",
-        "output": OUT / "Descripcion_de_Funcionalidades_InvestWise.pdf",
-        "title": "Descripción de Funcionalidades",
-        "footer": "Descripción de Funcionalidades — ",
-        "lead": "",
-    },
-    {
-        "source": SRC / "instalacion.md",
+        "sources": [SRC / "instalacion.md"],
         "output": OUT / "Manual_de_Instalacion_InvestWise.pdf",
         "title": "Manual de Instalación",
         "footer": "Manual de Instalación — ",
         "lead": "Instalación, configuración, ejecución y verificación del sistema en Linux, macOS y Windows.",
     },
     {
-        "source": SRC / "usuario.md",
+        "sources": [SRC / "usuario.md"],
         "output": OUT / "Manual_de_Usuario_InvestWise.pdf",
         "title": "Manual de Usuario",
         "footer": "Manual de Usuario — ",
         "lead": "Guía para obtener y entender una distribución de ejemplo, sin conocimientos financieros previos.",
+    },
+    {
+        # Chapters: '# ' headings start a page and are indexed with their '## ' sections.
+        "sources": [INFORME / name for name in (
+            "00-introduccion.md", "01-funcionalidades.md", "02-arquitectura.md", "03-poblacion.md",
+            "04-ventajas.md", "05-resultados.md", "06-anexos.md",
+        )],
+        "output": OUT / "Informe_Tecnico_de_Desarrollo_InvestWise.pdf",
+        "title": "Informe Técnico de Desarrollo",
+        "footer": "Informe Técnico de Desarrollo — ",
+        "lead": "",
+        "chapters": True,
     },
 ]
 
@@ -150,6 +160,24 @@ p:has(+ pre, + ul, + ol, + table, + .keep) { break-after: avoid; }
 .toc li.l2 { font-weight: 700; margin-top: 6pt; }
 .toc .dots { flex: 1; border-bottom: 0.8pt dotted #000; margin: 0 4pt 3pt; }
 .toc .pg { min-width: 7mm; text-align: right; font-variant-numeric: tabular-nums; }
+.toc li.c1 { font-weight: 700; margin-top: 7pt; }
+.toc li.c2 { padding-left: 7mm; font-size: 11pt; margin-bottom: 2.5pt; }
+.toc li.lf { font-size: 10.5pt; margin-bottom: 2.5pt; }
+.toc li.lf a, .toc li.c2 a { max-width: 88%; }
+
+/* Report chapters, captions and formulas */
+h1 { font-size: 18pt; line-height: 1.25; margin: 0 0 12pt; }
+h1.chapter { break-before: page; }
+caption { caption-side: top; text-align: left; font-size: 10pt; padding: 0 0 4pt; color: var(--ink); }
+caption b { font-weight: 700; }
+figure.chart img { max-width: 88%; border: none; }
+body.report p:has(+ ul, + ol, + table) { break-after: auto; }
+body.report td.num { white-space: nowrap; }
+body.report td code { overflow-wrap: normal; word-break: normal; }
+body.report table.wide { font-size: 9pt; }
+body.report table.wide th, body.report table.wide td { padding: 3pt 4pt; }
+.toc li { align-items: last baseline; }
+.toc li.lf { font-size: 10pt; margin-bottom: 1.5pt; line-height: 1.35; }
 """
 
 
@@ -184,25 +212,40 @@ def slug(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
 
-def convert(md_text: str, base: Path) -> tuple[str, str, list[tuple[int, str, str]], list[str]]:
-    """Return (title, body html, headings [(level, id, text)], figure captions)."""
-    title_match = re.match(r"#\s+(.+)\n", md_text)
-    title = title_match.group(1).strip() if title_match else ""
-    md_text = md_text[title_match.end():] if title_match else md_text
+LABEL = re.compile(r"\{#((?:fig|tab):[\w-]+)\}\s*")
+
+
+def convert(md_text: str, base: Path, chapters: bool = False) -> tuple[str, str, list, list, list]:
+    """Return (title, body html, headings [(level, id, text)], figures [(n, caption)], tables [(n, caption)]).
+
+    Manuals: the first '# ' heading is the document title and '##'/'###' are indexed.
+    Chapters mode (report): every '# ' is a chapter that starts a page; '#' and '##' are indexed.
+    Figures are numbered from the image alt text and tables from a preceding 'Tabla: caption'
+    paragraph; '{#fig:key}' / '{#tab:key}' label them, '@fig:key' / '@tab:key' cite them and
+    '{split}' in a table caption lets that table continue on the next page.
+    """
+    title = ""
+    if not chapters:
+        title_match = re.match(r"#\s+(.+)\n", md_text)
+        title = title_match.group(1).strip() if title_match else ""
+        md_text = md_text[title_match.end():] if title_match else md_text
     body = markdown.markdown(md_text, extensions=["tables", "fenced_code", "sane_lists"], output_format="html5")
 
     headings: list[tuple[int, str, str]] = []
+    indexed = "12" if chapters else "23"
 
     def heading(m: re.Match) -> str:
         level, inner = int(m.group(1)), m.group(2)
         text = html.unescape(re.sub(r"<[^>]+>", "", inner)).strip()
         hid = f"h-{len(headings)}-{slug(text)[:40]}"
         headings.append((level, hid, text))
-        return f'<h{level} id="{hid}">{inner}</h{level}>'
+        cls = ' class="chapter"' if chapters and level == 1 else ""
+        return f'<h{level} id="{hid}"{cls}>{inner}</h{level}>'
 
-    body = re.sub(r"<h([23])>(.*?)</h\1>", heading, body, flags=re.S)
+    body = re.sub(rf"<h([{indexed}])>(.*?)</h\1>", heading, body, flags=re.S)
 
-    captions: list[str] = []
+    labels: dict[str, str] = {}
+    figures: list[tuple[int, str]] = []
 
     def figure(m: re.Match) -> str:
         attrs = dict(re.findall(r'(\w+)="([^"]*)"', m.group(1)))
@@ -210,21 +253,64 @@ def convert(md_text: str, base: Path) -> tuple[str, str, list[tuple[int, str, st
         if not src.exists():
             raise FileNotFoundError(f"image not found: {src}")
         w, h = png_size(src)
-        cls = "narrow" if w < 800 else ""
-        captions.append(html.unescape(attrs.get("alt", "")))
-        n = len(captions)
-        return (f'<figure class="{cls}"><img src="{src.as_uri()}" alt="{attrs.get("alt", "")}">'
-                f'<figcaption><b>Figura {n}.</b> {attrs.get("alt", "")}</figcaption></figure>')
+        alt = attrs.get("alt", "")
+        label = LABEL.match(alt)
+        caption = LABEL.sub("", alt, count=1) if label else alt
+        n = len(figures) + 1
+        if label:
+            labels[label.group(1)] = f"Figura {n}"
+        figures.append((n, html.unescape(caption)))
+        cls = "chart" if chapters and "fig" in src.name else ("narrow" if w < 800 else "")
+        return (f'<figure class="{cls}" id="fig-{n}"><img src="{src.as_uri()}" alt="{caption}">'
+                f'<figcaption><b>Figura {n}.</b> {caption}</figcaption></figure>')
 
+    short_rows = 16 if chapters else 14
     # Short tables stay on one page (the header row alone at a page bottom reads badly).
     body = re.sub(r"<table>(.*?)</table>",
-                  lambda m: f'<table class="{"short" if m.group(1).count("<tr") <= 14 else ""}">{m.group(1)}</table>',
+                  lambda m: f'<table class="{"short" if m.group(1).count("<tr") <= short_rows else ""}">{m.group(1)}</table>',
                   body, flags=re.S)
     body = re.sub(r"<p>\s*<img ([^>]+?)\s*/?>\s*</p>", figure, body)
+
+    tables: list[tuple[int, str]] = []
+
+    def table(m: re.Match) -> str:
+        caption, cls = m.group(1).strip(), m.group(2)
+        if "{split}" in caption:  # a table allowed to continue on the next page
+            caption, cls = caption.replace("{split}", "").strip(), cls.replace("short", "").strip()
+        label = LABEL.match(caption)
+        if label:
+            caption = LABEL.sub("", caption, count=1)
+        n = len(tables) + 1
+        if label:
+            labels[label.group(1)] = f"Tabla {n}"
+        tables.append((n, html.unescape(re.sub(r"<[^>]+>", "", caption))))
+        return (f'<table class="{cls}" id="tab-{n}"><caption><b>Tabla {n}.</b> {caption}</caption>')
+
+    body = re.sub(r'<p>Tabla:\s*(.*?)</p>\s*<table class="([^"]*)">', table, body, flags=re.S)
+    if chapters:
+        # Numbers stay on one line; code in cells may break only after '/' or '_'; wide tables get a smaller font.
+        body = re.sub(r"<td>([\s\d,.%+−\-–()\[\];/pxS]+)</td>",
+                      lambda m: f'<td class="num">{m.group(1)}</td>' if re.search(r"\d", m.group(1)) else m.group(0), body)
+        body = re.sub(r"<td>(.*?)</td>", lambda m: "<td>" + re.sub(
+            r"<code>(.*?)</code>", lambda c: "<code>" + re.sub(r"([/_])", r"\1<wbr>", c.group(1)) + "</code>",
+            m.group(1)) + "</td>", body, flags=re.S)
+        body = re.sub(r'<table class="([^"]*)"( id="tab-\d+">.*?</thead>)',
+                      lambda m: f'<table class="{m.group(1)}{" wide" if m.group(2).count("<th>") >= 8 else ""}"{m.group(2)}',
+                      body, flags=re.S)
+    if re.search(r"<p>Tabla:", body):
+        raise ValueError("a 'Tabla:' caption is not followed by a table")
+
+    def cite(m: re.Match) -> str:
+        if m.group(1) not in labels:
+            raise KeyError(f"unknown reference @{m.group(1)}")
+        return labels[m.group(1)]
+
+    body = re.sub(r"@((?:fig|tab):[\w-]+)", cite, body)
+
     # Keep a short lead-in paragraph together with the code block or table it introduces.
     body = re.sub(r"(<p>(?:(?!</p>).){0,300}:</p>\s*)(<pre>.*?</pre>)",
                   r'<div class="keep">\1\2</div>', body, flags=re.S)
-    return title, body, headings, captions
+    return title, body, headings, figures, tables
 
 
 def cover_html(manual: dict) -> str:
@@ -245,13 +331,22 @@ def cover_html(manual: dict) -> str:
 </section>"""
 
 
-def toc_html(headings: list[tuple[int, str, str]], pages: dict[str, int], captions: list[str]) -> str:
-    items = []
-    for level, hid, text in headings:
-        pg = pages.get(hid, "")
-        items.append(f'<li class="l{level}"><a href="#{hid}">{html.escape(text)}</a>'
-                     f'<span class="dots"></span><span class="pg">{pg}</span></li>')
-    return f'<section class="toc"><h2>Índice</h2><ol>{"".join(items)}</ol></section>'
+def _entry(cls: str, target: str, text: str, pg) -> str:
+    return (f'<li class="{cls}"><a href="#{target}">{html.escape(text)}</a>'
+            f'<span class="dots"></span><span class="pg">{pg}</span></li>')
+
+
+def toc_html(headings: list, pages: dict, figures: list, tables: list, chapters: bool) -> str:
+    items = [_entry(f"l{level}" if not chapters else f"c{level}", hid, text, pages.get(hid, ""))
+             for level, hid, text in headings]
+    out = f'<section class="toc"><h2>Índice</h2><ol>{"".join(items)}</ol></section>'
+    if chapters and figures:
+        rows = [_entry("lf", f"fig-{n}", f"Figura {n}. {cap}", pages.get(f"fig-{n}", "")) for n, cap in figures]
+        out += f'<section class="toc"><h2>Índice de figuras</h2><ol>{"".join(rows)}</ol></section>'
+    if chapters and tables:
+        rows = [_entry("lf", f"tab-{n}", f"Tabla {n}. {cap}", pages.get(f"tab-{n}", "")) for n, cap in tables]
+        out += f'<section class="toc"><h2>Índice de tablas</h2><ol>{"".join(rows)}</ol></section>'
+    return out
 
 
 def render(html_text: str, pdf: Path, workdir: Path) -> None:
@@ -269,46 +364,65 @@ def render(html_text: str, pdf: Path, workdir: Path) -> None:
     )
 
 
-def heading_pages(pdf: Path, headings: list[tuple[int, str, str]], first_page: int) -> dict[str, int]:
-    """1-based page where each heading appears, searching forward from the previous one."""
-    norm = lambda s: re.sub(r"\s+", "", s).lower()  # noqa: E731
-    texts = [norm(p.extract_text() or "") for p in PdfReader(str(pdf)).pages]
+def _norm(text: str) -> str:
+    return re.sub(r"\s+", "", text).lower()
+
+
+def find_pages(pdf: Path, entries: list[tuple[str, str]], first_page: int) -> dict[str, int]:
+    """1-based page where each (id, text) appears, searching forward from the previous one."""
+    texts = [_norm(p.extract_text() or "") for p in PdfReader(str(pdf)).pages]
     pages, start = {}, first_page - 1
-    for _, hid, text in headings:
-        key = norm(text)
+    for key, text in entries:
+        needle = _norm(text)
         for i in range(start, len(texts)):
-            if key in texts[i]:
-                pages[hid] = i + 1
+            if needle in texts[i]:
+                pages[key] = i + 1
                 start = i
                 break
         else:
-            print(f"warning: heading not found in PDF: {text}")
+            print(f"warning: not found in PDF: {text[:60]}")
     return pages
 
 
 def build(manual: dict, fonts: str, workdir: Path) -> None:
-    title, body, headings, captions = convert(manual["source"].read_text(encoding="utf-8"), manual["source"].parent)
+    sources = manual["sources"]
+    md_text = "\n\n".join(src.read_text(encoding="utf-8") for src in sources)
+    chapters = manual.get("chapters", False)
+    title, body, headings, figures, tables = convert(md_text, sources[0].parent, chapters)
+    title = title or manual["title"]
     css = CSS.replace("__FOOTER__", manual["footer"])
+    # Headings in reading order, then figure and table captions (searched by their first words).
+    entries = [(hid, text) for _, hid, text in headings]
+    captions = [(f"fig-{n}", f"Figura {n}. {cap[:40]}") for n, cap in figures]
+    captions += [(f"tab-{n}", f"Tabla {n}. {cap[:40]}") for n, cap in tables]
 
-    def document(pages: dict[str, int], with_body: bool = True) -> str:
+    def document(pages: dict, with_body: bool = True) -> str:
         main = f"<main>{body}</main>" if with_body else ""
         return (f'<!doctype html><html lang="es"><head><meta charset="utf-8"><title>{html.escape(title)} · InvestWise</title>'
-                f"<style>{fonts}{css}</style></head><body>{cover_html(manual)}"
-                f"{toc_html(headings, pages, captions)}{main}</body></html>")
+                f"<style>{fonts}{css}</style></head><body class=\"{'report' if chapters else 'manual'}\">{cover_html(manual)}"
+                f"{toc_html(headings, pages, figures, tables, chapters)}{main}</body></html>")
 
-    placeholder = {hid: 88 for _, hid, _ in headings}
+    placeholder = {key: 88 for key, _ in entries + captions}
     front = workdir / f"front-{manual['output'].name}"
     render(document(placeholder, with_body=False), front, workdir)
     toc_pages = len(PdfReader(str(front)).pages)
+
+    def locate(pdf: Path) -> dict[str, int]:
+        pages = find_pages(pdf, entries, toc_pages + 1)
+        for key, text in captions:  # captions are ordered per kind, not with the headings
+            pages.update(find_pages(pdf, [(key, text)], toc_pages + 1))
+        return pages
+
     draft = workdir / f"draft-{manual['output'].name}"
     render(document(placeholder), draft, workdir)
-    pages = heading_pages(draft, headings, toc_pages + 1)
+    pages = locate(draft)
     render(document(pages), manual["output"], workdir)
-    final = heading_pages(manual["output"], headings, toc_pages + 1)
+    final = locate(manual["output"])
     if final != pages:
         print("warning: page numbers moved between passes; check the index")
     n = len(PdfReader(str(manual["output"])).pages)
-    print(f"{manual['output'].relative_to(ROOT)}: {n} pages, {len(headings)} index entries, {len(captions)} figures")
+    print(f"{manual['output'].relative_to(ROOT)}: {n} pages, {len(headings)} index entries, "
+          f"{len(figures)} figures, {len(tables)} tables")
 
 
 def main() -> None:
