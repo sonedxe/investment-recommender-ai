@@ -23,12 +23,14 @@ from ai.context.adjustment import ContextAdjustment, adjust
 from ai.generative.explainer import ExplanationResult, build_explanation_input, explain
 from ai.generative.port import LanguageModel
 from ai.heuristic.fitness import FitnessInputs
+from ai.heuristic.report_fitness import report_fitness
 from ai.heuristic.genetic_algorithm import GAResult, run_ga
 from ai.shared.parameters import Parameters, load_parameters
 from ai.shared.types import CATEGORY_ORDER, ContextFactors, UserProfile
 from ai.uncertainty.bayesian.market import MarketReport, build_market_estimates
 from ai.uncertainty.fuzzy.absorption import AbsorptionResult, evaluate_absorption
 from ai.uncertainty.fuzzy.horizon import HorizonResult, evaluate_horizon
+from ai.uncertainty.fuzzy.sugeno_absorption import evaluate_absorption_sugeno
 from ai.uncertainty.fuzzy.membership import membership
 
 HORIZON_CURVE_MAX_YEARS, HORIZON_CURVE_STEP = 15.0, 0.25
@@ -97,6 +99,11 @@ def _absorption_block(absorption: AbsorptionResult, c: float, enabled: bool) -> 
         "assumed": absorption.assumed,
         "ratio_memberships": dict(absorption.ratio_memberships),
         "emergency_memberships": dict(absorption.emergency_memberships),
+        # Strict report-v1.1 reference (Sugeno, section 4.5.2): filled by the
+        # caller in recommend(); None when the profile has no absorption data
+        # path (kept for schema compatibility with older responses).
+        "sugeno_ca": None,
+        "sugeno_sigma_max": None,
     }
 
 
@@ -194,6 +201,26 @@ def recommend(
         fuzzy_enabled=switches.fuzzy,
     )
     ga: GAResult = run_ga(inputs, opt, seed=seed)
+    # Strict report-v1.1 reference (sections 4.5.2 and 5.2), computed live for
+    # every recommendation: Sugeno CA and the strict fitness evaluated at the
+    # returned weights with kappa = 0. It mirrors the ablation switches so the
+    # reference stays comparable (fuzzy off -> no horizon modulation and no
+    # volatility cap, exactly like the extended engine's disabled state).
+    sugeno = evaluate_absorption_sugeno(
+        params.fuzzy.absorption, profile.amount, profile.total_savings, profile.emergency_months
+    )
+    strict_lambda = lambda_base * m_h if switches.fuzzy else lambda_base
+    strict_sigma_max = sugeno.sigma_max if switches.fuzzy else math.inf
+    strict = report_fitness(
+        ga.weights,
+        context.mu_adj,
+        context.cov_adj,
+        strict_lambda,
+        strict_sigma_max,
+        mu_base=market.mu,
+        c=context.c,
+        phi=opt.phi,
+    )
     amounts = allocate_amounts(ga.weights, profile.amount)
     names = params.categories.names
     allocation = [
@@ -256,9 +283,16 @@ def recommend(
             "m_h": m_h,
             "lambda_eff": lambda_base * m_h,
             "horizon": _horizon_block(params, horizon, switches.fuzzy),
-            "absorption": _absorption_block(absorption, ga.c, switches.fuzzy),
+            "absorption": {
+                **_absorption_block(absorption, ga.c, switches.fuzzy),
+                "sugeno_ca": sugeno.ca,
+                "sugeno_sigma_max": sugeno.sigma_max,
+            },
             "rules": _rules(params, horizon, absorption, context, switches),
-            "score": {k: _finite(v) for k, v in asdict(breakdown).items()},
+            "score": {
+                **{k: _finite(v) for k, v in asdict(breakdown).items()},
+                "strict_total": strict.total,
+            },
             "convergence": {
                 "best": ga.history_best.tolist(),
                 "mean": ga.history_mean.tolist(),

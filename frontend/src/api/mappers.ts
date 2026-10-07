@@ -201,20 +201,25 @@ function toScore(t: TechnicalOut): ScoreBreakdownProps {
     s.sigma_max == null
       ? 'Sin límite de volatilidad (difuso apagado)'
       : `σ = ${formatFraction(s.sigma, 2)} frente al límite de ${formatFraction(s.sigma_max, 2)}`
-  return {
-    total: clean(s.total),
-    rows: [
-      { label: 'Retorno esperado', note: `Σ pesos × μ ajustado = ${formatFraction(s.expected_return, 2)}`, value: clean(s.return_term) },
-      { label: 'Ajuste por contexto', note: 'Σ pesos × ajuste cᵢ', value: clean(s.context_term) },
-      { label: 'Penalización por riesgo', note: `λ efectiva × σ del portafolio, con σ = ${formatFraction(s.sigma, 2)}`, value: clean(s.risk_term) },
-      { label: 'Penalización por exceso de volatilidad', note: volatility, value: clean(s.penalty_term) },
-      {
-        label: 'Recompensa difusa',
-        note: s.membership_at_c == null ? 'Difuso apagado' : `Pertenencia μ_CA(c) = ${s.membership_at_c.toFixed(2)}`,
-        value: clean(s.fuzzy_reward),
-      },
-    ],
+  const rows: ScoreBreakdownProps['rows'] = [
+    { label: 'Retorno esperado', note: `Σ pesos × μ ajustado = ${formatFraction(s.expected_return, 2)}`, value: clean(s.return_term) },
+    { label: 'Ajuste por contexto', note: 'Σ pesos × ajuste cᵢ', value: clean(s.context_term) },
+    { label: 'Penalización por riesgo', note: `λ efectiva × σ del portafolio, con σ = ${formatFraction(s.sigma, 2)}`, value: clean(s.risk_term) },
+    { label: 'Penalización por exceso de volatilidad', note: volatility, value: clean(s.penalty_term) },
+    {
+      label: 'Recompensa difusa',
+      note: s.membership_at_c == null ? 'Difuso apagado' : `Pertenencia μ_CA(c) = ${s.membership_at_c.toFixed(2)}`,
+      value: clean(s.fuzzy_reward),
+    },
+  ]
+  if (s.strict_total != null) {
+    rows.push({
+      label: 'Referencia informe v1.1 (estricta)',
+      note: 'Fitness §5.2 sin kappa ni gen c, con CA Sugeno',
+      value: clean(s.strict_total),
+    })
   }
+  return { total: clean(s.total), rows }
 }
 
 export function toTechnical(t: TechnicalOut): TechnicalData {
@@ -242,6 +247,8 @@ export function toTechnical(t: TechnicalOut): TechnicalData {
       r: a.r,
       e: a.e,
       assumed: a.assumed,
+      sugenoCa: a.sugeno_ca ?? null,
+      sugenoSigmaMax: a.sugeno_sigma_max ?? null,
     },
     rules: toRules(t),
     score: toScore(t),

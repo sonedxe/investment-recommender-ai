@@ -275,6 +275,10 @@ export interface AbsorptionChartProps {
   e?: number | null
   /** A2: true when r and E were not informed and a medium capacity was assumed. */
   assumed?: boolean
+  /** Strict report-v1.1 reference (Sugeno CA, section 4.5.2), computed live per recommendation. */
+  sugenoCa?: number | null
+  /** Strict volatility cap from the Sugeno CA (σmax = 3 % + 13 % · CA). */
+  sugenoSigmaMax?: number | null
 }
 export interface ConvergenceChartProps {
   title?: string

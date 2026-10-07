@@ -202,6 +202,10 @@ class AbsorptionOut(BaseModel):
     assumed: bool
     ratio_memberships: dict[str, float]
     emergency_memberships: dict[str, float]
+    # Strict report-v1.1 reference (Sugeno, section 4.5.2), computed live per
+    # recommendation. None only in older stored responses.
+    sugeno_ca: float | None = None
+    sugeno_sigma_max: float | None = None
 
 
 class RuleOut(BaseModel):
@@ -224,6 +228,9 @@ class ScoreOut(BaseModel):
     sigma: float
     sigma_max: float | None
     membership_at_c: float | None
+    # Strict report-v1.1 fitness (section 5.2, no kappa) evaluated at the
+    # returned weights. None only in older stored responses.
+    strict_total: float | None = None
 
 
 class ConvergenceOut(BaseModel):

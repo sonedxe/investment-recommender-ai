@@ -42,7 +42,7 @@ const formatE = (e: number | null | undefined) => (e == null ? 'No informado' : 
  * (solid mark) and the centroid (dashed mark). A2 adds μ_CA(c) and the inputs r and E.
  */
 export function AbsorptionChart(props: AbsorptionChartProps) {
-  const { title, lead, curve, c, centroid, membershipAtC, r, e, assumed } = props
+  const { title, lead, curve, c, centroid, membershipAtC, r, e, assumed, sugenoCa, sugenoSigmaMax } = props
   const sx = scale(0, 1, M.l, CHART_WIDTH - M.r)
   const sy = scale(0, 1, CHART_HEIGHT - M.b, M.t)
   const area = curve.length
@@ -60,6 +60,12 @@ export function AbsorptionChart(props: AbsorptionChartProps) {
     ['Centroide del conjunto:', centroid.toFixed(2)],
     ['r (monto / ahorro total):', formatR(r)],
     ['E (fondo de emergencia):', formatE(e)],
+    ...(sugenoCa != null
+      ? [
+          ['CA Sugeno informe v1.1 (§4.5.2):', sugenoCa.toFixed(2)],
+          ['σmax Sugeno (3 % + 13 % · CA):', sugenoSigmaMax != null ? `${(sugenoSigmaMax * 100).toFixed(1)} %` : '—'],
+        ] satisfies ChartFact[]
+      : []),
   ]
   const table = (
     <table className="iw-table">

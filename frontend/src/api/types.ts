@@ -167,6 +167,8 @@ export interface AbsorptionOut {
   assumed: boolean
   ratio_memberships: Record<string, number>
   emergency_memberships: Record<string, number>
+  sugeno_ca?: number | null
+  sugeno_sigma_max?: number | null
 }
 
 export interface RuleOut {
@@ -189,6 +191,7 @@ export interface ScoreOut {
   sigma: number
   sigma_max: number | null
   membership_at_c: number | null
+  strict_total?: number | null
 }
 
 export interface ConvergenceOut {
